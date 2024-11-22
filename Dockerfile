@@ -40,7 +40,7 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy any other required files
-COPY next.config.js ./
+COPY next.config.mjs ./
 COPY .env ./
 
 # Expose the port the app will run on
