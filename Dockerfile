@@ -41,7 +41,6 @@ COPY --from=builder /app/node_modules ./node_modules
 
 # Copy any other required files
 COPY next.config.mjs ./
-COPY .env ./
 
 # Expose the port the app will run on
 EXPOSE 8080
