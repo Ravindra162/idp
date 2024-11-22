@@ -17,7 +17,7 @@ COPY . .
 RUN npx prisma generate
 
 # Build the Next.js app
-RUN npm run build
+RUN yarn run build
 
 # ---
 
