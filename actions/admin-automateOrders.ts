@@ -1,7 +1,7 @@
 export const fetchAutomationState = async (): Promise<boolean> => {
   try {
     const response = await fetch(
-      `${process.env.BACKEND_URL}/api/automatic-status`
+      `https://idp-panel.as.r.appspot.com/api/automatic-status`
     );
     if (!response.ok) {
       throw new Error("Failed to fetch automation state");
@@ -22,7 +22,7 @@ export const updateAutomationState = async (
   try {
     console.log(newState);
     const response = await fetch(
-      `${process.env.BACKEND_URL}/api/toggle-automatic`,
+      `https://idp-panel.as.r.appspot.com/api/toggle-automatic`,
       {
         method: "POST",
         headers: {
