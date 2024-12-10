@@ -103,6 +103,7 @@ const AdminOrderForm = ({ id, amount, userId, products }: InvoiceProps) => {
         }
 
         const data = await acceptOrder(formData);
+        window.location.reload();
 
         if (data?.success) {
           toast.success(data.success, {
