@@ -82,7 +82,7 @@ const AdminOrderForm = ({ id, amount, userId, products }: InvoiceProps) => {
             console.log(`Fetching file for quantity: ${productQuantity}`);
 
             const response = await fetch(
-              `https://idp-panel.as.r.appspot.com/api/download-leads?productname=${productName}&numofLines=${productQuantity}`
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}api/download-leads?productname=${productName}&numofLines=${productQuantity}`
             );
 
             if (!response.ok) {
