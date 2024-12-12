@@ -28,8 +28,13 @@ const FileDownload = ({
     }
   };
   return (
-    <Button variant={"ghost"}>
-      <Download className="w-5 h-5" onClick={downloadFile} />
+    <Button variant={"ghost"} onClick={downloadFile}>
+      <p className="capitalize font-bold">
+        {fileName.split(".")[0].length > 40
+          ? `${fileName.split(".")[0].slice(0, 37)}...`
+          : fileName.split(".")[0]}
+      </p>
+      <Download className="w-5 h-5 m-4" />
     </Button>
   );
 };
