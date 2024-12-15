@@ -35,8 +35,8 @@ enum OrderStatus {
 model User {
   id                String              @id @default(uuid()) @map("_id")
   email             String              @unique
-  name              String              @unique
-  number            String              @unique
+  name              String          
+  number            String              
   password          String
   totalMoney        Int                 @default(0)
   role              UserRole            @default(USER)
