@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 import { db } from "@/lib/db";
 import { RegisterSchema } from "@/schemas";
-import { getUserByEmail, getUserByNumber } from "@/data/user";
+import { getUserByEmail } from "@/data/user";
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
