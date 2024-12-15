@@ -140,9 +140,10 @@ async function uploadFilestoCloudinary(buffer: string[]) {
 export const acceptOrder = async (formData: FormData) => {
   const filesBase64 = await convertFilesToBase64(formData);
   const files = await uploadFilestoCloudinary(filesBase64);
+  const moneyId = formData.get("id")?.toString();
   try {
     await db.order.update({
-      where: { id: formData.get("id")?.toString() },
+      where: { id: moneyId },
       data: {
         status: "SUCCESS",
         files: files.map((file, index) => ({
@@ -151,6 +152,13 @@ export const acceptOrder = async (formData: FormData) => {
           fileName: formData.get(`fileName[${index}][fileName]`)?.toString(),
           fileType: formData.get(`fileType[${index}][fileType]`)?.toString(),
         })),
+      },
+    });
+
+    await db.walletFlow.update({
+      where: { moneyId: moneyId },
+      data: {
+        status: "SUCCESS",
       },
     });
   } catch (error) {

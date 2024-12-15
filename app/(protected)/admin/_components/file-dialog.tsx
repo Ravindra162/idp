@@ -30,7 +30,6 @@ const FileDialog = ({ files, status }: { files: Order[]; status: string }) => {
           {files.map((file, index) => {
             return (
               <div key={index} className="flex flex-row items-center">
-                
                 <FileDownload
                   secure_url={file.secure_url}
                   fileName={file.fileName}

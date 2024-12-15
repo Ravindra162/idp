@@ -12,6 +12,7 @@ const FileDownload = ({
 }) => {
   const downloadFile = async () => {
     try {
+      console.log("------------------start---------");
       const response = await fetch(secure_url);
       const blob = await response.blob();
 
@@ -23,6 +24,8 @@ const FileDownload = ({
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      console.log(`-----------url:-`, url);
+      console.log("------------------end---------");
     } catch (error) {
       console.error("Error downloading the file", error);
     }

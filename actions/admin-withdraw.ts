@@ -69,6 +69,7 @@ export const acceptWithdrawal = async (formData: FormData) => {
         moneyId: transactionId,
         purpose: "Withdraw Request",
         userId: userId,
+        status: "SUCCESS"
       },
     });
 
