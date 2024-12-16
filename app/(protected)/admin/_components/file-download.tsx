@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 import { Download } from "lucide-react";
+import { toast } from "sonner";
 
 const FileDownload = ({
   secure_url,
@@ -12,22 +13,39 @@ const FileDownload = ({
 }) => {
   const downloadFile = async () => {
     try {
-      console.log("------------------start---------");
       const response = await fetch(secure_url);
-      const blob = await response.blob();
 
+      // Check for fetch errors
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
+
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileName;
+      a.download = fileName; 
       document.body.appendChild(a);
+
       a.click();
       document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      console.log(`-----------url:-`, url);
-      console.log("------------------end---------");
-    } catch (error) {
+
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 1000);
+
+      toast.success("File downloaded successfully!");
+    } catch (error: any) {
       console.error("Error downloading the file", error);
+
+      if (error.message.includes("CORS")) {
+        toast.error("Download failed due to cross-origin issues.");
+      } else if (error.message.includes("HTTP Error")) {
+        toast.error("File could not be retrieved from the server.");
+      } else {
+        toast.error("An unknown error occurred. Please try again.");
+      }
     }
   };
   return (
