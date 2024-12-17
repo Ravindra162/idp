@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { AdminSidebar, SidebarItems } from "./NavBarItems";
+import { AdminSidebar, SidebarItems, SupportPolicies } from "./NavBarItems";
 import { auth } from "@/auth";
 
 const NavItems = async () => {
@@ -76,6 +76,7 @@ const NavItems = async () => {
               </span>
             </Link>
           </li>
+          <SupportPolicies />
         </>
       )}
       {session?.user.role === "ADMIN" && <AdminSidebar />}

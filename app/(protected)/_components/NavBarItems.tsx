@@ -204,7 +204,7 @@ const AdminProducts = () => {
   );
 };
 
-const SupportPolicies = () => {
+export const SupportPolicies = () => {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
