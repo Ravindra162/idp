@@ -36,6 +36,7 @@ const RegisterForm = () => {
       password: "",
       number: "",
       confirmPassword: "",
+      acceptTerms: "",
     },
   });
 
@@ -154,7 +155,7 @@ const RegisterForm = () => {
             />
             <FormField
               control={form.control}
-              name="number"
+              name="acceptTerms"
               render={({ field }) => (
                 <FormItem className="flex items-start space-x-2">
                   <FormControl>

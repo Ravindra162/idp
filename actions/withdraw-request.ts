@@ -32,6 +32,10 @@ export const RequestWithdrawal = async (formData: FormData) => {
           ? flow.status === "SUCCESS"
             ? Math.abs(flow.amount)
             : 0
+          : flow.purpose?.toLowerCase() === "admin"
+          ? flow.status === "SUCCESS"
+            ? Math.abs(flow.amount)
+            : 0
           : flow.status === "SUCCESS" || flow.status === "PENDING"
           ? -Math.abs(flow.amount)
           : 0;
@@ -81,6 +85,5 @@ export const RequestWithdrawal = async (formData: FormData) => {
   }
 
   revalidatePath("/withdrawals/record");
-
   return { success: "Withdrawal request submitted!" };
 };

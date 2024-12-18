@@ -56,6 +56,10 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
         ? flow.status === "SUCCESS"
           ? Math.abs(flow.amount)
           : 0
+        : flow.purpose?.toLowerCase() === "admin"
+        ? flow.status === "SUCCESS"
+          ? Math.abs(flow.amount)
+          : 0
         : flow.status === "SUCCESS" || flow.status === "PENDING"
         ? -Math.abs(flow.amount)
         : 0;

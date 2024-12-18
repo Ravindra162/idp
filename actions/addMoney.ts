@@ -73,6 +73,10 @@ export const AddMoney = async (formData: FormData) => {
           ? flow.status === "SUCCESS"
             ? Math.abs(flow.amount)
             : 0
+          : flow.purpose?.toLowerCase() === "admin"
+          ? flow.status === "SUCCESS"
+            ? Math.abs(flow.amount)
+            : 0
           : flow.status === "SUCCESS" || flow.status === "PENDING"
           ? -Math.abs(flow.amount)
           : 0;
@@ -123,6 +127,5 @@ export const AddMoney = async (formData: FormData) => {
   }
 
   revalidatePath("/money/record");
-
   return { success: "Money added!" };
 };
