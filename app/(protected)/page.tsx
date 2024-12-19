@@ -21,7 +21,9 @@ export default async function Home() {
         <div className="flex flex-wrap">
           {session?.user.role !== "ADMIN" && <BalanceCard />}
           {session?.user.role === "ADMIN" && <BankDetails />}
-          {session?.user.role === "ADMIN" && <AdminAutomateOrders />}
+          {session?.user.role === "ADMIN" && (
+            <AdminAutomateOrders userId={session.user.id ?? ""} />
+          )}
           {session?.user.role === "ADMIN" && <SupportLink />}
         </div>
       </div>

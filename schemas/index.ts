@@ -661,3 +661,8 @@ export const AddSupportLinkForm = z.object({
     message: "Please enter the support link",
   }),
 });
+
+export const AutomationStateSchema = z.object({
+  newState: z.boolean(),
+  userId: z.string().nonempty("User ID is required"),
+});

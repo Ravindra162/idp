@@ -6,7 +6,12 @@ import {
 } from "@/actions/admin-automateOrders";
 import { Button } from "@/components/ui/button";
 
-const AdminAutomateOrders: React.FC = () => {
+interface AdminAutomateOrdersProps {
+  userId: string; // Expect userId as a prop
+}
+const AdminAutomateOrders: React.FC<AdminAutomateOrdersProps> = ({
+  userId,
+}) => {
   const [isAutomationEnabled, setIsAutomationEnabled] = useState<
     boolean | null
   >(null); // Use `null` initially to avoid mismatch
@@ -22,11 +27,11 @@ const AdminAutomateOrders: React.FC = () => {
   }, []);
 
   const handleToggle = async () => {
-    console.log("---------------")
+    console.log("---------------");
     if (isAutomationEnabled === null) return; // Prevent toggling before state is set
 
     const newState = !isAutomationEnabled;
-    const success = await updateAutomationState(newState);
+    const success = await updateAutomationState({ newState, userId });
     console.log(success);
     if (success) {
       setIsAutomationEnabled(newState);
