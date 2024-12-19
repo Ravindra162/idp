@@ -14,7 +14,7 @@ const AdminAutomateOrders: React.FC<AdminAutomateOrdersProps> = ({
 }) => {
   const [isAutomationEnabled, setIsAutomationEnabled] = useState<
     boolean | null
-  >(null); // Use `null` initially to avoid mismatch
+  >(null); 
 
   useEffect(() => {
     const getState = async () => {
@@ -28,7 +28,7 @@ const AdminAutomateOrders: React.FC<AdminAutomateOrdersProps> = ({
 
   const handleToggle = async () => {
     console.log("---------------");
-    if (isAutomationEnabled === null) return; // Prevent toggling before state is set
+    if (isAutomationEnabled === null) return; 
 
     const newState = !isAutomationEnabled;
     const success = await updateAutomationState({ newState, userId });
