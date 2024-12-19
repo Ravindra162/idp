@@ -266,7 +266,6 @@ export const AcceptWithdrawalSchema = z.object({
 });
 
 export const RejectWithdrawalSchema = z.object({
-  id: z.string(),
   reason: z.string().min(10, { message: "Minimum of 10 characters required" }),
 });
 
