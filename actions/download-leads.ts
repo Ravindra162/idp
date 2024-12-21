@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import { google } from "googleapis";
 import { OAuth2Client } from "google-auth-library";
 import { parse } from "json2csv";
@@ -20,31 +20,33 @@ export async function downloadLeads(productName: string, numOfLines: number) {
       },
     });
 
+    console.log(product?.stock);
+
     if (!product) {
       throw new Error("Product not found");
     }
 
-    console.log("Product found : ",product)
+    console.log("Product found : ", product);
 
     if (numOfLines > product.stock) {
-      throw new Error(`Requested ${numOfLines} leads but only ${product.stock} available`);
+      throw new Error(
+        `Requested ${numOfLines} leads but only ${product.stock} available`
+      );
     }
 
     const spreadsheetId = product.sheetLink.match(
       /\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/
     )?.[1];
 
-
-    console.log("SpreadsheetId : ",spreadsheetId)
+    console.log("SpreadsheetId : ", spreadsheetId);
 
     if (!spreadsheetId) {
       throw new Error("Invalid sheet link format");
     }
 
-    
     const range = product.sheetName;
-    
-    console.log("--------------")
+
+    console.log("--------------");
 
     const auth = new google.auth.GoogleAuth({
       credentials: JSON.parse(process.env.GOOGLE_CREDENTIALS!),
@@ -55,24 +57,22 @@ export async function downloadLeads(productName: string, numOfLines: number) {
       ],
     });
 
+    const authClient = (await auth.getClient()) as OAuth2Client;
 
-    const authClient = await auth.getClient() as OAuth2Client;
-
-    const sheets = google.sheets({ 
-      version: 'v4', 
-      auth: authClient 
+    const sheets = google.sheets({
+      version: "v4",
+      auth: authClient,
     });
 
     const spreadsheetInfo = await sheets.spreadsheets.get({ spreadsheetId });
 
-    console.log(spreadsheetInfo)
+    console.log(spreadsheetInfo);
     const sheet = spreadsheetInfo.data.sheets?.find(
       (sheet) => sheet.properties?.title === range
     );
 
-    console.log("Sheet ",sheet)
+    console.log("Sheet ", sheet);
 
-   
     if (!sheet) {
       throw new Error(`Sheet with name "${range}" not found`);
     }
@@ -85,7 +85,7 @@ export async function downloadLeads(productName: string, numOfLines: number) {
     });
 
     const rows = response.data.values;
-    if (!rows || rows.length === 0) {
+    if (!rows || rows.length === 1) {
       throw new Error("No data found in the sheet");
     }
 
@@ -120,14 +120,12 @@ export async function downloadLeads(productName: string, numOfLines: number) {
     });
 
     await db.$transaction(async (tx) => {
-      await tx.product.update({
+      await db.product.update({
         where: {
           id: product.id,
         },
         data: {
-          stock: {
-            decrement: numOfLines
-          }
+          stock: rows.length - 1 - numOfLines,
         },
       });
     });
@@ -136,8 +134,7 @@ export async function downloadLeads(productName: string, numOfLines: number) {
 
     revalidatePath("/products");
 
-
-    console.log(csv)
+    console.log(csv);
     const responseHeaders = new Headers();
     responseHeaders.set("Content-Type", "text/csv");
     responseHeaders.set(
@@ -149,11 +146,11 @@ export async function downloadLeads(productName: string, numOfLines: number) {
       ok: true,
       data: csv,
       filename: `${productName}_leads.csv`,
-      contentType: "text/csv"
+      contentType: "text/csv",
     };
   } catch (error) {
     if (error instanceof Error) {
-        console.log(error);
+      console.log(error);
       throw new Error(`Failed to download leads: ${error.message}`);
     }
     throw new Error("An unknown error occurred while downloading leads");
