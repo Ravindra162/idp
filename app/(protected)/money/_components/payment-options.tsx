@@ -318,7 +318,7 @@ const MobilePaymentGateway = ({
             </div>
           )}
         </div>
-        <div className="w-full border border-border rounded-lg overflow-hidden">
+        {/* <div className="w-full border border-border rounded-lg overflow-hidden">
           <div
             className={`bg-secondary text-secondary-foreground p-4 cursor-pointer font-semibold hover:bg-secondary-foreground hover:text-secondary transition flex items-center gap-2"`}
             onClick={() =>
@@ -333,7 +333,7 @@ const MobilePaymentGateway = ({
               <EnterUpiId userId={userId} />
             </div>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -372,7 +372,7 @@ const DesktopPaymentGateway = ({
           )}
         </div>
 
-        <div className="w-full max-w-lg border border-border rounded-lg overflow-hidden mx-10">
+        {/* <div className="w-full max-w-lg border border-border rounded-lg overflow-hidden mx-10">
           <div
             className="bg-secondary text-secondary-foreground p-4 cursor-pointer font-semibold hover:bg-secondary-foreground hover:text-secondary transition flex items-center gap-2"
             onClick={() =>
@@ -383,7 +383,7 @@ const DesktopPaymentGateway = ({
             Enter UPI ID
           </div>
           {expandedSection === "upi" && <EnterUpiId userId={userId} />}
-        </div>
+        </div> */}
       </div>
     </div>
   );
