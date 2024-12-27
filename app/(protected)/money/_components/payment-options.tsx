@@ -254,7 +254,7 @@ const PaymentGateway = ({
                 </Form>
               </section>
             </div>
-            {isCheckStatusEnabled == false && (
+            {isCheckStatusEnabled  && (
               <div className="md:w-[50%]">
                 <MobilePaymentGateway
                   paymentOptions={paymentOptions}
