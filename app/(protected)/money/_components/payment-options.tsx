@@ -120,9 +120,7 @@ const PaymentGateway = ({
           toast.success(data?.success);
           window.location.reload();
         }
-        if (data?.error) {
-          toast.error(data?.error);
-        }
+        
       });
     } catch (error) {
       console.error(error);
@@ -212,6 +210,13 @@ const PaymentGateway = ({
                     className="space-y-3 my-2 md:mt-10"
                   >
                     <div className="space-y-2 p-2">
+                      {isCheckStatusEnabled && (
+                        <div className="p-3 bg-yellow-100 text-yellow-900 border-l-4 border-yellow-500 rounded-md shadow">
+                          <p className="text-sm font-semibold">
+                          Please wait 40 seconds after payment for processing and wallet credit. Thank you!
+                          </p>
+                        </div>
+                      )}
                       <FormField
                         control={form.control}
                         name="amount"
@@ -247,11 +252,12 @@ const PaymentGateway = ({
                 {expiryTime && (
                   <div className="mx-6 mb-6 mt-4 flex justify-end items-center">
                     <div className="p-3 bg-secondary text-secondary-foreground rounded-lg shadow-lg border border-primary flex items-center space-x-2">
-                    <p className="text-sm font-bold">Time Remaining:</p>
-                    <p className="text-lg font-semibold">{timeLeft}</p>
+                      <p className="text-sm font-bold">Time Remaining:</p>
+                      <p className="text-lg font-semibold">{timeLeft}</p>
                     </div>
                   </div>
                 )}
+
                 <DesktopPaymentGateway
                   dynamicQRLink={paymentLinks.dynamicQR}
                   userId={userId}
@@ -281,6 +287,13 @@ const PaymentGateway = ({
                     className="space-y-3 my-2 md:mt-10"
                   >
                     <div className="space-y-2 p-2">
+                    {isCheckStatusEnabled && (
+                        <div className="p-3 bg-yellow-100 text-yellow-900 border-l-4 border-yellow-500 rounded-md shadow">
+                          <p className="text-sm font-semibold">
+                          Please wait 40 seconds after payment for processing and wallet credit. Thank you!
+                          </p>
+                        </div>
+                      )}
                       <FormField
                         control={form.control}
                         name="amount"
