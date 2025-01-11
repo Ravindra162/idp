@@ -166,8 +166,7 @@ export const regenerateToken = async (
     expiryDate.setDate(expiryDate.getDate() + expiryDays);
 
     // Store the token in the Firestore database
-    const globalTokenDocRef = firebasedb.collection("authTokens").doc("USER"); // Adjust collection/document if necessary
-
+    const globalTokenDocRef = firebasedb.collection("authTokens").doc("USER"); 
     await globalTokenDocRef.set(
       {
         authToken: token,
