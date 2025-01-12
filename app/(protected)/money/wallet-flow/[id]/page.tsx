@@ -33,7 +33,7 @@ const WalletFlow = async ({
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const walletFlow = await db.walletFlow.findMany({
-    where: { userId: params.id },
+    where: { userId: params.id, status: "SUCCESS" },
     take: pageSize,
     skip: (currentPage - 1) * pageSize,
     orderBy: { createdAt: "desc" },
