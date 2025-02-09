@@ -12,11 +12,20 @@ enum UserRole {
   USER
   BLOCKED
   PRO
+  LEADER
+  CUSTOM_ROLE
+}
+
+enum Reason {
+  WITHDRAWAL
+  ORDER
+  ADD_MONEY
 }
 
 enum PaymentType {
   MANUAL
   PAYMENT_GATEWAY
+  CUSTOM_METHOD
 }
 
 enum MoneyStatus {
@@ -44,39 +53,60 @@ enum OrderStatus {
   FAILED
 }
 
+enum ACTYPE {
+  SAVINGS
+  CURRENT
+  CUSTOM
+}
+
 model User {
   id                String              @id @default(uuid()) @map("_id")
   email             String              @unique
   name              String
   number            String
   password          String
-  totalMoney        Int                 @default(0)
   role              UserRole            @default(USER)
   createdAt         DateTime            @default(now()) @map("created_at")
-  paymentType       PaymentType         @default(MANUAL)
   money             Money[]
   withdrawalRequest WithdrawalRequest[]
-  Order             Order[]
-  Product           Product[]
-  News              News[]
-  ProUser           ProUser[]
-  Feedback          Feedback[]
-  BankDetails       BankDetails[]
-  WalletFlow        WalletFlow[]
-  Support           Support[]
-  Settings          Settings[]
+  orders            Order[]
+  products          Product[]
+  news              News[]
+  proUser           ProUser?
+  feedback          Feedback[]
+  // bankDetails       BankDetails[]
+  walletFlow        WalletFlow[]
+  support           Support?
+  settings          Settings[]
+  payments          Payment[]
+  paymentTypes      PaymentTypeModel[]
+  wallets           Wallet[]
+  teams             Team[]              
+  custom_roles      CustomRole[]
 }
 
-model Settings {
-  id                String   @id @default(uuid()) @map("_id")
-  automaticVariable Boolean
-  userId            String
-  User              User     @relation(fields: [userId], references: [id])
-  createdAt         DateTime @default(now()) @map("created_at")
-  updatedAt         DateTime @updatedAt
+model CustomRole {
+  id          String    @id @default(uuid()) @map("_id")
+  name        String    @unique
+  permissions String[]
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
 }
 
-model BankDetails {
+model Domain {
+  id             String           @id @default(uuid()) @map("_id")
+  name           String           @unique
+  base_url       String           @unique
+  products       ProductInfo[]
+  createdAt      DateTime         @default(now()) @map("created_at")
+  paymentMethods Money[]  @relation(fields: [paymentMethodIds], references: [id])
+  paymentMethodIds String[]
+  settings       Settings[] @relation("DomainSettings", fields: [settingsId], references: [id])
+  settingsId     String[]
+  support        Support[]
+}
+
+model PaymentTypeModel{
   id             String   @id @default(uuid()) @map("_id")
   public_id      String   @unique
   secure_url     String
@@ -88,38 +118,100 @@ model BankDetails {
   name           String
   bankName       String
   role           UserRole @default(ADMIN)
-  User           User     @relation(fields: [userId], references: [id])
+  paymentTypeMethod PaymentType  @default(MANUAL)
+  user           User     @relation(fields: [userId], references: [id])
   userId         String
   createdAt      DateTime @default(now()) @map("created_at")
 }
 
+model Currency {
+  id        String    @id @default(uuid()) @map("_id")
+  name      String    @unique
+  symbol    String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt
+  wallets   Wallet[]
+  walletTypes WalletType[]
+}
+
+model WalletType {
+  id           String    @id @default(uuid()) @map("_id")
+  name         String    @unique
+  currencyCode String    @unique 
+  description  String?
+  wallets      Wallet[]
+  domainId     String[]
+  paymentType PaymentType[]
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt
+  currency     Currency  @relation(fields: [currencyCode], references: [symbol])
+}
+
+model Settings {
+  id                String   @id @default(uuid()) @map("_id")
+  domains          Domain[] @relation("DomainSettings", fields: [domainIds], references: [id])
+  // domains          Domain[] @relation(fields: [domainIds], references: [id])
+  domainIds         String[] 
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt
+}
+// model BankDetails {
+  
+// }
+
 model ProUser {
-  id           String  @id @default(uuid()) @map("_id")
+  id           String        @id @default(uuid()) @map("_id")
   amount_limit Int
-  products     Json
-  proRecharge  Boolean @default(false)
-  isRecharged  Boolean @default(false)
-  User         User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId       String  @unique
+  products     ProductInfo[]
+  proRecharge  Boolean       @default(false)
+  isRecharged  Boolean       @default(false)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String        @unique
+}
+
+model Wallet {
+  id           String     @id @default(uuid()) @map("_id")
+  userId       String
+  currencyCode String
+  walletTypeId String?
+  balance      Float      @default(0)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt
+  user         User       @relation(fields: [userId], references: [id])
+  currency     Currency   @relation(fields: [currencyCode], references: [id])
+  walletType   WalletType? @relation(fields: [walletTypeId], references: [id])
 }
 
 model Money {
-  id            String      @id @default(uuid()) @map("_id")
-  name          String
-  amount        String?
-  upiid         String
-  accountNumber String?
-  transactionId String      @unique
-  public_id     String      @unique
-  secure_url    String
-  reason        String?
-  paymentProces Boolean     @default(false)
-  paymentMode   PaymentType 
-  counter       Int         @default(0)
-  status        MoneyStatus @default(PENDING)
-  User          User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String
-  createdAt     DateTime    @default(now()) @map("created_at")
+  id                String      @id @default(uuid()) @map("_id")
+  name              String
+  amount            String?
+  upiId             String
+  payment_method_id String
+  accountNumber     String?
+  accountType       ACTYPE @default(SAVINGS)
+  paymentType       PaymentType @default(MANUAL)
+  bankName          String?
+  ifscCode          String?
+  transactionId     String      @unique
+  public_id         String?      @unique
+  secure_url        String?
+  reason            String?
+  paymentProces     Boolean     @default(false)
+  paymentMode       PaymentType
+  counter           Int         @default(0)
+  status            MoneyStatus @default(PENDING)
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
+  domains          Domain[]    @relation(fields: [domainIds], references: [id])
+  domainIds        String[]
+  createdAt         DateTime    @default(now()) @map("created_at")
+  walletFlow        WalletFlow?
+  paymentMetaData   PaymentMetaData?  @relation(fields: [payment_metaData_id], references: [id])
+  payment_metaData_id String?
+  payments          Payment[] 
 }
 
 model WithdrawalRequest {
@@ -135,67 +227,146 @@ model WithdrawalRequest {
   public_id       String?
   reason          String?
   status          RequestStatus @default(PENDING)
-  User            User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt
 }
 
+// model PaymentMethod {
+//   id             String    @id @default(uuid()) @map("_id")
+//   name           String    @unique
+//   methodId       String    @unique
+//   currencyCode   String
+//   public_id      String?   
+//   secure_url     String?
+//   upiId          String?
+//   upiNumber      String?
+//   accountNumber  String?
+//   ifscCode       String?
+//   accountType    ACTYPE    @default(SAVINGS)
+//   paymentType    PaymentType @default(MANUAL)
+//   bankName       String?
+//   metaDataId     String?
+//   allowedDomains Domain[]  @relation(fields: [domainIds], references: [id])
+//   domainIds      String[]
+//   metaData       PaymentMetaData?  @relation(fields: [metaDataId], references: [id])
+//   payments       Payment[]
+// }
+
+model Payment {
+  id            String      @id @default(uuid()) @map("_id")
+  userId        String
+  methodId      String
+  amount        Float
+  status        MoneyStatus @default(PENDING)
+  currencyCode  String
+  transactionId String      @unique
+  createdAt     DateTime    @default(now()) @map("created_at")
+  processedAt   DateTime?
+  user          User        @relation(fields: [userId], references: [id])
+  paymentMethod Money @relation(fields: [methodId], references: [id])
+
+  @@index([userId, status])
+}
+
 model WalletFlow {
-  id        String           @id @default(uuid()) @map("_id")
-  moneyId   String           @unique
-  userId    String
-  user      User?            @relation(fields: [userId], references: [id])
-  amount    Int
-  purpose   String?
-  status    WalletFlowStatus @default(PENDING)
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt
+  id           String           @id @default(uuid()) @map("_id")
+  moneyId      String           @unique
+  walletId     String           @unique
+  currencyCode String
+  userId       String
+  user         User             @relation(fields: [userId], references: [id])
+  money        Money            @relation(fields: [moneyId], references: [id])
+  amount       Float
+  reason       Reason
+  status       WalletFlowStatus @default(PENDING)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt
 }
 
 model Support {
   id        String   @id @default(uuid()) @map("_id")
   userId    String   @unique
-  User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   link      String
+  domainId  String?
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt
+  domain    Domain?  @relation(fields: [domainId], references: [id])
 }
 
 model Product {
-  id          String   @id @default(uuid()) @map("_id")
-  userId      String?
-  User        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productName String   @unique
-  description String
-  price       Int
-  minProduct  Int
-  maxProduct  Int
-  stock       Int
-  sheetLink   String
-  sheetName   String
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt
-  orderId     String?
+  id                String           @id @default(uuid()) @map("_id")
+  userId            String?
+  user              User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productName       String           @unique
+  description       String
+  price             Float
+  minProduct        Int
+  maxProduct        Int
+  stock             Int
+  sheetLink         String
+  sheetName         String
+  visibleToAll      Boolean          @default(true)
+  includedTeams     Team[]           @relation("IncludedTeams", fields: [includedTeamIds], references: [id])
+  includedTeamIds   String[]
+  excludedTeams     Team[]           @relation("ExcludedTeams", fields: [excludedTeamIds], references: [id])
+  excludedTeamIds   String[]
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt
+  orderId           String?
+  order             Order?           @relation(fields: [orderId], references: [id])
+  orderedProducts   productOrdered[]
+}
+
+model ProductInfo {
+  id        String    @id @default(uuid()) @map("_id")
+  productId String
+  name      String
+  Min       Int
+  Max       Int
+  Price     Float
+  domain    Domain?   @relation(fields: [domainId], references: [id])
+  domainId  String?
+  proUser   ProUser?  @relation(fields: [proUserId], references: [id])
+  proUserId String?
+  team      Team?     @relation(fields: [teamId], references: [id])
+  teamId    String?
 }
 
 model Order {
-  id        String      @id @default(uuid()) @map("_id")
-  orderId   String      @unique
+  id        String           @id @default(uuid()) @map("_id")
+  orderId   String           @unique
   name      String
   userId    String
-  User      User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  products  Json
+  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products  productOrdered[]
   files     Json?
   amount    Int
   reason    String?
-  status    OrderStatus @default(PENDING)
-  createdAt DateTime    @default(now()) @map("created_at")
-  updatedAt DateTime    @updatedAt
+  status    OrderStatus      @default(PENDING)
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt
+  feedback  Feedback?
+  Product   Product[]
+}
+
+model productOrdered {
+  id        String   @id @default(uuid()) @map("_id")
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt
 }
 
 model Feedback {
   id               String   @id @default(uuid()) @map("_id")
   orderId          String   @unique
+  order            Order    @relation(fields: [orderId], references: [id])
   feedback         String
   reply            String?
   userId           String?
@@ -206,7 +377,7 @@ model Feedback {
   reply_public_id  String?
   reply_secure_url String?
   replyStatus      Boolean  @default(false)
-  User             User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt
 }
@@ -217,16 +388,35 @@ model News {
   content   String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt
-  User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String?
 }
 
+model Team {
+  id           String        @id @default(uuid()) @map("_id")
+  teamId       String        @unique
+  name         String
+  referralCode String
+  leaderId     String
+  leader       User          @relation(fields: [leaderId], references: [id])
+  products     ProductInfo[]
+  includedIn   Product[]     @relation("IncludedTeams", fields: [includedInIds], references: [id])
+  includedInIds String[]
+  excludedFrom Product[]     @relation("ExcludedTeams", fields: [excludedFromIds], references: [id])
+  excludedFromIds String[]
+  domainId     String?
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt
+}
 
 model PaymentMetaData {
-  id            String     @id @default(uuid()) @map("_id")
-  authToken     String   
-  usersTypeTag  UserRole   @default(USER)
-  createdAt     DateTime   @default(now()) @map("created_at") 
-  updatedAt     DateTime   @updatedAt 
-  expiry        DateTime   
+  id            String          @id @default(uuid()) @map("_id")
+  authToken     String
+  usersTypeTag  UserRole        @default(USER)
+  createdAt     DateTime        @default(now()) @map("created_at")
+  updatedAt     DateTime        @updatedAt
+  expiry        DateTime
+  paymentMethods Money[]
 }
+
+
