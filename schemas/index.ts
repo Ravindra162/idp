@@ -41,7 +41,7 @@ export const RegisterSchema = z
     confirmPassword: z.string().min(6, {
       message: "Minimum of 6 characters required",
     }),
-    domainId: z.string().optional(),
+    domainUrl: z.string().optional(),
     referralCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {

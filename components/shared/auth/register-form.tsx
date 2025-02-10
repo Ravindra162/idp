@@ -74,14 +74,14 @@ const RegisterForm = () => {
       password: "",
       number: "",
       confirmPassword: "",
-      domainId: "",
+      domainUrl: "",
       referralCode: "",
     },
   });
 
   useEffect(() => {
     const domain = window.location.origin;
-    form.setValue("domainId", domain);
+    form.setValue("domainUrl", domain);
 
     const urlParams = new URLSearchParams(window.location.search);
     const referralCode = urlParams.get("referralcode");

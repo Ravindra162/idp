@@ -17,7 +17,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Invalid fields!" };
   }
 
-  const { email, password, name, number, domainId } = validatedFields.data;
+  const { email, password, name, number, domainUrl } = validatedFields.data;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -28,10 +28,10 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   }
 
   let domain = null;
-  if (domainId) {
+  if (domainUrl) {
     domain = await db.domain.findUnique({
       where: {
-        base_url: domainId
+        base_url: domainUrl
       },
       select: {
         id: true
@@ -47,7 +47,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         password: hashedPassword,
         name,
         number,
-        domainName: domainId,
+        domainName: domainUrl,
       },
     });
 
