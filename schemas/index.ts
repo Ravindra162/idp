@@ -10,6 +10,7 @@ export const LoginSchema = z.object({
   password: z.string().min(6, {
     message: "Minimum of 6 characters required",
   }),
+  browserUrl: z.string().optional(),
 });
 
 export const RegisterSchema = z
@@ -40,6 +41,8 @@ export const RegisterSchema = z
     confirmPassword: z.string().min(6, {
       message: "Minimum of 6 characters required",
     }),
+    domainUrl: z.string().optional(),
+    referralCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -192,6 +195,7 @@ export const MoneySchema = z.object({
     })
     .pipe(z.custom<File>()),
 });
+
 export const PaymentSchema = z.object({
   amount: z.coerce.number().min(1, {
     message: "Amount must be greater than 0",

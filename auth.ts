@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import authConfig from "@/auth.config";
 import { getUserById } from "@/data/user";
 
+
+
 export const {
   handlers: { GET, POST },
   auth,
@@ -13,6 +15,7 @@ export const {
   signOut,
 } = NextAuth({
   callbacks: {
+    
     async session({ token, session }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
@@ -31,8 +34,8 @@ export const {
 
       const existingUser = await getUserById(token.sub);
 
-      if (!existingUser) return token;
 
+      if (!existingUser) return token;
       token.role = existingUser.role;
       token.amount = existingUser.totalMoney;
 
