@@ -22,7 +22,7 @@ export default {
 
           if (!user || !user.password) return null;
           
-          if (user.domainName && user.domainName !== browserUrl) {
+          if (user.domainUrl && user.domainUrl !== browserUrl) {
             throw new Error("wrong Panel Login");
           }
 
