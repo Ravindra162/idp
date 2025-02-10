@@ -68,6 +68,7 @@ model User {
   role              UserRole            @default(USER)
   createdAt         DateTime            @default(now()) @map("created_at")
   money             Money[]
+  domainName        String?
   withdrawalRequest WithdrawalRequest[]
   orders            Order[]
   products          Product[]
@@ -81,7 +82,8 @@ model User {
   payments          Payment[]
   paymentTypes      PaymentTypeModel[]
   wallets           Wallet[]
-  teams             Team[]              
+  teams             Team[]          
+  domain           Domain?           @relation(fields: [domainName], references: [name])
   custom_roles      CustomRole[]
 }
 
@@ -104,6 +106,7 @@ model Domain {
   settings       Settings[] @relation("DomainSettings", fields: [settingsId], references: [id])
   settingsId     String[]
   support        Support[]
+  users          User[]    
 }
 
 model PaymentTypeModel{
@@ -418,5 +421,4 @@ model PaymentMetaData {
   expiry        DateTime
   paymentMethods Money[]
 }
-
 

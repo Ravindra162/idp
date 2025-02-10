@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useEffect } from "react";
 import {
   Form,
   FormField,
@@ -11,6 +11,7 @@ import {
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Eye, EyeOff } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterSchema } from "@/schemas";
@@ -21,12 +22,49 @@ import { register } from "@/actions/register";
 import { useRouter } from "next/navigation";
 import TermsAndConditionsDialog from "./terms_conditions";
 import PrivacyPolicyDialog from "./privacy_policy";
+import ReferralCodeDialog from "./referral-code-dialog";
+
+const PasswordInput = ({
+  field, 
+  disabled, 
+  placeholder, 
+  showPassword, 
+  togglePasswordVisibility
+}: {
+  field: any, 
+  disabled: boolean, 
+  placeholder: string, 
+  showPassword: boolean, 
+  togglePasswordVisibility: () => void
+}) => (
+  <div className="relative">
+    <Input
+      placeholder={placeholder}
+      autoComplete="off"
+      disabled={disabled}
+      type={showPassword ? "text" : "password"}
+      {...field}
+    />
+    <button
+      type="button"
+      onClick={togglePasswordVisibility}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
+    >
+      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+  </div>
+);
 
 const RegisterForm = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+  const [showReferralDialog, setShowReferralDialog] = useState(false);
   const router = useRouter();
+  const [formValues, setFormValues] = useState<z.infer<typeof RegisterSchema> | null>(null);
+  
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -36,24 +74,56 @@ const RegisterForm = () => {
       password: "",
       number: "",
       confirmPassword: "",
+      domainId: "",
+      referralCode: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof RegisterSchema>) {
+  useEffect(() => {
+    const domain = window.location.origin;
+    form.setValue("domainId", domain);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const referralCode = urlParams.get("referralcode");
+    
+    if (referralCode) {
+      form.setValue("referralCode", referralCode);
+    }
+  }, [form]);
+
+  const handleContinueWithoutReferral = () => {
+    setShowReferralDialog(false);
+    if (formValues) {
+      submitForm(formValues);
+    }
+  };
+
+  const submitForm = (values: z.infer<typeof RegisterSchema>) => {
     setError("");
     setSuccess("");
     startTransition(() => {
       register(values).then((data) => {
         setError(data?.error);
-        setSuccess(data?.success);
         if (data?.success) {
+          setSuccess("Successfully registered! Redirecting to login...");
           setTimeout(() => {
             router.push("/auth/login");
           }, 2000);
         }
       });
     });
+  };
+
+  function onSubmit(values: z.infer<typeof RegisterSchema>) {
+    if (values.referralCode) {
+      submitForm(values);
+      return;
+    }
+
+    setFormValues(values);
+    setShowReferralDialog(true);
   }
+
   return (
     <CardWrapper
       headerLabel="Create an account"
@@ -122,12 +192,12 @@ const RegisterForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      placeholder="Password"
-                      autoComplete="off"
+                    <PasswordInput
+                      field={field}
                       disabled={isPending}
-                      type="password"
-                      {...field}
+                      placeholder="Password"
+                      showPassword={showPassword}
+                      togglePasswordVisibility={() => setShowPassword(!showPassword)}
                     />
                   </FormControl>
                   <FormMessage />
@@ -140,11 +210,27 @@ const RegisterForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      placeholder="Confirm Password"
-                      autoComplete="off"
+                    <PasswordInput
+                      field={field}
                       disabled={isPending}
-                      type="password"
+                      placeholder="Confirm Password"
+                      showPassword={showConfirmPassword}
+                      togglePasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="referralCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      placeholder="Referral Code"
+                      disabled={isPending}
                       {...field}
                     />
                   </FormControl>
@@ -160,6 +246,11 @@ const RegisterForm = () => {
           </Button>
         </form>
       </Form>
+      <ReferralCodeDialog
+        isOpen={showReferralDialog}
+        onClose={() => setShowReferralDialog(false)}
+        onContinue={handleContinueWithoutReferral}
+      />
     </CardWrapper>
   );
 };

@@ -17,7 +17,8 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Invalid fields!" };
   }
 
-  const { email, password, name, number } = validatedFields.data;
+  const { email, password, name, number, domainId } = validatedFields.data;
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await getUserByEmail(email);
@@ -26,14 +27,33 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Email already in use!" };
   }
 
-  await db.user.create({
-    data: {
-      name,
-      email,
-      password: hashedPassword,
-      number,
-    },
-  });
+  let domain = null;
+  if (domainId) {
+    domain = await db.domain.findUnique({
+      where: {
+        base_url: domainId
+      },
+      select: {
+        id: true
+      }
+    });
+    console.log(domain)
+  }
 
-  return { success: "User created!" };
+  try {
+    await db.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        number,
+        domainName: domainId,
+      },
+    });
+
+    return { success: "User created!" };
+  } catch (error) {
+    console.error("Registration error:", error);
+    return { error: "Error creating user. Please try again." };
+  }
 };

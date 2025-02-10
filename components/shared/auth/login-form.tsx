@@ -4,6 +4,7 @@ import * as z from "zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import { LoginSchema } from "@/schemas";
 import { Input } from "@/components/ui/input";
@@ -18,13 +19,42 @@ import { Button } from "@/components/ui/button";
 import { FormError } from "@/components/shared/form-error";
 import { login } from "@/actions/login";
 import CardWrapper from "./card-wrapper";
-import TermsAndConditionsDialog from "./terms_conditions";
-import PrivacyPolicyDialog from "./privacy_policy";
+
+const PasswordInput = ({
+  field, 
+  disabled, 
+  placeholder, 
+  showPassword, 
+  togglePasswordVisibility
+}: {
+  field: any, 
+  disabled: boolean, 
+  placeholder: string, 
+  showPassword: boolean, 
+  togglePasswordVisibility: () => void
+}) => (
+  <div className="relative">
+    <Input
+      {...field}
+      disabled={disabled}
+      placeholder={placeholder}
+      type={showPassword ? "text" : "password"}
+    />
+    <button
+      type="button"
+      onClick={togglePasswordVisibility}
+      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 focus:outline-none"
+    >
+      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+    </button>
+  </div>
+);
 
 export const LoginForm = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -38,11 +68,12 @@ export const LoginForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      login(values).then((data) => {
+      login({ ...values, browserUrl: window.location.host }).then((data) => {
         setError(data?.error);
       });
     });
   };
+  
 
   return (
     <CardWrapper
@@ -76,11 +107,12 @@ export const LoginForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Input
-                      {...field}
+                    <PasswordInput
+                      field={field}
                       disabled={isPending}
                       placeholder="Password"
-                      type="password"
+                      showPassword={showPassword}
+                      togglePasswordVisibility={() => setShowPassword(!showPassword)}
                     />
                   </FormControl>
                   <FormMessage />
