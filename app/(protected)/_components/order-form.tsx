@@ -25,6 +25,8 @@ import { toast } from "sonner";
 import { formatPrice } from "@/components/shared/formatPrice";
 import { addOrder } from "@/actions/orders";
 import { useRouter } from "next/navigation";
+import { currentUser } from "@/lib/auth";
+import { fetchWalletsByUserId } from "@/actions/fetch-wallets";
 
 type FormValues = z.infer<typeof OrderSchema>;
 
@@ -35,29 +37,9 @@ type OrderProps = {
   children: React.ReactNode;
 };
 
-// Mock function to fetch wallets (replace with your actual fetch logic)
-const fetchWalletsByUserId = async (userId: string) => {
-  return [
-    {
-      id: '9a8391d2-9c8d-471d-8e40-c9812ecffa32',
-      userId: '2ef41dbf-aa0e-444b-a83a-3eda00f62f1b',
-      currencyCode: 'INR',
-      walletTypeId: '65c8b046710d8a9b9e123a02',
-      balance: 0,
-      createdAt: new Date('2025-02-11T11:36:38.937Z'),
-      updatedAt: new Date('2025-02-11T11:36:38.937Z'),
-    },
-    {
-      id: '9a8391d2-9c8d-471d-8e40-c9812ecffa33',
-      userId: '2ef41dbf-aa0e-444b-a83a-3eda00f62f1b',
-      currencyCode: 'USD',
-      walletTypeId: '65c8b046710d8a9b9e123a03',
-      balance: 0,
-      createdAt: new Date('2025-02-11T11:36:38.937Z'),
-      updatedAt: new Date('2025-02-11T11:36:38.937Z'),
-    },
-  ];
-};
+
+
+
 
 const OrderForm = ({ id, products, children }: OrderProps) => {
   const [wallets, setWallets] = useState<any[]>([]);
@@ -65,7 +47,6 @@ const OrderForm = ({ id, products, children }: OrderProps) => {
   const [isPending, startTransition] = React.useTransition();
   const router = useRouter();
 
-  // Fetch wallets on component mount
   useEffect(() => {
     const fetchWallets = async () => {
       const wallets = await fetchWalletsByUserId(id);
@@ -79,7 +60,7 @@ const OrderForm = ({ id, products, children }: OrderProps) => {
     mode: "onBlur",
     defaultValues: {
       id: id,
-      walletId: "", // Add walletId to default values
+      walletId: "", 
       products: [
         {
           name: "",
