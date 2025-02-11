@@ -16,7 +16,7 @@ import { toast } from "sonner";
 
 type BlockUserProps = {
   id: string;
-  role: "USER" | "ADMIN" | "BLOCKED" | "PRO";
+  role: "PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE";
 };
 
 const BlockUser: React.FC<BlockUserProps> = ({ id, role }) => {

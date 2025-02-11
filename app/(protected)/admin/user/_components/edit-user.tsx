@@ -44,7 +44,7 @@ type User = {
   password: string;
   totalMoney: number;
   paymentType: "MANUAL" | "PAYMENT_GATEWAY";
-  role: "ADMIN" | "PRO" | "BLOCKED" | "USER";
+  role: "PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE" ;
   createdAt: Date;
 };
 
