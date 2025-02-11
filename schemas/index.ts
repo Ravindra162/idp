@@ -596,7 +596,7 @@ export const ProUserSchema = z.object({
         message: "Price must be greater than zero",
       }),
     })
-  ),
+  ).optional(),
 });
 
 export const editProUserSchema = z.object({

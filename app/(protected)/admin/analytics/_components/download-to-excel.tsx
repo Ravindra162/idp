@@ -18,7 +18,7 @@ type User = {
   number: string;
   password: string;
   totalMoney: number;
-  role: "USER" | "PRO" | "ADMIN" | "BLOCKED";
+  role: "PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE" ;
   createdAt: Date;
   money: Money[];
   Order: Order[];
