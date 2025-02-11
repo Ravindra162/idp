@@ -67,6 +67,7 @@ model User {
   password          String
   role              UserRole            @default(USER)
   createdAt         DateTime            @default(now()) @map("created_at")
+  teamId            String?
   money             Money[]
   domainUrl         String?
   withdrawalRequest WithdrawalRequest[]
@@ -82,7 +83,7 @@ model User {
   payments          Payment[]
   paymentTypes      PaymentTypeModel[]
   wallets           Wallet[]
-  teams             Team[]        
+  team             Team?     
   domain_url          Domain?           @relation(fields: [domainUrl], references: [base_url])
   custom_roles      CustomRole[]
 }
@@ -400,8 +401,7 @@ model Team {
   teamId       String        @unique
   name         String
   referralCode String
-  leaderId     String
-  leader       User          @relation(fields: [leaderId], references: [id])
+  leaderId     String        @unique
   products     ProductInfo[]
   includedIn   Product[]     @relation("IncludedTeams", fields: [includedInIds], references: [id])
   includedInIds String[]
@@ -410,6 +410,7 @@ model Team {
   domainId     String?
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt
+  leader       User          @relation(fields: [leaderId], references: [id])
 }
 
 model PaymentMetaData {
