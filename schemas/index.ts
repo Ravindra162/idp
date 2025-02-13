@@ -396,11 +396,13 @@ export const ProductSchema = z.object({
 
 export const OrderSchema = z.object({
   id: z.string(),
+  walletId:z.string(),
   products: z.array(
     z.object({
       name: z.string().min(1, { message: "Product Name is required" }),
       quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
-    })
+    }),
+    
   ),
   price: z.coerce.number().gte(0),
 });
