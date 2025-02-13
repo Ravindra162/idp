@@ -7,8 +7,14 @@ import SupportLink from "./_components/support-link";
 import AdminAutomateOrders from "./_components/admin-automateOrders";
 import AdminUpdateStocks from "./_components/update-stocks";
 import ManagePaymentMode from "./_components/mange-payments-mode";
+import { db } from "@/lib/db";
 export default async function Home() {
   const session = await auth();
+
+  console.log(session)
+
+
+  
 
   return (
     <section>
