@@ -74,14 +74,14 @@ const RegisterForm = () => {
       password: "",
       number: "",
       confirmPassword: "",
-      domainUrl: "",
+      domainId: "",
       referralCode: "",
     },
   });
 
   useEffect(() => {
-    const domain = window.location.origin;
-    form.setValue("domainUrl", domain);
+    const domainId = process.env.DOMAIN_ID;
+    form.setValue("domainId", domainId);
 
     const urlParams = new URLSearchParams(window.location.search);
     const referralCode = urlParams.get("referralcode");
@@ -103,8 +103,9 @@ const RegisterForm = () => {
     setSuccess("");
     startTransition(() => {
       register(values).then((data) => {
-        setError(data?.error);
-        if (data?.success) {
+        if ("error" in data) {
+          setError(data.error);
+        } else if ("success" in data) {
           setSuccess("Successfully registered! Redirecting to login...");
           setTimeout(() => {
             router.push("/auth/login");

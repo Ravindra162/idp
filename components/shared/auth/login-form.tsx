@@ -68,7 +68,7 @@ export const LoginForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      login({ ...values, browserUrl: window.location.host }).then((data) => {
+      login({ ...values, domainId: process.env.DOMAIN_ID }).then((data) => {
         setError(data?.error);
       });
     });

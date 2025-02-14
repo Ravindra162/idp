@@ -37,7 +37,6 @@ export const {
 
       if (!existingUser) return token;
       token.role = existingUser.role;
-      token.amount = existingUser.totalMoney;
 
       return token;
     },

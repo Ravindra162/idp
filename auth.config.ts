@@ -10,24 +10,26 @@ export default {
       async authorize(credentials) {
         const validatedFields = LoginSchema.safeParse(credentials);
 
-        console.log(validatedFields)
+        console.log(validatedFields);
         let user;
 
         if (validatedFields.success) {
-          const { username, password, browserUrl } = validatedFields.data;
+          const { username, password, domainId } = validatedFields.data;
 
           if (username.includes("@")) {
             user = await getUserByEmail(username);
           }
 
           if (!user || !user.password) return null;
-          
-          if (user.domainUrl && user.domainUrl !== browserUrl) {
-            throw new Error("wrong Panel Login");
+
+          if (user.role !== "ADMIN") {
+            if (user.domainId && user.domainId !== domainId) {
+              throw new Error("wrong Panel Login");
+            }
           }
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
-          
+
           if (passwordsMatch) return user;
         }
 

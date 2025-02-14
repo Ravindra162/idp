@@ -14,15 +14,16 @@ export const login = async (values: z.infer<typeof LoginSchema> & { browserUrl?:
     return { error: "Invalid fields!" };
   }
 
-  const { username, password, browserUrl } = { ...validatedFields.data, ...values };
+  const { username, password, domainId } = { ...validatedFields.data, ...values };
 
 
   try {
+    console.log(domainId);
     await signIn("credentials", {
       username,
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT,
-      browserUrl, // Now passed from the client
+      domainId,
     });
   } catch (error) {
     if (error instanceof AuthError) {

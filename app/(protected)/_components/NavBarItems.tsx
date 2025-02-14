@@ -60,6 +60,22 @@ export const AdminSidebar = () => {
   return (
     <>
       <ul className={`space-y-2 font-medium`}>
+      <li>
+          <Link
+            href={`/admin/panels/table`}
+            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+          >
+            <span className="flex-1 ms-3 whitespace-nowrap">Panels</span>
+          </Link>
+        </li>
+        <li>
+          <Link
+            href={`/admin/wallet-types/table`}
+            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+          >
+            <span className="flex-1 ms-3 whitespace-nowrap">Wallet Types</span>
+          </Link>
+        </li>
         <li>
           <Link
             href={`/admin/user`}

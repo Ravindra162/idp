@@ -10,7 +10,7 @@ export const LoginSchema = z.object({
   password: z.string().min(6, {
     message: "Minimum of 6 characters required",
   }),
-  browserUrl: z.string().optional(),
+  domainId: z.string().optional(),
 });
 
 export const RegisterSchema = z
@@ -41,7 +41,7 @@ export const RegisterSchema = z
     confirmPassword: z.string().min(6, {
       message: "Minimum of 6 characters required",
     }),
-    domainUrl: z.string().optional(),
+    domainId: z.string().optional(),
     referralCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -682,6 +682,22 @@ export const ManagePaymentModeSchema = z.object({
 });
 
 export const AutomationStateSchema = z.object({
-  newState: z.boolean(),
+  autmVar : z.boolean(),
+  domainId: z.string().nonempty("Domain Id is required"),
+  domainName : z.string().nonempty("Domain Name is required"),
   userId: z.string().nonempty("User ID is required"),
+});
+
+
+export const AddDomainSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  base_url: z.string().nonempty("Valid Base URL is required"),
+  userId : z.string().nonempty("User Id is required")
+});
+
+export const UpdateDomainSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().optional(),
+  base_url: z.string().url().optional(),
+  settingsId: z.string().optional(),
 });

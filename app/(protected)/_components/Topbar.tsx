@@ -45,7 +45,7 @@ const TopBar = async ({ title }: { title: string }) => {
               <DropdownMenuSeparator />
               {wallets.map((wallet: any, index: number) => (
                 <div key={index} className="flex justify-between p-2">
-                  <span>{wallet.currencyCode}</span>
+                  <span>{wallet.walletName}</span>
                   <span>{formatPrice(wallet.balance, wallet.currencyCode)}</span>
                 </div>
               ))}
