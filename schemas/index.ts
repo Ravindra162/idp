@@ -692,6 +692,7 @@ export const AutomationStateSchema = z.object({
 export const AddDomainSchema = z.object({
   name: z.string().min(1, "Name is required"),
   base_url: z.string().nonempty("Valid Base URL is required"),
+  description : z.string().optional(),
   userId : z.string().nonempty("User Id is required")
 });
 
@@ -699,5 +700,6 @@ export const UpdateDomainSchema = z.object({
   id: z.string().uuid(),
   name: z.string().optional(),
   base_url: z.string().url().optional(),
+  description : z.string().optional(),
   settingsId: z.string().optional(),
 });

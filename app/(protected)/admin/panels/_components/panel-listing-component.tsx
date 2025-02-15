@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 
-const PanelListingTable = ({ domains }: { domains: any[] }) => {
+const PanelListingTable = ({ domains }: { domains: any[]}) => {
   return (
     <>
       {domains?.map((domain) => (
@@ -32,7 +32,7 @@ const PanelListingTable = ({ domains }: { domains: any[] }) => {
                   <TableCell>{domain.base_url}</TableCell>
                   <TableCell>
                     <Button className="bg-transparent text-black border border-gray-300 hover:bg-gray-100">
-                    <Link href={`/admin/user/table/${domain.id}`}>View Users</Link></Button>
+                    <Link href={domain.href}>View Details</Link></Button>
                   </TableCell>
                 </TableRow>
               </TableBody>

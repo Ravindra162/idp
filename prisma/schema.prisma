@@ -99,6 +99,7 @@ model Domain {
   id               String        @id @default(uuid()) @map("_id")
   name             String        @unique
   base_url         String        @unique
+  description      String?
   products         ProductInfo[]
   createdAt        DateTime      @default(now()) @map("created_at")
   settingsId       String
@@ -206,6 +207,7 @@ model Money {
 model WithdrawalRequest {
   id              String        @id @default(uuid()) @map("_id")
   userId          String
+  domainId        String
   name            String
   accountNumber   String
   ifscCode        String
@@ -308,6 +310,7 @@ model Order {
   orderId   String           @unique
   name      String
   userId    String
+  domainId  String
   user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
   products  productOrdered[]
   files     Json?

@@ -28,9 +28,10 @@ export const generateMetadata = () => {
 
 type AdminHistoryProps = {
   searchParams: { page: string };
+  params : {domainId : string};
 };
 
-const AdminWallet = async ({ searchParams }: AdminHistoryProps) => {
+const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 12;
@@ -39,6 +40,7 @@ const AdminWallet = async ({ searchParams }: AdminHistoryProps) => {
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const Orders = await db.order.findMany({
+    where : {domainId : params.domainId},
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,

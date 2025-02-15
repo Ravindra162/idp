@@ -19,73 +19,82 @@ import Search from "@/components/shared/search";
 
 export const generateMetadata = () => {
   return {
-    title: "Admin Wallet | GrowonsMedia",
-    description: "Admin Wallet",
+    title: "Admin Withdraw Requests | GrowonsMedia",
+    description: "Admin Withdraw Requests",
   };
 };
 
-const AdminWallet = async ({
-  searchParams,
-}: {
+type WithdrawRequestsParams = {
   searchParams: { page: string };
-}) => {
+  params : { domainId : string}
+};
+
+const WithdrawRequests = async ({ searchParams , params }: WithdrawRequestsParams) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 10;
-  const totalItemCount = await db.money.count();
+  const totalItemCount = await db.withdrawalRequest.count();
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
-  const invoices = await db.money.findMany({
-    orderBy: { createdAt: "desc" },
+  const withdrawals = await db.withdrawalRequest.findMany({
+    where : {domainId : params.domainId},
+    orderBy: { updatedAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
   });
+
   return (
     <section className="my-2">
       <nav className="hidden md:block">
-        <TopBar title="Admin Wallet" />
+        <TopBar title="Admin Withdraw Requests" />
       </nav>
       <div className="p-1 m-1 w-[50%]">
-        <Search fileName="wallet-history" />
+        <Search fileName="withdraw-history" />
       </div>
       <section className="space-y-4 md:overflow-auto md:max-h-[75vh] w-full md:w-[100%] p-2">
         <Table>
-          <TableCaption>A list of your recent invoices.</TableCaption>
+          <TableCaption>A list of recent withdraw requests.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Account No</TableHead>
-              <TableHead>UPI-ID</TableHead>
-              <TableHead>Transaction id</TableHead>
-              <TableHead>Charge Money</TableHead>
-              <TableHead>State</TableHead>
+              <TableHead>IFSC Code</TableHead>
+              <TableHead>Transaction ID</TableHead>
+              <TableHead>Withdraw Money</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Screenshot</TableHead>
-              <TableHead>Date Created</TableHead>
+              <TableHead>Date of Payment</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice) => (
-              <TableRow key={invoice.upiid}>
-                <TableCell>{invoice.name}</TableCell>
-                <TableCell>{invoice.accountNumber}</TableCell>
-                <TableCell>{invoice.upiid}</TableCell>
-                <TableCell>{invoice.transactionId}</TableCell>
-                <TableCell>{formatPrice(Number(invoice.amount))}</TableCell>
+            {withdrawals.map((withdrawal) => (
+              <TableRow key={withdrawal.id}>
+                <TableCell>{withdrawal.name || "N/A"}</TableCell>
+                <TableCell>{withdrawal.accountNumber}</TableCell>
+                <TableCell>{withdrawal.ifscCode}</TableCell>
+                <TableCell>{withdrawal.transactionId || "N/A"}</TableCell>
+                <TableCell>
+                  {formatPrice(Number(withdrawal.withdrawAmount))}
+                </TableCell>
                 <TableCell className="cursor-pointer">
-                  {invoice.status === "FAILED" && invoice.reason !== null ? (
+                  {withdrawal.status === "FAILED" && withdrawal.reason ? (
                     <ReasonDialog
-                      status={invoice.status}
-                      reason={invoice.reason}
+                      status={withdrawal.status}
+                      reason={withdrawal.reason}
                     />
                   ) : (
-                    <BadgeStatus status={invoice.status} />
+                    <BadgeStatus status={withdrawal.status} />
                   )}
                 </TableCell>
                 <TableCell>
-                  <ImageDialog imageLink={invoice.secure_url} />
+                  {String(withdrawal.status) === "SUCCESS" ? (
+                    <ImageDialog imageLink={withdrawal.secure_url || ""} />
+                  ) : (
+                    "—"
+                  )}
                 </TableCell>
-                <TableCell>{invoice.createdAt.toDateString()}</TableCell>
+                <TableCell>{withdrawal.updatedAt.toDateString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -95,7 +104,10 @@ const AdminWallet = async ({
                 <TableCell colSpan={4}>Total</TableCell>
                 <TableCell className="text-left" colSpan={4}>
                   {formatPrice(
-                    invoices.reduce((acc, cur) => acc + Number(cur.amount), 0)
+                    withdrawals.reduce(
+                      (acc, cur) => acc + Number(cur.withdrawAmount),
+                      0
+                    )
                   )}
                 </TableCell>
               </TableRow>
@@ -111,4 +123,4 @@ const AdminWallet = async ({
   );
 };
 
-export default AdminWallet;
+export default WithdrawRequests;

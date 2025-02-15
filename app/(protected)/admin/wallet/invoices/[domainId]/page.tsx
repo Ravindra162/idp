@@ -10,11 +10,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import FormInvoice from "../_components/form-invoice";
+import FormInvoice from "../../../_components/form-invoice";
 import ImageDialog from "@/components/shared/Image-dialog";
-import PaginationBar from "../../money/_components/PaginationBar";
+import PaginationBar from "../../../../money/_components/PaginationBar";
 import CopyButton from "@/components/shared/copy-button";
-import TopBar from "../../_components/Topbar";
+import TopBar from "../../../../_components/Topbar";
 import Search from "@/components/shared/search";
 
 export const generateMetadata = () => {
@@ -26,9 +26,10 @@ export const generateMetadata = () => {
 
 type AdminWalletParams = {
   searchParams: { page: string };
+  params : { domainId : string}
 };
 
-const AdminWallet = async ({ searchParams }: AdminWalletParams) => {
+const AdminWallet = async ({ searchParams , params }: AdminWalletParams) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 7;
@@ -41,7 +42,7 @@ const AdminWallet = async ({ searchParams }: AdminWalletParams) => {
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const invoices = await db.money.findMany({
-    where: { status: "PENDING" },
+    where: { status: "PENDING", domainId : params.domainId },
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,

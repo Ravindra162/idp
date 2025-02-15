@@ -26,8 +26,10 @@ export const generateMetadata = () => {
 
 const AdminOrders = async ({
   searchParams,
+  params
 }: {
   searchParams: { page: string };
+  params : {domainId : string};
 }) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
@@ -35,7 +37,7 @@ const AdminOrders = async ({
 
   const totalItemCount = (
     await db.order.findMany({
-      where: { status: "PENDING" },
+      where: { status: "PENDING" , domainId : params.domainId },
     })
   ).length;
 
@@ -44,6 +46,7 @@ const AdminOrders = async ({
   const orders = await db.order.findMany({
     where: {
       status: "PENDING",
+      domainId : params.domainId
     },
     orderBy: {
       createdAt: "desc",

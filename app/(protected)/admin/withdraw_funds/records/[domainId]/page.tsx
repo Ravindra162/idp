@@ -25,9 +25,10 @@ export const generateMetadata = () => {
 
 type AdminWithdrawalParams = {
   searchParams: { page: string };
+  params : {domainId : string};
 };
 
-const AdminWithdrawal = async ({ searchParams }: AdminWithdrawalParams) => {
+const AdminWithdrawal = async ({ searchParams, params }: AdminWithdrawalParams) => {
   const currentPage = parseInt(searchParams.page) || 1;
   const pageSize = 7;
   const totalItemCount = (
@@ -38,7 +39,7 @@ const AdminWithdrawal = async ({ searchParams }: AdminWithdrawalParams) => {
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const withdrawals = await db.withdrawalRequest.findMany({
-    where: { status: "PENDING" },
+    where: { status: "PENDING", domainId : params.domainId},
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,

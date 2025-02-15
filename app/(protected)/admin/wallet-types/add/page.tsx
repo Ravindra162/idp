@@ -1,7 +1,7 @@
 import React from "react";
 import { auth } from "@/auth";
 import TopBar from "../../../_components/Topbar";
-import DomainForm from "../../_components/domain-form";
+import DomainForm from "../../panels/_components/domain-form";
 import WalletForm from "../_components/wallet-form";
 
 export const generateMetadata = () => {

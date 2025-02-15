@@ -13,6 +13,7 @@ export const getDomains = async () => {
   }
 };
 
+
 export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
   const validatedFields = AddDomainSchema.safeParse(values);
 
@@ -21,13 +22,14 @@ export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
   }
 
   try {
-    const { name, base_url, userId } = validatedFields.data;
+    const { name, base_url, description, userId } = validatedFields.data;
 
     const result = await db.$transaction(async (prisma) => {
       const newDomain = await prisma.domain.create({
         data: {
           name: name,
           base_url: base_url,
+          description: description,
           settingsId: "",
         },
       });
@@ -36,6 +38,7 @@ export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
         data: {
           domainId: newDomain.id,
           domainName: newDomain.name,
+          
           autmVar: false,
           userId : userId
         },
@@ -57,7 +60,7 @@ export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
 };
 
 
-export const updateDomain = async (values: z.infer<typeof UpdateDomainSchema>) => {
+export const updateDomain = async ( values: z.infer<typeof UpdateDomainSchema>) => {
     const validatedFields = UpdateDomainSchema.safeParse(values);
   
     if (!validatedFields.success) {

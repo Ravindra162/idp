@@ -78,7 +78,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
           <Link
-            href={`/admin/user/panel-listing`}
+            href={`/admin/panels/panel-listing/${`user`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
@@ -94,7 +94,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
           <Link
-            href={`/admin/wallet `}
+            href={`/admin/panels/panel-listing/${`wallet`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">
@@ -104,7 +104,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
           <Link
-            href={`/admin/withdraw_funds `}
+            href={`/admin/panels/panel-listing/${`withdraw_funds`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">
@@ -114,7 +114,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
           <Link
-            href={`/admin/wallet/history`}
+            href={`/admin/panels/panel-listing/${`wallet-history`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">
@@ -124,7 +124,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
           <Link
-            href={`/admin/withdraw_funds/history`}
+            href={`/admin/panels/panel-listing/${`withdraw_funds-history`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">
@@ -134,7 +134,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
           <Link
-            href={`/admin/orders`}
+            href={`/admin/panels/panel-listing/${`order`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">Client orders</span>
@@ -142,7 +142,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
            <Link
-            href={`/admin/teams/team-table `}
+            href={`/admin/panels/panel-listing/${`team`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">
@@ -152,7 +152,7 @@ export const AdminSidebar = () => {
         </li>
         <li>
           <Link
-            href={`/admin/orders/history`}
+            href={`/admin/panels/panel-listing/${`order-history`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">
