@@ -9,18 +9,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import PaginationBar from "../../money/_components/PaginationBar";
+import PaginationBar from "../../../../money/_components/PaginationBar";
 import { revalidatePath } from "next/cache";
-import BalanceCell from "../_components/Balance-cell";
-import ProUser from "../_components/upgrade-to-pro";
-import TopBar from "../../_components/Topbar";
-import EditUser from "./_components/edit-user";
+import BalanceCell from "../../../_components/Balance-cell";
+import ProUser from "../../../_components/upgrade-to-pro";
+import TopBar from "../../../../_components/Topbar";
+import EditUser from "../../_components/edit-user";
 import Search from "@/components/shared/search";
 
 const UserTable = async ({
   searchParams,
+  params,
 }: {
   searchParams: { page: string };
+  params: { domainId : string};
 }) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
@@ -31,6 +33,9 @@ const UserTable = async ({
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const users = await db.user.findMany({
+    where : {
+      domainId : params.domainId
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -57,7 +62,6 @@ const UserTable = async ({
             <TableHead>UserName</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Wallet</TableHead>
-            <TableHead>Payment Type</TableHead>
             <TableHead>Joined on</TableHead>
             <TableHead colSpan={2}>
               <Search fileName={"user-management"} />
@@ -83,11 +87,6 @@ const UserTable = async ({
               <TableCell>{user.email}</TableCell>
               <TableCell>
                 <BalanceCell id={user.id} />
-              </TableCell>
-              <TableCell>
-                {user.paymentType === "PAYMENT_GATEWAY"
-                  ? "Payment Gateway"
-                  : "Manual"}
               </TableCell>
               <TableCell>{user.createdAt.toDateString()}</TableCell>
               <TableCell>

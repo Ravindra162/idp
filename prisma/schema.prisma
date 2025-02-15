@@ -118,7 +118,7 @@ model PaymentTypeModel {
   name              String?
   bankName          String?
   role              UserRole    @default(ADMIN)
-  paymentTypeMethod PaymentType @default(MANUAL)
+  paymentTypeMethod PaymentType @default(CUSTOM_METHOD)
   user              User        @relation(fields: [userId], references: [id])
   userId            String
   createdAt         DateTime    @default(now()) @map("created_at")

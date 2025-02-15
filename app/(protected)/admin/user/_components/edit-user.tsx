@@ -39,11 +39,11 @@ import {
 type User = {
   id: string;
   email: string;
-  name: string | null;
+  name: string;
   number: string;
   password: string;
-  totalMoney: number;
-  paymentType: "MANUAL" | "PAYMENT_GATEWAY";
+  domainId: string | null;
+  teamId : string | null;
   role: "PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE" ;
   createdAt: Date;
 };
