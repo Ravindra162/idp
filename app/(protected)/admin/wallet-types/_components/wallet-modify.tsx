@@ -54,7 +54,7 @@ const ModifyWalletType = ({ id }: { id: string }) => {
           <DialogFooter>
             <DialogClose>
               <Button asChild>
-                <Link href={`/admin/product/edit-form/${id}`}>Confirm</Link>
+                <Link href={`/admin/wallet-types/edit/${id}`}>Confirm</Link>
               </Button>
             </DialogClose>
           </DialogFooter>

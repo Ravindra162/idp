@@ -17,6 +17,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormError } from "@/components/shared/form-error";
 import { toast } from "sonner";
 import { addDomain, updateDomain } from "@/actions/admin-domains";
+import { revalidatePath } from "next/cache";
+import { useRouter } from "next/navigation";
 
 type DomainProps = {
   id: string;
@@ -37,6 +39,7 @@ const DomainForm = ({
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const router = useRouter();
 
   // Dynamically select schema based on isEdit
   const schema = isEdit ? UpdateDomainSchema : AddDomainSchema;
@@ -67,6 +70,7 @@ const DomainForm = ({
         updateDomain(updateValues).then((data) => {
           if (data?.success) {
             toast.success(data.success);
+            router.push("/admin/panels/table");
           }
           if (data?.error) {
             setError(data.error);
@@ -78,6 +82,7 @@ const DomainForm = ({
           if (data?.success) {
             toast.success(data.success);
             form.reset();
+            router.push("/admin/panels/table");
           }
           if (data?.error) {
             setError(data.error);

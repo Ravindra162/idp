@@ -1,3 +1,4 @@
+import { Currency } from "lucide-react";
 import * as z from "zod";
 
 export const LoginSchema = z.object({
@@ -211,9 +212,7 @@ export const WithdrawMoneySchema = z.object({
     .string()
     .nonempty("Account Number is required")
     .min(8, "Account Number must be at least 8 characters"),
-  ifscCode: z
-    .string()
-    .nonempty("IFSC Code is required"),
+  ifscCode: z.string().nonempty("IFSC Code is required"),
   beneficiaryName: z
     .string()
     .nonempty("Beneficiary Name is required")
@@ -396,13 +395,12 @@ export const ProductSchema = z.object({
 
 export const OrderSchema = z.object({
   id: z.string(),
-  walletId:z.string(),
+  walletId: z.string(),
   products: z.array(
     z.object({
       name: z.string().min(1, { message: "Product Name is required" }),
       quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
-    }),
-    
+    })
   ),
   price: z.coerce.number().gte(0),
 });
@@ -581,24 +579,26 @@ export const EditNewsSchema = z.object({
 export const ProUserSchema = z.object({
   userId: z.string(),
   amount: z.coerce.number(),
-  products: z.array(
-    z.object({
-      name: z.string().min(1, { message: "Product Name is required" }),
-      minProduct: z.coerce
-        .number()
-        .min(1, { message: "Min product is required" })
-        .nonnegative(),
-      maxProduct: z.coerce
-        .number()
-        .min(1, {
-          message: "Max product must be greater than min product",
-        })
-        .nonnegative(),
-      price: z.coerce.number().nonnegative().min(1, {
-        message: "Price must be greater than zero",
-      }),
-    })
-  ).optional(),
+  products: z
+    .array(
+      z.object({
+        name: z.string().min(1, { message: "Product Name is required" }),
+        minProduct: z.coerce
+          .number()
+          .min(1, { message: "Min product is required" })
+          .nonnegative(),
+        maxProduct: z.coerce
+          .number()
+          .min(1, {
+            message: "Max product must be greater than min product",
+          })
+          .nonnegative(),
+        price: z.coerce.number().nonnegative().min(1, {
+          message: "Price must be greater than zero",
+        }),
+      })
+    )
+    .optional(),
 });
 
 export const editProUserSchema = z.object({
@@ -682,24 +682,59 @@ export const ManagePaymentModeSchema = z.object({
 });
 
 export const AutomationStateSchema = z.object({
-  autmVar : z.boolean(),
+  autmVar: z.boolean(),
   domainId: z.string().nonempty("Domain Id is required"),
-  domainName : z.string().nonempty("Domain Name is required"),
+  domainName: z.string().nonempty("Domain Name is required"),
   userId: z.string().nonempty("User ID is required"),
 });
-
 
 export const AddDomainSchema = z.object({
   name: z.string().min(1, "Name is required"),
   base_url: z.string().nonempty("Valid Base URL is required"),
-  description : z.string().optional(),
-  userId : z.string().nonempty("User Id is required")
+  description: z.string().optional(),
+  userId: z.string().nonempty("User Id is required"),
 });
 
 export const UpdateDomainSchema = z.object({
   id: z.string().uuid(),
   name: z.string().optional(),
   base_url: z.string().url().optional(),
-  description : z.string().optional(),
+  description: z.string().optional(),
   settingsId: z.string().optional(),
+});
+
+export const AddWalletTypeSchema = z.object({
+  name: z.string().nonempty("WalletType Name is required"),
+  currencyCode: z.string().nonempty("CurrencyCode is required"),
+  description: z.string().optional(),
+  domainId: z.array(
+    z.object({
+      type: z.string().nonempty("Panel is required"),
+    })
+  ),
+  paymentType: z.array(
+    z.object({
+      type: z.string().nonempty("Payment type is required"),
+    })
+  ),
+  cstpaymentId: z.array(z.string()),
+});
+
+
+export const UpdateWalletTypeSchema = z.object({
+  id : z.string().nonempty("WalletType Id is required"),
+  name: z.string().nonempty("WalletType Name is required"),
+  currencyCode: z.string().nonempty("CurrencyCode is required"),
+  description: z.string().optional(),
+  domainId: z.array(
+    z.object({
+      type: z.string().nonempty("Panel is required"),
+    })
+  ),
+  paymentType: z.array(
+    z.object({
+      type: z.string().nonempty("Payment type is required"),
+    })
+  ),
+  cstpaymentId: z.array(z.string()),
 });

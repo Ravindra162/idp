@@ -1,6 +1,7 @@
 "use server";
 import { db } from "@/lib/db";
 import { AddDomainSchema, UpdateDomainSchema } from "@/schemas";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export const getDomains = async () => {
@@ -52,6 +53,7 @@ export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
       return updatedDomain;
     });
 
+    revalidatePath("/admin/panels/add");
     return { success: "Domain and settings added successfully!", data: result };
   } catch (error) {
     console.log(error);
@@ -75,6 +77,7 @@ export const updateDomain = async ( values: z.infer<typeof UpdateDomainSchema>) 
         data: updateData,
       });
   
+      revalidatePath("/admin/panels/edit");
       return { success: "Domain updated successfully!", data: updatedDomain };
     } catch (error) {
       return { error: "Failed to update domain!" };

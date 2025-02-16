@@ -1,8 +1,8 @@
 import React from "react";
 import { auth } from "@/auth";
 import TopBar from "../../../_components/Topbar";
-import DomainForm from "../../panels/_components/domain-form";
 import WalletForm from "../_components/wallet-form";
+import { getDomains } from "@/actions/admin-domains";
 
 export const generateMetadata = () => {
   return {
@@ -13,6 +13,9 @@ export const generateMetadata = () => {
 
 const page = async () => {
   const session = await auth();
+
+  const { paymentTypes, domains } = await fetchData();
+
   return (
     <>
       <nav className="md:block hidden">
@@ -20,11 +23,28 @@ const page = async () => {
       </nav>
       <section>
         <div className="m-4">
-          <WalletForm />
+          <WalletForm domains={domains} paymentTypes={paymentTypes} />
         </div>
       </section>
     </>
   );
 };
+
+async function fetchData() {
+  try {
+
+    const paymentTypesResponse = ["MANUAL", "PAYMENT_GATEWAY", "CUSTOM_METHOD"];
+
+    const domainsResponse = await getDomains();
+
+
+    const paymentTypes = paymentTypesResponse.map((type) => ({ type }));
+
+    return { paymentTypes, domains: domainsResponse.data || [] };
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    return { paymentTypes: [], domains: [] };
+  }
+}
 
 export default page;
