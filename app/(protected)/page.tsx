@@ -28,13 +28,13 @@ export default async function Home() {
         </p>
         <div className="flex flex-wrap">
           {session?.user.role !== "ADMIN" && <BalanceCard />}
-          {session?.user.role === "ADMIN" && <BankDetails />}
-          {session?.user.role === "ADMIN" && (
+          {/* {session?.user.role === "ADMIN" && <BankDetails />} */}
+          {/* {session?.user.role === "ADMIN" && (
             <AdminAutomateOrders userId={session.user.id ?? ""} />
-          )}
+          )} */}
           {session?.user.role === "ADMIN" && <AdminUpdateStocks />}
           {session?.user.role === "ADMIN" && <SupportLink />}
-          {session?.user.role === "ADMIN" && <ManagePaymentMode />}
+          {/* {session?.user.role === "ADMIN" && <ManagePaymentMode />} */}
         </div>
       </div>
     </section>

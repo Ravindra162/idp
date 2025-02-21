@@ -281,8 +281,9 @@ export const RejectWithdrawalSchema = z.object({
   reason: z.string().min(10, { message: "Minimum of 10 characters required" }),
 });
 
-export const BankDetailsSchema = z.object({
+export const PaymentMethodDetailsSchema = z.object({
   userId: z.string(),
+  paymentType: z.string().toUpperCase(),
   upiid: z.string().min(1, {
     message: "UPI ID is required",
   }),

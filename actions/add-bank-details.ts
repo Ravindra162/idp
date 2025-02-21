@@ -3,6 +3,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { db } from "@/lib/db";
 import { getUserById } from "@/data/user";
 import { revalidatePath } from "next/cache";
+import { PaymentType } from "@prisma/client";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -40,6 +41,7 @@ export const addBankDetails = async (formData: FormData) => {
 
   if (
     !formData ||
+    !formData.get("paymentType") ||
     !formData.get("upiid") ||
     !formData.get("accountDetails") ||
     !formData.get("upinumber") ||
@@ -56,10 +58,12 @@ export const addBankDetails = async (formData: FormData) => {
   const upiid = formData.get("upiid") as string;
   const accountDetails = formData.get("accountDetails") as string;
   const upinumber = formData.get("upinumber") as string;
+  const paymentType = formData.get("paymentType") === "CUSTOM_METHOD" ? PaymentType.CUSTOM_METHOD : formData.get("paymentType") === "MANUAL" ? PaymentType.MANUAL : PaymentType.PAYMENT_GATEWAY;
   try {
     if (user?.role === "ADMIN") {
-      await db.bankDetails.create({
+      await db.paymentTypeModel.create({
         data: {
+          paymentTypeMethod : paymentType,
           secure_url: photos.secure_url,
           public_id: photos.public_id,
           upiid: upiid,
