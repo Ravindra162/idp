@@ -15,7 +15,9 @@ export const getWalletTypes = async () => {
   }
 };
 
-export const addWalletType = async (values: z.infer<typeof AddWalletTypeSchema>) => {
+export const addWalletType = async (
+  values: z.infer<typeof AddWalletTypeSchema>
+) => {
   const validatedFields = AddWalletTypeSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -23,31 +25,62 @@ export const addWalletType = async (values: z.infer<typeof AddWalletTypeSchema>)
   }
 
   try {
-      const { name, currencyCode, description, domainId, paymentType, cstpaymentId } = validatedFields.data;
+    const { name, currencyCode, description, domainIds, payments } =
+      validatedFields.data;
 
-    const parsedDomainIds = domainId.map((item: { type: string }) => item.type);
-    const parsedPaymentTypes = paymentType.map((item: { type: string }) => {
-      if (Object.values(PaymentType).includes(item.type as PaymentType)) {
-        return item.type as PaymentType; 
-      } else {
-        throw new Error(`Invalid payment type: ${item.type}`);
+    const parsedDomainIds = domainIds.map(
+      (item: { type: string }) => item.type
+    );
+
+    const parsedPaymentTypes = payments.map(
+      (item: { type: string; details: any[] }) => {
+        if (Object.values(PaymentType).includes(item.type as PaymentType)) {
+          return {
+            type: item.type,
+            details: item.details.map((detail) => ({
+              id: detail.id,
+              public_id: detail.public_id,
+              secure_url: detail.secure_url,
+              upiid: detail.upiid,
+              upinumber: detail.upinumber,
+              accountDetails: detail.accountDetails,
+              ifsccode: detail.ifsccode,
+              accountType: detail.accountType,
+              name: detail.name,
+              bankName: detail.bankName,
+            })),
+          };
+        } else {
+          throw new Error(`Invalid payment type: ${item.type}`);
+        }
       }
+    );
+
+    const result = await db.$transaction(async (prisma) => {
+      // Create the WalletType record
+      const walletType = await prisma.walletType.create({
+        data: {
+          name,
+          currencyCode,
+          description: description || null,
+          domainIds: parsedDomainIds,
+          payments: {
+            create: parsedPaymentTypes.flatMap((payment) =>
+              payment.details.map((detail) => ({
+                paymentTypeId: detail.id,
+                paymentType: payment.type as PaymentType,
+              }))
+            ),
+          },
+        },
+      });
+
+      console.log("WalletType and associated payments created:", walletType);
+
+      return walletType;
     });
-    
 
-
-    const result = await db.walletType.create({
-      data: {
-        name: name,
-        currencyCode: currencyCode,
-        description: description || null,
-        domainId: parsedDomainIds,
-        paymentType: parsedPaymentTypes,
-        cstpaymentId: cstpaymentId,
-      },
-    });
-
-    revalidatePath("/admin/panels/add");
+    revalidatePath("/admin/wallet-types/table");
     return { success: "Wallet type added successfully!", data: result };
   } catch (error) {
     console.log(error);
@@ -55,58 +88,117 @@ export const addWalletType = async (values: z.infer<typeof AddWalletTypeSchema>)
   }
 };
 
-
 export const updateWalletType = async (values: any) => {
-  // Step 1: Validate the incoming values
   const validatedFields = UpdateWalletTypeSchema.safeParse(values);
 
   if (!validatedFields.success) {
     return { error: "Invalid fields!" };
   }
 
-  // Step 2: Extract the required fields from validated data
-  const { name, domainId, currencyCode, paymentType, cstpaymentId, description } = validatedFields.data;
+  const { name, domainIds, currencyCode, payments, description, id } =
+    validatedFields.data;
 
-  // Step 3: Parse domainId and paymentType
-  const parsedDomainIds = domainId.map((item: { type: string }) => item.type);
-  const parsedPaymentTypes = paymentType.map((item: { type: string }) => {
-    if (Object.values(PaymentType).includes(item.type as PaymentType)) {
-      return item.type as PaymentType; 
-    } else {
-      throw new Error(`Invalid payment type: ${item.type}`);
+  const parsedDomainIds = domainIds.map((item: { type: string }) => item.type);
+
+  const parsedPaymentTypes = payments.map(
+    (item: { type: string; details: any[] }) => {
+      if (Object.values(PaymentType).includes(item.type as PaymentType)) {
+        return {
+          type: item.type,
+          details: item.details.map((detail) => ({
+            id: detail.id,
+            public_id: detail.public_id,
+            secure_url: detail.secure_url,
+            upiid: detail.upiid,
+            upinumber: detail.upinumber,
+            accountDetails: detail.accountDetails,
+            ifsccode: detail.ifsccode,
+            accountType: detail.accountType,
+            name: detail.name,
+            bankName: detail.bankName,
+          })),
+        };
+      } else {
+        throw new Error(`Invalid payment type: ${item.type}`);
+      }
     }
-  });
-  
+  );
 
   const updatedData = {
     name,
     currencyCode,
-    description: description || null, 
-    domainId: parsedDomainIds,
-    paymentType: parsedPaymentTypes,
-    cstpaymentId,
+    description: description || null,
+    domainIds: parsedDomainIds,
+    payments: parsedPaymentTypes,
   };
 
   try {
-    const updatedWalletType = await db.walletType.update({
+    await db.walletTypePayment.deleteMany({
       where: {
-        id: values.id, 
-      },
-      data: {
-        name: updatedData.name,
-        domainId : updatedData.domainId,
-        description: updatedData.description,
-        currencyCode: updatedData.currencyCode,
-        paymentType : updatedData.paymentType,
-        cstpaymentId : updatedData.cstpaymentId
+        walletTypeId: id,
       },
     });
 
-    revalidatePath("/admin/panels/edit");
+    let payments : any;
 
-    return { success: "Wallet type updated successfully!", data: updatedWalletType };
+    for (const payment of parsedPaymentTypes) {
+      for (const detail of payment.details) {
+       const walletPaymentTypes = await db.walletTypePayment.create({
+          data: {
+            walletTypeId: id,
+            paymentTypeId: detail.id,
+            paymentType: payment.type as PaymentType,
+          },
+        });
+        payments.add(walletPaymentTypes);
+      }
+    }
+
+    const updatedWalletType = await db.walletType.update({
+      where: {
+        id: id,
+      },
+      data: {
+        name: updatedData.name,
+        domainIds: updatedData.domainIds,
+        description: updatedData.description,
+        currencyCode: updatedData.currencyCode,
+        payments : payments
+      },
+    });
+
+    revalidatePath("/admin/wallet-types/table");
+    return {
+      success: "Wallet type updated successfully!",
+      data: updatedWalletType,
+    };
   } catch (error) {
     console.error(error);
     return { error: "Failed to update wallet type!" };
+  }
+};
+
+
+export const deleteWalletType = async ({ id }: { id: string }) => {
+  try {
+    await db.$transaction(async (tx) => {
+      await tx.wallet.deleteMany({
+        where: { walletTypeId: id },
+      });
+
+      await tx.walletTypePayment.deleteMany({
+        where: { walletTypeId: id },
+      });
+
+      await tx.walletType.delete({
+        where: { id },
+      });
+    });
+
+    revalidatePath("/admin/wallet-types/table");
+    return { success: "Wallet type and all related records deleted successfully." };
+  } catch (error) {
+    console.error("Error deleting wallet type:", error);
+    return { error: "Failed to delete wallet type." };
   }
 };

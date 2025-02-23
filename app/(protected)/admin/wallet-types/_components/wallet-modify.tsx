@@ -11,26 +11,15 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { deleteProduct } from "@/actions/products";
 import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import { EditProductFormSchema } from "@/schemas";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { deleteWalletType } from "@/actions/add-wallet-type";
 
 const ModifyWalletType = ({ id }: { id: string }) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const form = useForm<z.infer<typeof EditProductFormSchema>>({
-    resolver: zodResolver(EditProductFormSchema),
-    defaultValues: {
-      minProduct: 0,
-    },
-  });
-
   const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+    deleteWalletType({ id }).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }

@@ -10,11 +10,8 @@ import {
 } from "@/components/ui/table";
 import React from "react";
 
-type PaymentTypeProps = {
-  name: string; // Change this from PaymentType to string
-};
 
-const ViewPaymentTypes = ({ paymentTypes }: { paymentTypes: PaymentTypeProps[] }) => {
+const ViewPaymentTypes = ({ paymentTypes }: { paymentTypes: { name : string | null;}[] }) => {
   return (
     <Dialog>
       <DialogTrigger>View Payment Types</DialogTrigger>

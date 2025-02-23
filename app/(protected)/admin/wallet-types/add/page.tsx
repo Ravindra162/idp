@@ -1,8 +1,9 @@
 import React from "react";
 import { auth } from "@/auth";
 import TopBar from "../../../_components/Topbar";
-import WalletForm from "../_components/wallet-form";
+import WalletForm, { PaymentMethodDetails } from "../_components/wallet-form";
 import { getDomains } from "@/actions/admin-domains";
+import { db } from "@/lib/db";
 
 export const generateMetadata = () => {
   return {
@@ -14,7 +15,7 @@ export const generateMetadata = () => {
 const page = async () => {
   const session = await auth();
 
-  const { paymentTypes, domains } = await fetchData();
+  const { paymentTypes, domains, paymentMethodDetails } = await fetchData();
 
   return (
     <>
@@ -23,7 +24,7 @@ const page = async () => {
       </nav>
       <section>
         <div className="m-4">
-          <WalletForm domains={domains} paymentTypes={paymentTypes} />
+          <WalletForm domains={domains} paymentTypes={paymentTypes} paymentTypeMethodDetails={paymentMethodDetails} />
         </div>
       </section>
     </>
@@ -37,13 +38,36 @@ async function fetchData() {
 
     const domainsResponse = await getDomains();
 
+    const paymentTypeMethodDetails = await db.paymentTypeModel.findMany({
+      where: {
+        NOT: {
+          paymentTypeMethod: "PAYMENT_GATEWAY",
+        },
+      },
+    });
+
+    const paymentMethodDetails: PaymentMethodDetails[] = paymentTypeMethodDetails.map((payment) => ({
+      id: payment.id,
+      public_id: payment.public_id,
+      secure_url: payment.secure_url,
+      upiid: payment.upiid,
+      upinumber: payment.upinumber,
+      accountDetails: payment.accountDetails,
+      ifsccode: payment.ifsccode,
+      accountType: payment.accountType,
+      name: payment.name,
+      bankName: payment.bankName,
+    }));
+    
+
+
 
     const paymentTypes = paymentTypesResponse.map((type) => ({ type }));
 
-    return { paymentTypes, domains: domainsResponse.data || [] };
+    return { paymentTypes, domains: domainsResponse.data || [] , paymentMethodDetails };
   } catch (error) {
     console.error("Error fetching data:", error);
-    return { paymentTypes: [], domains: [] };
+    return { paymentTypes: [], domains: [] , paymentMethodDetails : []};
   }
 }
 

@@ -33,7 +33,6 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         let domain = null;
         let walletTypes = null;
 
-
         const createdUser = await tx.user.create({
           data: {
             email,
@@ -45,17 +44,13 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         });
 
         if (domain !== null) {
-          walletTypes = await tx.walletType.findMany({
+          const walletTypes = await tx.walletType.findMany({
             where: {
-              domainId: {
-                has: domainId,
+              domainIds: {
+                has: domainId, 
               },
             },
           });
-
-          walletTypes = walletTypes.filter((w) => w.createdAt !== null);
-
-          console.log(walletTypes);
 
           const createdWallets = await Promise.all(
             walletTypes.map(async (walletType) => {
@@ -65,13 +60,11 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
                   currencyCode: walletType.currencyCode,
                   walletTypeId: walletType.id,
                   walletName: walletType.name,
-                  
                   balance: 0,
                 },
               });
             })
           );
-
           await tx.user.update({
             where: { id: createdUser.id },
             data: {

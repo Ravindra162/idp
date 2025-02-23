@@ -20,14 +20,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 
 const ModifyPaymentMethodType = ({ id }: { id: string }) => {
-  const [isPending, startTransition] = React.useTransition();
-
-  const form = useForm<z.infer<typeof EditProductFormSchema>>({
-    resolver: zodResolver(EditProductFormSchema),
-    defaultValues: {
-      minProduct: 0,
-    },
-  });
 
   const handleDelete = (id: string) => {
     deleteProduct({ id }).then((data) => {
@@ -54,7 +46,7 @@ const ModifyPaymentMethodType = ({ id }: { id: string }) => {
           <DialogFooter>
             <DialogClose>
               <Button asChild>
-                <Link href={`/admin/wallet-types/edit/${id}`}>Confirm</Link>
+                <Link href={`/admin/payment-method/edit/${id}`}>Confirm</Link>
               </Button>
             </DialogClose>
           </DialogFooter>

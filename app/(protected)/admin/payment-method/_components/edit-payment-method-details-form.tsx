@@ -18,33 +18,49 @@ import { Input } from "@/components/ui/input";
 import { addBankDetails } from "@/actions/add-bank-details";
 import { toast } from "sonner";
 import { FormError } from "@/components/shared/form-error";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface PaymentTypeProps {
+  type: string;
+}
 
 export type PaymentTypeMethod = {
-    accountDetails?: string;
-    upiid?: string;
-    upinumber?: string;
-    image?: File | undefined;
-    name?: string;
-    bankName?: string;
-    accountType?: string;
-    ifsccode?: string;
-    userId: string;
-  };
-  
+  paymentType: string;
+  accountDetails?: string;
+  upiid?: string;
+  upinumber?: string;
+  image?: File | undefined;
+  name?: string;
+  bankName?: string;
+  accountType?: string;
+  ifsccode?: string;
+  userId: string;
+};
+
+type PaymentMethodDetailsFormProps = {
+  userId: string;
+  initialValues: PaymentTypeMethod;
+  paymentTypes: PaymentTypeProps[];
+};
 
 const EditPaymentMethodDetailsForm = ({
   userId,
   initialValues,
-}: {
-  userId: string;
-  initialValues : PaymentTypeMethod;
-}) => {
+  paymentTypes,
+}: PaymentMethodDetailsFormProps) => {
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof PaymentMethodDetailsSchema>>({
     resolver: zodResolver(PaymentMethodDetailsSchema),
     defaultValues: {
+      paymentType: initialValues.paymentType || "",
       accountDetails: initialValues?.accountDetails || "",
       upiid: initialValues?.upiid || "",
       upinumber: initialValues?.upinumber || "",
@@ -59,6 +75,7 @@ const EditPaymentMethodDetailsForm = ({
 
   function onSubmit(values: z.infer<typeof PaymentMethodDetailsSchema>) {
     const formData = new FormData();
+    formData.append("paymentTypeModel", values.paymentType);
     formData.append("userId", userId);
     formData.append("accountDetails", values.accountDetails);
     formData.append("upiid", values.upiid);
@@ -90,6 +107,37 @@ const EditPaymentMethodDetailsForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name={`paymentType`}
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={field.onChange}
+                  disabled={isPending}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a payment type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <FormMessage />
+                  <SelectContent>
+                    {paymentTypes.map((paymentType: any) => (
+                      <SelectItem
+                        value={paymentType.type}
+                        key={paymentType.id}
+                        className="capitalize"
+                      >
+                        {paymentType.type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="name"
@@ -241,7 +289,7 @@ const EditPaymentMethodDetailsForm = ({
         </div>
         <FormError message={error} />
         <Button disabled={isPending} type="submit" className="w-full md:mb-0">
-          Add Details
+          Edit Details
         </Button>
       </form>
     </Form>

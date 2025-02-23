@@ -85,6 +85,16 @@ export const AdminSidebar = () => {
           </Link>
         </li>
         <li>
+           <Link
+            href={`/admin/panels/panel-listing/${`team`}`}
+            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+          >
+            <span className="flex-1 ms-3 whitespace-nowrap">
+              Teams
+            </span>
+          </Link>
+        </li>
+        <li>
           <Link
             href={`/admin/panels/panel-listing/${`user`}`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
@@ -148,16 +158,7 @@ export const AdminSidebar = () => {
             <span className="flex-1 ms-3 whitespace-nowrap">Client orders</span>
           </Link>
         </li>
-        <li>
-           <Link
-            href={`/admin/panels/panel-listing/${`team`}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">
-              Teams
-            </span>
-          </Link>
-        </li>
+
         <li>
           <Link
             href={`/admin/panels/panel-listing/${`order-history`}`}

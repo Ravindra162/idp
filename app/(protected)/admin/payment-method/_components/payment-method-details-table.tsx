@@ -92,7 +92,7 @@ export async function PaymentTypeTable({
                   />
                 </TableCell>
                 <TableCell>
-                  <ModifyPaymentMethodType id={userId} />
+                  <ModifyPaymentMethodType id={method.id} />
                 </TableCell>
               </TableRow>
             ))}

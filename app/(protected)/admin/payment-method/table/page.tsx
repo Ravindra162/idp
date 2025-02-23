@@ -4,6 +4,7 @@ import TopBar from "@/app/(protected)/_components/Topbar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import { db } from "@/lib/db";
 
 export const generateMetadata = () => {
   return {

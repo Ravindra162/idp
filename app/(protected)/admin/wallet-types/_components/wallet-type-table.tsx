@@ -16,7 +16,6 @@ import ModifyWalletType from "./wallet-modify";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { getDomains } from "@/actions/admin-domains";
 import ViewDomains from "@/app/(protected)/_components/view-domains";
 import ViewPaymentTypes from "@/app/(protected)/_components/view-payment-types";
 
@@ -45,7 +44,7 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
   const upWalletTypes = await Promise.all(
     walletTypes.map(async (walletType) => {
       const domains = await db.domain.findMany({
-        where: { id: { in: walletType.domainId } },
+        where: { id: { in: walletType.domainIds } },
       });
 
       const domainMap = domains.reduce((acc, domain) => {
@@ -53,14 +52,26 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
         return acc;
       }, {} as Record<string, string>);
 
+      const walletPayments = await db.walletTypePayment.findMany({
+        where: { walletTypeId: walletType.id },
+        include: { paymentModel: true }, 
+      });
+
+
+      const paymentTypes = walletPayments.map((walletPayment) => ({
+        name: walletPayment.paymentModel.name,
+      }));
+
       return {
         ...walletType,
         domainNames: domainMap,
         domains: domains,
-        paymentTypes: walletType.paymentType.map((type) => ({ name: type.toString() }))
+        paymentTypes : paymentTypes,
       };
     })
   );
+
+  console.log(upWalletTypes)
 
   return (
     <section className="m-2">

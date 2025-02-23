@@ -704,38 +704,36 @@ export const UpdateDomainSchema = z.object({
   settingsId: z.string().optional(),
 });
 
+
+export const WalletPaymentSchema = z.object({
+  type: z.string().nonempty("Payment type is required"),
+  details: z.array( z.object({
+    id: z.string().nonempty("PaymentTypeModel ID is required"),
+    public_id: z.string().nonempty("Public ID is required"),
+    secure_url: z.string().url("Secure URL must be a valid URL"),
+    upiid: z.string().optional(),
+    upinumber: z.string().optional(),
+    accountDetails: z.string().optional(),
+    ifsccode: z.string().optional(),
+    accountType: z.string().optional(),
+    name: z.string().optional(),
+    bankName: z.string().optional(),
+  }),
+  )
+});
+
 export const AddWalletTypeSchema = z.object({
   name: z.string().nonempty("WalletType Name is required"),
   currencyCode: z.string().nonempty("CurrencyCode is required"),
   description: z.string().optional(),
-  domainId: z.array(
+  domainIds: z.array(
     z.object({
       type: z.string().nonempty("Panel is required"),
     })
   ),
-  paymentType: z.array(
-    z.object({
-      type: z.string().nonempty("Payment type is required"),
-    })
-  ),
-  cstpaymentId: z.array(z.string()),
+  payments: z.array(WalletPaymentSchema),
 });
 
-
-export const UpdateWalletTypeSchema = z.object({
-  id : z.string().nonempty("WalletType Id is required"),
-  name: z.string().nonempty("WalletType Name is required"),
-  currencyCode: z.string().nonempty("CurrencyCode is required"),
-  description: z.string().optional(),
-  domainId: z.array(
-    z.object({
-      type: z.string().nonempty("Panel is required"),
-    })
-  ),
-  paymentType: z.array(
-    z.object({
-      type: z.string().nonempty("Payment type is required"),
-    })
-  ),
-  cstpaymentId: z.array(z.string()),
+export const UpdateWalletTypeSchema = AddWalletTypeSchema.extend({
+  id: z.string().nonempty("WalletType ID is required"),
 });
