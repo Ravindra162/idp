@@ -9,11 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import ProductRemove from "./product-remove";
-import PaginationBar from "../../money/_components/PaginationBar";
+import ProductRemove from "../../_components/product-remove";
+import PaginationBar from "../../../money/_components/PaginationBar";
 import { formatPrice } from "@/components/shared/formatPrice";
 import { revalidatePath } from "next/cache";
-import DescriptionDialog from "./description-dialog";
+import DescriptionDialog from "../../_components/description-dialog";
+import ProductTeamsDialog from "./product-teams-dialog";
 
 export const revalidate = 3600;
 
@@ -66,7 +67,9 @@ const ProductTable = async ({
             <TableHead>Maximum</TableHead>
             <TableHead>Sheet Name</TableHead>
             <TableHead>Google Sheet link</TableHead>
-            <TableHead>Created_At</TableHead>
+            <TableHead>Teams</TableHead>
+            <TableHead>Actions</TableHead>
+
           </TableRow>
         </TableHeader>
         {totalItemCount === 0 && (
@@ -87,7 +90,7 @@ const ProductTable = async ({
               <TableCell>
                 <DescriptionDialog description={product.description} />
               </TableCell>
-              <TableCell>{formatPrice(product.price)}</TableCell>
+              <TableCell>{formatPrice(product.price, "")}</TableCell>
               <TableCell>{product.stock}</TableCell>
               <TableCell>{product.minProduct}</TableCell>
               <TableCell>{product.maxProduct}</TableCell>
@@ -102,7 +105,13 @@ const ProductTable = async ({
                   View Sheet
                 </a>
               </TableCell>
-              <TableCell>{product.createdAt.toDateString()}</TableCell>
+              <TableCell>
+                <ProductTeamsDialog
+                  teams={product.teams}
+                  productName={product.productName}
+                  productId={product.id}
+                />
+              </TableCell>
               <TableCell>
                 <ProductRemove id={product.id} />
               </TableCell>

@@ -737,3 +737,15 @@ export const AddWalletTypeSchema = z.object({
 export const UpdateWalletTypeSchema = AddWalletTypeSchema.extend({
   id: z.string().nonempty("WalletType ID is required"),
 });
+
+
+export const TeamCreateSchema = z.object({
+  teamName: z.string().min(1, "Team name is required"),
+  teamLeader: z.string().min(1, "Team Leader is required"),
+  teamDescription: z.string().optional(),
+  domainId : z.string(),
+});
+
+export const EditTeamSchema = TeamCreateSchema.extend({
+  id: z.string().nonempty("Team Record ID is required"),
+});

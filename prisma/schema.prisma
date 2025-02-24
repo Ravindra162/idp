@@ -378,6 +378,7 @@ model Team {
   id              String        @id @default(uuid()) @map("_id")
   teamId          String        @unique
   name            String
+  description     String
   referralCode    String
   leaderId        String        @unique
   products        ProductInfo[]
