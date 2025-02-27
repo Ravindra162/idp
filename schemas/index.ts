@@ -392,6 +392,73 @@ export const ProductSchema = z.object({
       message: "Sheet link must be a valid Google Sheets URL",
     }),
   sheetName: z.coerce.string().nonempty("Sheet Name is required"),
+  includedTeamsProductInfo: z
+    .array(
+      z.object({
+        teamId: z.string().min(1, { message: "Team Details is required" }),
+        minProduct: z.coerce
+          .number()
+          .min(1, { message: "Min product is required" })
+          .nonnegative(),
+        maxProduct: z.coerce
+          .number()
+          .min(1, {
+            message: "Max product must be greater than min product",
+          })
+          .nonnegative(),
+        price: z.coerce.number().nonnegative().min(1, {
+          message: "Price must be greater than zero",
+        }),
+      })
+    )
+    .optional(),
+  excludedTeamsProductInfo: z
+    .array(
+      z.object({
+        teamId: z.string().min(1, { message: "Team Details is required" }),
+        minProduct: z.coerce.number(),
+        maxProduct: z.coerce.number(),
+        price: z.coerce.number(),
+      })
+    )
+    .optional(),
+  visibleToAll: z.boolean().default(true),
+});
+
+export const EditPanelQuantitySchema = z.object({
+  id: z.string().nonempty("Product ID is required"),
+  domainId: z.string().nonempty("Domain ID is required"),
+  minProduct: z.coerce
+    .number()
+    .min(1, { message: "Min product is required" })
+    .nonnegative(),
+  maxProduct: z.coerce
+    .number()
+    .min(1, {
+      message: "Max product must be greater than min product",
+    })
+    .nonnegative(),
+  price: z.coerce.number().nonnegative().min(1, {
+    message: "Price must be greater than zero",
+  }),
+});
+
+export const EditTeamQuantitySchema = z.object({
+  id: z.string().nonempty("Product ID is required"),
+  teamId: z.string().nonempty("Team ID is required"),
+  minProduct: z.coerce
+    .number()
+    .min(1, { message: "Min product is required" })
+    .nonnegative(),
+  maxProduct: z.coerce
+    .number()
+    .min(1, {
+      message: "Max product must be greater than min product",
+    })
+    .nonnegative(),
+  price: z.coerce.number().nonnegative().min(1, {
+    message: "Price must be greater than zero",
+  }),
 });
 
 export const OrderSchema = z.object({
@@ -704,22 +771,22 @@ export const UpdateDomainSchema = z.object({
   settingsId: z.string().optional(),
 });
 
-
 export const WalletPaymentSchema = z.object({
   type: z.string().nonempty("Payment type is required"),
-  details: z.array( z.object({
-    id: z.string().nonempty("PaymentTypeModel ID is required"),
-    public_id: z.string().nonempty("Public ID is required"),
-    secure_url: z.string().url("Secure URL must be a valid URL"),
-    upiid: z.string().optional(),
-    upinumber: z.string().optional(),
-    accountDetails: z.string().optional(),
-    ifsccode: z.string().optional(),
-    accountType: z.string().optional(),
-    name: z.string().optional(),
-    bankName: z.string().optional(),
-  }),
-  )
+  details: z.array(
+    z.object({
+      id: z.string().nonempty("PaymentTypeModel ID is required"),
+      public_id: z.string().nonempty("Public ID is required"),
+      secure_url: z.string().url("Secure URL must be a valid URL"),
+      upiid: z.string().optional(),
+      upinumber: z.string().optional(),
+      accountDetails: z.string().optional(),
+      ifsccode: z.string().optional(),
+      accountType: z.string().optional(),
+      name: z.string().optional(),
+      bankName: z.string().optional(),
+    })
+  ),
 });
 
 export const AddWalletTypeSchema = z.object({
@@ -738,12 +805,11 @@ export const UpdateWalletTypeSchema = AddWalletTypeSchema.extend({
   id: z.string().nonempty("WalletType ID is required"),
 });
 
-
 export const TeamCreateSchema = z.object({
   teamName: z.string().min(1, "Team name is required"),
   teamLeader: z.string().min(1, "Team Leader is required"),
   teamDescription: z.string().optional(),
-  domainId : z.string(),
+  domainId: z.string(),
 });
 
 export const EditTeamSchema = TeamCreateSchema.extend({

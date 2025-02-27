@@ -96,15 +96,19 @@ model CustomRole {
 }
 
 model Domain {
-  id          String        @id @default(uuid()) @map("_id")
-  name        String        @unique
-  base_url    String        @unique
-  description String?
-  products    ProductInfo[]
-  createdAt   DateTime      @default(now()) @map("created_at")
-  settingsId  String
-  support     Support[]
-  users       User[]
+  id              String        @id @default(uuid()) @map("_id")
+  name            String        @unique
+  base_url        String        @unique
+  description     String?
+  products        ProductInfo[]
+  includedIn      Product[]     @relation("IncludedDomains", fields: [includedInIds], references: [id])
+  includedInIds   String[]
+  excludedFrom    Product[]     @relation("ExcludedDomains", fields: [excludedFromIds], references: [id])
+  excludedFromIds String[]
+  createdAt       DateTime      @default(now()) @map("created_at")
+  settingsId      String
+  support         Support[]
+  users           User[]
 }
 
 model PaymentTypeModel {
@@ -139,15 +143,15 @@ model WalletTypePayment {
 }
 
 model WalletType {
-  id               String               @id @default(uuid()) @map("_id")
-  name             String               @unique
-  currencyCode     String
-  description      String?
-  domainIds        String[]
-  createdAt        DateTime              @default(now()) @map("created_at")
-  updatedAt        DateTime              @updatedAt
-  payments         WalletTypePayment[]   
-  wallets          Wallet[]
+  id           String              @id @default(uuid()) @map("_id")
+  name         String              @unique
+  currencyCode String
+  description  String?
+  domainIds    String[]
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt
+  payments     WalletTypePayment[]
+  wallets      Wallet[]
 }
 
 model Wallet {
@@ -161,7 +165,7 @@ model Wallet {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt
   user         User          @relation(fields: [userId], references: [id])
-  walletType   WalletType   @relation(fields: [walletTypeId], references: [id])
+  walletType   WalletType    @relation(fields: [walletTypeId], references: [id])
 }
 
 model Settings {
@@ -184,7 +188,6 @@ model ProUser {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId       String        @unique
 }
-
 
 model Money {
   id                  String           @id @default(uuid()) @map("_id")
@@ -277,27 +280,32 @@ model Support {
 }
 
 model Product {
-  id              String           @id @default(uuid()) @map("_id")
-  userId          String?
-  user            User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productName     String           @unique
-  description     String
-  price           Float
-  minProduct      Int
-  maxProduct      Int
-  stock           Int
-  sheetLink       String
-  sheetName       String
-  visibleToAll    Boolean          @default(true)
-  includedTeams   Team[]           @relation("IncludedTeams", fields: [includedTeamIds], references: [id])
-  includedTeamIds String[]
-  excludedTeams   Team[]           @relation("ExcludedTeams", fields: [excludedTeamIds], references: [id])
-  excludedTeamIds String[]
-  createdAt       DateTime         @default(now()) @map("created_at")
-  updatedAt       DateTime         @updatedAt
-  orderId         String?
-  order           Order?           @relation(fields: [orderId], references: [id])
-  orderedProducts productOrdered[]
+  id                  String           @id @default(uuid()) @map("_id")
+  userId              String?
+  user                User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productName         String           @unique
+  description         String
+  price               Float
+  minProduct          Int
+  maxProduct          Int
+  stock               Int
+  sheetLink           String
+  sheetName           String
+  visibleToAllDomains Boolean          @default(true)
+  includedDomains     Domain[]         @relation("IncludedDomains", fields: [includedDomainIds], references: [id])
+  includedDomainIds   String[]
+  excludedDomains     Domain[]         @relation("ExcludedDomains", fields: [excludedDomainIds], references: [id])
+  excludedDomainIds   String[]
+  visibleToAllTeams   Boolean          @default(true)
+  includedTeams       Team[]           @relation("IncludedTeams", fields: [includedTeamIds], references: [id])
+  includedTeamIds     String[]
+  excludedTeams       Team[]           @relation("ExcludedTeams", fields: [excludedTeamIds], references: [id])
+  excludedTeamIds     String[]
+  createdAt           DateTime         @default(now()) @map("created_at")
+  updatedAt           DateTime         @updatedAt
+  orderId             String?
+  order               Order?           @relation(fields: [orderId], references: [id])
+  orderedProducts     productOrdered[]
 }
 
 model ProductInfo {

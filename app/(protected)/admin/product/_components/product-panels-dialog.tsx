@@ -22,10 +22,10 @@ import {
 import IncludedTeamRemove from "./included-team-remove";
 import ExcludedTeamRemove from "./excluded-team-remove";
 import Link from "next/link";
+import IncludedPanelRemove from "./included-panel-remove";
 
-interface Team {
+interface Panel {
   id: string;
-  teamId: string;
   name: string;
   products: {
     productId: string;
@@ -36,55 +36,50 @@ interface Team {
   }[];
 }
 
-interface ProductTeamsDialogProps {
-  teams: Team[];
-  includedTeams: Team[];
-  excludedTeams: Team[];
+interface ProductPanelsDialogProps {
+  panels: Panel[];
+  includedPanels: Panel[];
+  excludedPanels: Panel[];
   productName: string;
   productId: string;
 }
 
-const ProductTeamsDialog = ({
-  teams,
-  includedTeams,
-  excludedTeams,
+const ProductPanelsDialog = ({
+  panels,
+  includedPanels,
+  excludedPanels,
   productName,
   productId,
-}: ProductTeamsDialogProps) => {
+}: ProductPanelsDialogProps) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          View Teams
+          View Domains
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
-        <DialogHeader></DialogHeader>
-
         {/* Included Teams List in Table Format */}
         <Button className="text-sm w-auto ml-auto" asChild>
-          <Link
-            href={`/admin/product/team-quantity/${productId}/add`}
-            className="inline"
-          >
-            Include a Team
+          <Link href={`/admin/product/panel-quantity/${productId}/add`} className="inline">
+            Include a Panel
           </Link>
         </Button>
         <DialogTitle>
-          Team having special access{" "}
+          Panel having special access{" "}
           {productName.charAt(0).toUpperCase() + productName.slice(1)}
         </DialogTitle>
         <ScrollArea className="max-h-[300px] mt-4 border rounded-md p-4">
-          {includedTeams.length === 0 ? (
+          {includedPanels.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">
-              No teams are using this product
+              No Panels are using this product
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Team ID</TableHead>
-                  <TableHead>Team Name</TableHead>
+                  <TableHead>Panel ID</TableHead>
+                  <TableHead>Panel Name</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Min</TableHead>
                   <TableHead>Max</TableHead>
@@ -92,15 +87,15 @@ const ProductTeamsDialog = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {includedTeams.map((team) => (
-                  <TableRow key={team.teamId}>
-                    <TableCell>{team.teamId}</TableCell>
-                    <TableCell>{team.name}</TableCell>
+                {includedPanels.map((panel) => (
+                  <TableRow key={panel.id}>
+                    <TableCell>{panel.id}</TableCell>
+                    <TableCell>{panel.name}</TableCell>
                     <TableCell>{/* ${team.products.Price} */}</TableCell>
                     <TableCell>{/* {team.products[0].Min} */}</TableCell>
                     <TableCell>{/* {team.products[0].Max} */}</TableCell>
                     <TableCell>
-                      <IncludedTeamRemove id={productId} teamId={team.teamId} />
+                      <IncludedPanelRemove id={productId} domainId={panel.id} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -111,36 +106,36 @@ const ProductTeamsDialog = ({
 
         <Button className="text-sm w-auto ml-auto" asChild>
           <Link href={``} className="inline">
-            Exclude a Team
+            Exclude a Panel
           </Link>
         </Button>
 
         <DialogTitle>
-          Team that doesnot have access to{" "}
+          Panel that doesnot have access to{" "}
           {productName.charAt(0).toUpperCase() + productName.slice(1)}
         </DialogTitle>
 
         <ScrollArea className="max-h-[300px] mt-4 border rounded-md p-4">
-          {includedTeams.length === 0 ? (
+          {excludedPanels.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">
-              No teams are using this product
+              No Panels are using this product
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Team ID</TableHead>
-                  <TableHead>Team Name</TableHead>
+                  <TableHead>Panel ID</TableHead>
+                  <TableHead>Panel Name</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {includedTeams.map((team) => (
-                  <TableRow key={team.teamId}>
-                    <TableCell>{team.teamId}</TableCell>
-                    <TableCell>{team.name}</TableCell>
+                {excludedPanels.map((panel) => (
+                  <TableRow key={panel.id}>
+                    <TableCell>{panel.id}</TableCell>
+                    <TableCell>{panel.name}</TableCell>
                     <TableCell>
-                      <ExcludedTeamRemove id={team.teamId} />
+                      <ExcludedTeamRemove id={panel.id} />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -153,4 +148,4 @@ const ProductTeamsDialog = ({
   );
 };
 
-export default ProductTeamsDialog;
+export default ProductPanelsDialog;

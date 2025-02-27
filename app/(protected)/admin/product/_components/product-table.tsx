@@ -9,12 +9,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import ProductRemove from "../../_components/product-remove";
+import ProductRemove from "./product-remove";
 import PaginationBar from "../../../money/_components/PaginationBar";
 import { formatPrice } from "@/components/shared/formatPrice";
 import { revalidatePath } from "next/cache";
 import DescriptionDialog from "../../_components/description-dialog";
 import ProductTeamsDialog from "./product-teams-dialog";
+import { includeTeamInProduct } from "@/actions/admin-product-teams";
+import ProductPanelsDialog from "./product-panels-dialog";
 
 export const revalidate = 3600;
 
@@ -47,10 +49,107 @@ const ProductTable = async ({
       sheetLink: true,
       sheetName: true,
       createdAt: true,
+      includedDomains: {
+        select: {
+          id: true,
+          name: true,
+          products: {
+            select: {
+              productId: true,
+              name: true,
+              Price: true,
+              Max: true,
+              Min: true,
+            },
+          },
+        },
+      },
+      excludedDomains: {
+        select: {
+          id: true,
+          name: true,
+          products: {
+            select: {
+              productId: true,
+              name: true,
+              Price: true,
+              Max: true,
+              Min: true,
+            },
+          },
+        },
+      },
+      includedTeams: {
+        select: {
+          id: true,
+          teamId: true,
+          name: true,
+          products: {
+            select: {
+              productId: true,
+              name: true,
+              Price: true,
+              Max: true,
+              Min: true,
+            },
+          },
+        },
+      },
+      excludedTeams: {
+        select: {
+          id: true,
+          teamId: true,
+          name: true,
+          products: {
+            select: {
+              productId: true,
+              name: true,
+              Price: true,
+              Max: true,
+              Min: true,
+            },
+          },
+        },
+      },
     },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
   });
+
+  const teams = await db.team.findMany({
+    select: {
+      id: true,
+      teamId: true,
+      name: true,
+      products: {
+        select: {
+          productId: true,
+          name: true,
+          Price: true,
+          Max: true,
+          Min: true,
+        },
+      },
+    },
+  });
+
+  const panels = await db.domain.findMany({
+    select: {
+      id: true,
+      name: true,
+      products: {
+        select: {
+          productId: true,
+          name: true,
+          Price: true,
+          Max: true,
+          Min: true,
+        },
+      },
+    },
+  });
+
+  console.log(products);
 
   revalidatePath("/admin/product");
 
@@ -68,8 +167,8 @@ const ProductTable = async ({
             <TableHead>Sheet Name</TableHead>
             <TableHead>Google Sheet link</TableHead>
             <TableHead>Teams</TableHead>
+            <TableHead>Domains</TableHead>
             <TableHead>Actions</TableHead>
-
           </TableRow>
         </TableHeader>
         {totalItemCount === 0 && (
@@ -107,7 +206,18 @@ const ProductTable = async ({
               </TableCell>
               <TableCell>
                 <ProductTeamsDialog
-                  teams={product.teams}
+                  teams={teams}
+                  includedTeams={product.includedTeams}
+                  excludedTeams={product.excludedTeams}
+                  productName={product.productName}
+                  productId={product.id}
+                />
+              </TableCell>
+              <TableCell>
+                <ProductPanelsDialog
+                  panels={panels}
+                  includedPanels={product.includedDomains}
+                  excludedPanels={product.excludedDomains}
                   productName={product.productName}
                   productId={product.id}
                 />

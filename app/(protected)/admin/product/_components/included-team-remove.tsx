@@ -19,15 +19,8 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 
-const ProductRemove = ({ id }: { id: string }) => {
+const IncludedTeamRemove = ({ id , teamId }: { id: string; teamId : string; }) => {
   const [isPending, startTransition] = React.useTransition();
-
-  const form = useForm<z.infer<typeof EditProductFormSchema>>({
-    resolver: zodResolver(EditProductFormSchema),
-    defaultValues: {
-      minProduct: 0,
-    },
-  });
 
   const handleDelete = (id: string) => {
     deleteProduct({ id }).then((data) => {
@@ -48,13 +41,13 @@ const ProductRemove = ({ id }: { id: string }) => {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
+            <DialogTitle>Edit Team</DialogTitle>
             <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
               <Button asChild>
-                <Link href={`/admin/product/edit-form/${id}`}>Confirm</Link>
+                <Link href={`/admin/product/team-quantity/${id}/edit/${teamId}`}>Confirm</Link>
               </Button>
             </DialogClose>
           </DialogFooter>
@@ -80,4 +73,4 @@ const ProductRemove = ({ id }: { id: string }) => {
   );
 };
 
-export default ProductRemove;
+export default IncludedTeamRemove;

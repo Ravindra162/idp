@@ -1,5 +1,5 @@
 import React from "react";
-import ProductForm from "../_components/product-form";
+import ProductForm from "./_components/product-form";
 import { auth } from "@/auth";
 import TopBar from "../../_components/Topbar";
 

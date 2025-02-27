@@ -1,5 +1,5 @@
 import React from "react";
-import ProductEditForm from "../../../_components/product-edit-form";
+import ProductEditForm from "../../_components/product-edit-form";
 import { db } from "@/lib/db";
 import TopBar from "@/app/(protected)/_components/Topbar";
 
