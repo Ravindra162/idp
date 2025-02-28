@@ -66,7 +66,6 @@ const AdminDomainsTable = async ({ searchParams }: AdminDomainsTableProps) => {
             <TableHead>Panel Name</TableHead>
             <TableHead>Description </TableHead>
             <TableHead>Base URL</TableHead>
-            <TableHead>Products</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -85,7 +84,6 @@ const AdminDomainsTable = async ({ searchParams }: AdminDomainsTableProps) => {
               <TableCell className="font-medium">{domain.name}</TableCell>
               <TableCell>{domain.description}</TableCell>
               <TableCell>{domain.base_url}</TableCell>
-              <TableCell>{/* <ViewProducts  /> */}</TableCell>
               <TableCell>
                 <EditDomainButton id={domain.id} />
               </TableCell>

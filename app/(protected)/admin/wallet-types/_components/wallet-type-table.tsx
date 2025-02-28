@@ -16,8 +16,8 @@ import ModifyWalletType from "./wallet-modify";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import ViewDomains from "@/app/(protected)/_components/view-domains";
-import ViewPaymentTypes from "@/app/(protected)/_components/view-payment-types";
+import WalletPaymentTypesDialog, { Paymenttype } from "./payment-types-dialog";
+import DomainDialog from "./domains-dialog";
 
 export const generateMetadata = () => ({
   title: "Admin Wallet Types | GrowonsMedia",
@@ -54,24 +54,27 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
 
       const walletPayments = await db.walletTypePayment.findMany({
         where: { walletTypeId: walletType.id },
-        include: { paymentModel: true }, 
+        include: { paymentModel: true },
       });
 
-
-      const paymentTypes = walletPayments.map((walletPayment) => ({
-        name: walletPayment.paymentModel.name,
-      }));
+      const paymentTypes: Paymenttype[] = walletPayments.map(
+        (walletPayment) => ({
+          name: walletPayment.paymentModel.name ?? "",
+          id: walletPayment.paymentTypeId,
+          paymentType: walletPayment.paymentType.toString(),
+        })
+      );
 
       return {
         ...walletType,
         domainNames: domainMap,
         domains: domains,
-        paymentTypes : paymentTypes,
+        paymentTypes: paymentTypes,
       };
     })
   );
 
-  console.log(upWalletTypes)
+  console.log(upWalletTypes);
 
   return (
     <section className="m-2">
@@ -123,10 +126,16 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
               <TableCell>{walletType.description}</TableCell>
               <TableCell>{walletType.currencyCode}</TableCell>
               <TableCell>
-                <ViewPaymentTypes paymentTypes={walletType.paymentTypes}/>
+                <WalletPaymentTypesDialog
+                  walletTypeId={walletType.id}
+                  paymentTypes={walletType.paymentTypes}
+                />
               </TableCell>
               <TableCell>
-                <ViewDomains domains={walletType.domains} />
+                {/* <DomainDialog
+                  walletTypeId={walletType.id}
+                  domains={walletType.domains}
+                /> */}
               </TableCell>
               <TableCell>
                 <ModifyWalletType id={walletType.id} />

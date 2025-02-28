@@ -28,7 +28,7 @@ import { z } from "zod";
 
 type FormValues = z.infer<typeof AddWalletTypeSchema>;
 
-interface PaymentTypeProps {
+export interface PaymentTypeProps {
   type: string;
 }
 

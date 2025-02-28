@@ -24,13 +24,13 @@ import { useRouter } from "next/navigation";
 import { getDomains } from "@/actions/admin-domains";
 import { PaymentType } from "@prisma/client";
 import { z } from "zod";
-import { AddWalletTypeSchema } from "@/schemas";
+import { AddWalletTypeSchema, UpdateWalletTypeSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addWalletType, updateWalletType } from "@/actions/add-wallet-type";
 import { init } from "next/dist/compiled/webpack/webpack";
 import { PaymentMethodDetails } from "./wallet-form";
 
-type FormValues = z.infer<typeof AddWalletTypeSchema>;
+type FormValues = z.infer<typeof UpdateWalletTypeSchema>;
 
 interface PaymentTypeProps {
   type: string;
@@ -71,58 +71,17 @@ const WalletForm = ({
   const router = useRouter();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(AddWalletTypeSchema),
+    resolver: zodResolver(UpdateWalletTypeSchema),
     defaultValues: {
+      id : "",
       name: intialVals?.name,
       currencyCode: intialVals?.currencyCode,
       description: intialVals?.description,
-      payments: [
-        {
-          type: "",
-          details: [],
-        },
-      ],
-      domainIds: [
-        {
-          type: "",
-        },
-      ],
     },
-  });
-
-  console.log(intialVals?.payments);
-
-  const {
-    fields: domainIdFields,
-    append: appendDomainId,
-    remove: removeDomainId,
-  } = useFieldArray({
-    name: "domainIds",
-    control: form.control,
-  });
-
-  // For payments field
-  const {
-    fields: paymentFields,
-    append: appendPayment,
-    remove: removePayment,
-  } = useFieldArray({
-    name: "payments",
-    control: form.control,
   });
 
   const onSubmit = (values: FormValues) => {
     setError("");
-
-    if (values.payments.length === 0) {
-      toast.error("Payment type cannot be empty");
-      return;
-    }
-
-    if (values.domainIds.length == 0) {
-      toast.error("DomainIds cannot be empty");
-      return;
-    }
 
     console.log("Form values:", values);
 
@@ -219,239 +178,6 @@ const WalletForm = ({
                 </FormItem>
               )}
             />
-
-            {/* Payment Type Fields */}
-            <div className="mt-4">
-              <FormLabel>Payment Methods</FormLabel>
-            </div>
-            {paymentFields.map((item, index) => (
-              <div key={item.id}>
-                <FormField
-                  control={form.control}
-                  name={`payments.${index}.type`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Select
-                        onValueChange={field.onChange}
-                        disabled={isPending}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a payment type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <FormMessage />
-                        <SelectContent>
-                          {paymentTypes.map((paymentType) => (
-                            <SelectItem
-                              key={paymentType.type}
-                              value={paymentType.type}
-                            >
-                              {paymentType.type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <div className="mt-4">
-                  <FormField
-                    control={form.control}
-                    name={`payments.${index}.details`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <Select
-                          onValueChange={(value) => {
-                            const updatedDetails = [
-                              ...field.value,
-                              paymentTypeMethodDetails.find(
-                                (method) => method.name === value
-                              ),
-                            ];
-                            field.onChange(updatedDetails);
-                          }}
-                          disabled={isPending}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a method details" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <FormMessage />
-                          <SelectContent>
-                            {paymentTypeMethodDetails.map(
-                              (paymentMethodDetail) => (
-                                <SelectItem
-                                  key={paymentMethodDetail.id}
-                                  value={paymentMethodDetail.name || ""}
-                                >
-                                  {paymentMethodDetail.name}
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => removePayment(index)}
-                  className="mt-2 mb-2"
-                  variant={"ghost"}
-                >
-                  Remove Payment Type
-                </Button>
-              </div>
-            ))}
-
-            {/* Add Payment Type Button */}
-            <div>
-              <FormField
-                control={form.control}
-                name="payments"
-                render={() => (
-                  <Button type="button" disabled={isPending} className={`mb-2`}>
-                    <div className="flex items-center gap-x-3 mt-2 mb-2">
-                      <label
-                        htmlFor="PaymentType"
-                        className={`text-sm text-[7E8DA0] cursor-pointer focus:outline-none focus:underline`}
-                        tabIndex={0}
-                        onClick={() => {
-                          if (paymentFields.length === 0) {
-                            appendPayment({
-                              type: "",
-                              details: [],
-                            });
-                          } else {
-                            const lastPaymentType =
-                              form.getValues().payments[
-                                paymentFields.length - 1
-                              ];
-
-                            if (
-                              lastPaymentType &&
-                              lastPaymentType.type.trim() !== ""
-                            ) {
-                              appendPayment({
-                                type: "",
-                                details: [],
-                              });
-                            } else {
-                              toast.error(
-                                "Please fill in the previous payment type before adding a new one."
-                              );
-                            }
-                          }
-                        }}
-                      >
-                        Add Payment Type
-                      </label>
-                    </div>
-                  </Button>
-                )}
-              />
-            </div>
-
-            {/* Domain ID Fields */}
-            <div className="mt-4">
-              <FormLabel>Panel</FormLabel>
-            </div>
-            {domainIdFields.map((item, index) => (
-              <div key={item.id}>
-                <FormField
-                  control={form.control}
-                  name={`domainIds.${index}.type`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Select
-                        onValueChange={field.onChange}
-                        disabled={isPending}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a Panel" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <FormMessage />
-                        <SelectContent>
-                          {domains.map((domain: any) => (
-                            <SelectItem
-                              value={domain.name}
-                              key={domain.id}
-                              className="capitalize"
-                            >
-                              {domain.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <Button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => removeDomainId(index)}
-                  className="mt-2 mb-2"
-                  variant={"ghost"}
-                >
-                  Remove Panel
-                </Button>
-              </div>
-            ))}
-
-            {/* Add Domain Button */}
-            <div>
-              <FormField
-                control={form.control}
-                name="domainIds"
-                render={() => (
-                  <Button type="button" disabled={isPending} className={`mb-2`}>
-                    <div className="flex items-center gap-x-3 mt-2 mb-2">
-                      <label
-                        htmlFor="DomainId"
-                        className={`text-sm text-[7E8DA0] cursor-pointer focus:outline-none focus:underline`}
-                        tabIndex={0}
-                        onClick={() => {
-                          if (domainIdFields.length === 0) {
-                            appendDomainId({
-                              type: "",
-                            });
-                          } else {
-                            const lastDomainId =
-                              form.getValues().domainIds[
-                                domainIdFields.length - 1
-                              ];
-
-                            if (
-                              lastDomainId &&
-                              lastDomainId.type.trim() !== ""
-                            ) {
-                              appendDomainId({
-                                type: "", // Default value
-                              });
-                            } else {
-                              toast.error(
-                                "Please fill in the previous panel before adding a new one."
-                              );
-                            }
-                          }
-                        }}
-                      >
-                        Add Panel
-                      </label>
-                    </div>
-                  </Button>
-                )}
-              />
-            </div>
-
             <Button disabled={isPending} type="submit" className="mt-0 w-full">
               Add Wallet
             </Button>

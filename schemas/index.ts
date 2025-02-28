@@ -801,9 +801,14 @@ export const AddWalletTypeSchema = z.object({
   payments: z.array(WalletPaymentSchema),
 });
 
-export const UpdateWalletTypeSchema = AddWalletTypeSchema.extend({
+export const UpdateWalletTypeSchema = z.object({
   id: z.string().nonempty("WalletType ID is required"),
+  name: z.string().nonempty("WalletType Name is required"),
+  currencyCode: z.string().nonempty("CurrencyCode is required"),
+  description: z.string().optional(),
 });
+
+
 
 export const TeamCreateSchema = z.object({
   teamName: z.string().min(1, "Team name is required"),
