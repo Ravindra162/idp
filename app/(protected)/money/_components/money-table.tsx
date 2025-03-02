@@ -18,15 +18,16 @@ import { revalidatePath } from "next/cache";
 type TableProps = {
   searchParams: { page: string };
   userId: string;
+  walletId : string;
 };
 
-export async function MoneyTable({ userId, searchParams }: TableProps) {
+export async function MoneyTable({ userId, walletId, searchParams }: TableProps) {
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 12;
   const totalItemCount = (
     await db.money.findMany({
-      where: { userId: userId },
+      where: { userId: userId , walletId : walletId },
     })
   ).length;
 

@@ -13,7 +13,11 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import * as z from "zod";
-import { EditPanelQuantitySchema, ProductSchema } from "@/schemas";
+import {
+  EditPanelQuantitySchema,
+  EditTeamQuantitySchema,
+  ProductSchema,
+} from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormError } from "@/components/shared/form-error";
 import { addProduct } from "@/actions/products";
@@ -25,10 +29,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { excludeTeamInfo } from "@/actions/admin-product-teams";
+import { useRouter } from "next/navigation";
 
-interface Panel {
+interface Team {
   id: string;
+  teamId: string;
+  domainId: string;
   name: string;
+  domain: {
+    id: string;
+    name: string;
+  };
   products: {
     productId: string;
     name: string;
@@ -40,25 +52,43 @@ interface Panel {
 
 const ExcludeAddTeamForm = ({
   productId,
-  panels,
+  teams,
+  productName,
 }: {
   productId: string;
-  panels: Panel[];
+  productName: string;
+  teams: Team[];
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const router = useRouter();
 
-  const form = useForm<z.infer<typeof EditPanelQuantitySchema>>({
-    resolver: zodResolver(EditPanelQuantitySchema),
+  const form = useForm<z.infer<typeof EditTeamQuantitySchema>>({
+    resolver: zodResolver(EditTeamQuantitySchema),
     defaultValues: {
       id: productId,
-      domainId: "",
+      teamId: "",
+      name: productName,
+      maxProduct: 1,
+      minProduct: 2,
+      price: 1,
     },
   });
 
-  const onSubmit = (values: z.infer<typeof EditPanelQuantitySchema>) => {
+  const onSubmit = (values: z.infer<typeof EditTeamQuantitySchema>) => {
     setError("");
-    startTransition(() => {});
+    startTransition(() => {
+      excludeTeamInfo(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.push("/admin/product/product-table")
+        }
+        if (data?.error) {
+          setError(data.error);
+        }
+      });
+    });
   };
   return (
     <div className="flex flex-col lg:flex-row md:justify-between gap-4 md:gap-x-10">
@@ -70,7 +100,7 @@ const ExcludeAddTeamForm = ({
           >
             <FormField
               control={form.control}
-              name="domainId"
+              name="teamId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team </FormLabel>
@@ -81,14 +111,14 @@ const ExcludeAddTeamForm = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Panel" />
+                        <SelectValue placeholder="Select Team" />
                       </SelectTrigger>
                     </FormControl>
                     <FormMessage />
                     <SelectContent>
-                      {panels.map((panel) => (
-                        <SelectItem key={panel.id} value={panel.id}>
-                          {`${panel.name} - ${panel.id} `}
+                      {teams.map((team) => (
+                        <SelectItem key={team.teamId} value={team.teamId}>
+                          {`${team.name} - ${team.domain.name} `}
                         </SelectItem>
                       ))}
                     </SelectContent>

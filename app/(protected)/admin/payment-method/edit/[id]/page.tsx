@@ -49,6 +49,7 @@ const page = async ({ params }: { params: { id: string } }) => {
           <EditPaymentMethodDetailsForm
             userId={session?.user.id || ""}
             initialValues={initialValues}
+            paymentMethodDetailsId={params.id}
             paymentTypes={paymentTypes}
           />
         </div>

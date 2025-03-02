@@ -15,8 +15,8 @@ import { formatPrice } from "@/components/shared/formatPrice";
 import { revalidatePath } from "next/cache";
 import DescriptionDialog from "../../_components/description-dialog";
 import ProductTeamsDialog from "./product-teams-dialog";
-import { includeTeamInProduct } from "@/actions/admin-product-teams";
 import ProductPanelsDialog from "./product-panels-dialog";
+import ProductWalletsDialog from "../wallet-quantity/[productid]/_components/product-wallet-dialog";
 
 export const revalidate = 3600;
 
@@ -65,6 +65,36 @@ const ProductTable = async ({
         },
       },
       excludedDomains: {
+        select: {
+          id: true,
+          name: true,
+          products: {
+            select: {
+              productId: true,
+              name: true,
+              Price: true,
+              Max: true,
+              Min: true,
+            },
+          },
+        },
+      },
+      includedWalletTypes: {
+        select: {
+          id: true,
+          name: true,
+          products: {
+            select: {
+              productId: true,
+              name: true,
+              Price: true,
+              Max: true,
+              Min: true,
+            },
+          },
+        },
+      },
+      excludedWalletTypes: {
         select: {
           id: true,
           name: true,
@@ -133,6 +163,23 @@ const ProductTable = async ({
     },
   });
 
+  const walletTypes = await db.walletType.findMany({
+    select: {
+      id: true,
+      name: true,
+      products: {
+        select: {
+          productId: true,
+          name: true,
+          Price: true,
+          Max: true,
+          Min: true,
+        },
+      },
+    },
+  });
+
+
   const panels = await db.domain.findMany({
     select: {
       id: true,
@@ -149,10 +196,8 @@ const ProductTable = async ({
     },
   });
 
-  console.log(products);
-
   revalidatePath("/admin/product");
-
+  
   return (
     <>
       <Table>
@@ -167,6 +212,7 @@ const ProductTable = async ({
             <TableHead>Sheet Name</TableHead>
             <TableHead>Google Sheet link</TableHead>
             <TableHead>Teams</TableHead>
+            <TableHead>Wallet Types</TableHead>
             <TableHead>Domains</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -209,6 +255,15 @@ const ProductTable = async ({
                   teams={teams}
                   includedTeams={product.includedTeams}
                   excludedTeams={product.excludedTeams}
+                  productName={product.productName}
+                  productId={product.id}
+                />
+              </TableCell>
+              <TableCell>
+                <ProductWalletsDialog
+                  wallets={walletTypes}
+                  includedWallets={product.includedWalletTypes}
+                  excludedWallets={product.excludedWalletTypes}
                   productName={product.productName}
                   productId={product.id}
                 />

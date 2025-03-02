@@ -80,7 +80,7 @@ const RegisterForm = () => {
   });
 
   useEffect(() => {
-    const domainId = process.env.DOMAIN_ID;
+    const domainId = process.env.NEXT_PUBLIC_DOMAIN_ID || "";
     form.setValue("domainId", domainId);
 
     const urlParams = new URLSearchParams(window.location.search);

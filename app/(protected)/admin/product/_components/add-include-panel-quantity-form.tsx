@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { includePanelInfo } from "@/actions/admin-product-panels";
+import { useRouter } from "next/navigation";
 
 interface Panel {
   id: string;
@@ -41,20 +43,24 @@ interface Panel {
 const AddPanelQuantityForm = ({
   productId,
   panels,
+  productName,
 }: {
   productId: string;
+  productName: string;
   panels: Panel[];
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof EditPanelQuantitySchema>>({
     resolver: zodResolver(EditPanelQuantitySchema),
     defaultValues: {
       id: productId,
-      domainId : "",
+      domainId: "",
+      name: productName,
       maxProduct: 0,
-      minProduct: 0,
+      minProduct: 1,
       price: 0,
     },
   });
@@ -62,15 +68,18 @@ const AddPanelQuantityForm = ({
   const onSubmit = (values: z.infer<typeof EditPanelQuantitySchema>) => {
     setError("");
     startTransition(() => {
-    //   addProduct(values).then((data) => {
-    //     if (data?.success) {
-    //       toast.success(data.success);
-    //       form.reset();
-    //     }
-    //     if (data?.error) {
-    //       setError(data.error);
-    //     }
-    //   });
+      console.log("----------------");
+
+      includePanelInfo(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.push("/admin/product/product-table");
+        }
+        if (data?.error) {
+          setError(data.error);
+        }
+      });
     });
   };
   return (
@@ -81,6 +90,34 @@ const AddPanelQuantityForm = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 w-[100]%"
           >
+            <FormField
+              control={form.control}
+              name="domainId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Panel</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Panel" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <FormMessage />
+                    <SelectContent>
+                      {panels.map((panel) => (
+                        <SelectItem key={panel.id} value={panel.id}>
+                          {`${panel.name}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="price"
@@ -121,7 +158,7 @@ const AddPanelQuantityForm = ({
               )}
             />
             <Button type="submit" disabled={isPending} className="mt-0 w-full">
-              Edit Panel Quantity
+              Add Panel Quantity
             </Button>
           </form>
         </Form>

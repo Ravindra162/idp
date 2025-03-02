@@ -65,7 +65,7 @@ const page = async ({ params }: { params: { id: string } }) => {
       <section className="space-y-4 md:max-h-[90vh] w-full md:w-[100%] p-2">
         <div className="flex items-center gap-x-2">
           <Button className="flex items-center " asChild>
-            <Link href={`/orders/create/${params.id}`} className="inline">
+            <Link href={`/orders/wallets-listing/${params.id}`} className="inline">
               <Image
                 src="/svgs/plus.svg"
                 alt="add money"

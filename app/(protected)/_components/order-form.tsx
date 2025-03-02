@@ -32,6 +32,7 @@ type FormValues = z.infer<typeof OrderSchema>;
 
 type OrderProps = {
   id: string;
+  walletId : string;
   products: any;
   role: "PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE" | undefined;
   children: React.ReactNode;
@@ -41,26 +42,18 @@ type OrderProps = {
 
 
 
-const OrderForm = ({ id, products, children }: OrderProps) => {
+const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
   const [wallets, setWallets] = useState<any[]>([]);
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = React.useTransition();
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchWallets = async () => {
-      const wallets = await fetchWalletsByUserId(id);
-      setWallets(wallets);
-    };
-    fetchWallets();
-  }, [id]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(OrderSchema),
     mode: "onBlur",
     defaultValues: {
       id: id,
-      walletId: "", 
+      walletId: walletId, 
       products: [
         {
           name: "",
@@ -122,39 +115,6 @@ const OrderForm = ({ id, products, children }: OrderProps) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 w-[100%]"
           >
-            {/* Wallet Selection Field */}
-            <FormField
-              control={form.control}
-              name="walletId"
-              render={({ field }) => (
-                <FormItem>
-                  <Select
-                    onValueChange={field.onChange}
-                    disabled={isPending}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a wallet" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <FormMessage />
-                    <SelectContent>
-                      {wallets.map((wallet) => (
-                        <SelectItem
-                          value={wallet.id}
-                          key={wallet.id}
-                          className="capitalize"
-                        >
-                          {wallet.currencyCode}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-
             {/* Product Selection Fields */}
             {fields.map((item, index) => (
               <div key={item.id}>

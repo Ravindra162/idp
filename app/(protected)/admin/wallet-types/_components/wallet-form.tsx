@@ -115,11 +115,6 @@ const WalletForm = ({
       return;
     }
 
-    if (values.domainIds.length == 0) {
-      toast.error("DomainIds cannot be empty");
-      return;
-    }
-
     console.log("Form values:", values);
     startTransition(() => {
       addWalletType(values)

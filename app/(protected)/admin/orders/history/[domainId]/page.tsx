@@ -10,13 +10,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import PaginationBar from "../../../money/_components/PaginationBar";
-import TopBar from "../../../_components/Topbar";
+import PaginationBar from "../../../../money/_components/PaginationBar";
+import TopBar from "../../../../_components/Topbar";
 import ReasonDialog from "@/components/shared/ReasonDialog";
 import BadgeStatus from "@/app/(protected)/money/_components/BadgeStatus";
-import FileDialog from "../../_components/file-dialog";
+import FileDialog from "../../../_components/file-dialog";
 import ViewProducts from "@/app/(protected)/_components/view-products";
-import GetName from "../_components/get-name";
+import GetName from "../../_components/get-name";
 import Search from "@/components/shared/search";
 
 export const generateMetadata = () => {
@@ -109,7 +109,7 @@ const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
                       products={JSON.parse(JSON.stringify(order.products))}
                     />
                   </TableCell>
-                  <TableCell>{formatPrice(order.amount)}</TableCell>
+                  <TableCell>{formatPrice(order.amount, "")}</TableCell>
                   <TableCell className="flex flex-col">
                     <span>{order.createdAt.toDateString()}</span>
                     <span>

@@ -1,14 +1,17 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { EditTeamQuantitySchema } from "@/schemas";
+import { connect } from "http2";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 export async function searchTeams(query: string, productId: string) {
   try {
     const product = await db.product.findUnique({
       where: { id: productId },
-      select: { 
-        includedTeams : {
+      select: {
+        includedTeams: {
           select: {
             id: true,
             teamId: true,
@@ -16,10 +19,10 @@ export async function searchTeams(query: string, productId: string) {
             domainId: true,
             leader: true,
             leaderId: true,
-          }
+          },
         },
-        includedTeamIds : true
-       },
+        includedTeamIds: true,
+      },
     });
 
     const currentTeamIds = product?.includedTeamIds || [];
@@ -45,6 +48,12 @@ export async function searchTeams(query: string, productId: string) {
         teamId: true,
         name: true,
         domainId: true,
+        domain: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         leader: true,
         leaderId: true,
       },
@@ -58,108 +67,208 @@ export async function searchTeams(query: string, productId: string) {
   }
 }
 
-export async function includeTeamInProduct(productId: string, teamId: string) {
-  try {
-    const [product, team] = await Promise.all([
-      db.product.findUnique({
-        where: { id: productId },
-        select: {
-          id: true,
-          productName: true,
-          price: true,
-          minProduct: true,
-          maxProduct: true,
-        },
-      }),
-      db.team.findUnique({
-        where: { id: teamId },
-        select: { products: true },
-      }),
-    ]);
+export const includeTeamInfo = async (
+  values: z.infer<typeof EditTeamQuantitySchema>
+) => {
+  const parsedData = EditTeamQuantitySchema.parse(values);
 
-    if (!product || !team) {
-      throw new Error("Product or team not found");
+  const { id, name, teamId, minProduct, maxProduct, price } = parsedData;
+
+  try {
+    console.log(teamId);
+
+    const existingProductInfo = await db.productInfo.findFirst({
+      where: { productId: id, teamId },
+    });
+
+    let updatedProductInfo;
+    if (existingProductInfo) {
+      updatedProductInfo = await db.productInfo.update({
+        where: { id: existingProductInfo.id }, // Using unique id for update
+        data: { Min: minProduct, Max: maxProduct, Price: price },
+      });
+    } else {
+      updatedProductInfo = await db.productInfo.create({
+        data: {
+          productId: id,
+          name: name,
+          Min: minProduct,
+          Max: maxProduct,
+          Price: price,
+          team: {
+            connect: { teamId: teamId },
+          },
+        },
+      });
     }
 
     await db.product.update({
-      where: { id: productId },
+      where: { id },
       data: {
-        includedTeamIds: {
-          push: teamId,
-        },
+        includedTeams: { connect: { teamId } },
       },
     });
-    const currentProducts = (team.products as any[]) || [];
-    const newProduct = {
-      id: product.id,
-      name: product.productName,
-      minProduct: product.minProduct,
-      maxProduct: product.maxProduct,
-      price: product.price,
-    };
 
     await db.team.update({
-      where: { id: teamId },
+      where: { teamId },
       data: {
-        products: [...currentProducts, newProduct],
+        includedIn: { connect: { id } },
       },
     });
 
-    revalidatePath("/admin/product");
-    return { success: true, message: "Team added successfully" };
+    console.log("---------------");
+    revalidatePath("/admin/product/product-table");
+    return { success: "Team Included Successfully!", data: updatedProductInfo };
   } catch (error) {
-    console.error("Error including team:", error);
-    return { success: false, message: "Failed to add team" };
+    console.error("Error updating product info:", error);
+    return { error: "Failed to update product info" };
   }
-}
+};
 
-export async function excludeTeamFromProduct(
-  productId: string,
-  teamId: string
-) {
+export const excludeTeamInfo = async (
+  values: z.infer<typeof EditTeamQuantitySchema>
+) => {
+  const parsedData = EditTeamQuantitySchema.parse(values);
+
+  const { id, name, teamId, minProduct, maxProduct, price } = parsedData;
+
   try {
-    // Get current teamIds and team details
-    const [product, team] = await Promise.all([
-      db.product.findUnique({
-        where: { id: productId },
-        select: { teamIds: true, productName: true },
-      }),
-      db.team.findUnique({
-        where: { id: teamId },
-        select: { products: true },
-      }),
-    ]);
+    console.log(teamId);
 
-    if (!product || !team) {
-      throw new Error("Product or team not found");
+    const existingProductInfo = await db.productInfo.findFirst({
+      where: { productId: id, teamId },
+    });
+
+    let updatedProductInfo;
+    if (existingProductInfo) {
+      updatedProductInfo = await db.productInfo.update({
+        where: { id: existingProductInfo.id }, // Using unique id for update
+        data: { Min: 0, Max: 0, Price: 0 },
+      });
+    } else {
+      updatedProductInfo = await db.productInfo.create({
+        data: {
+          productId: id,
+          name: name,
+          Min: 0,
+          Max: 0,
+          Price: 0,
+          team: {
+            connect: { teamId: teamId },
+          },
+        },
+      });
     }
 
-    const updatedTeamIds = product.teamIds.filter((id) => id !== teamId);
+    await db.product.update({
+      where: { id },
+      data: {
+        excludedTeams: { connect: { teamId } },
+      },
+    });
 
-    const currentProducts = (team.products as any[]) || [];
-    const updatedProducts = currentProducts.filter(
-      (p) => p.name !== product.productName
-    );
+    await db.team.update({
+      where: { teamId },
+      data: {
+        excludedFrom: { connect: { id } },
+      },
+    });
 
-    await db.$transaction([
-      db.product.update({
-        where: { id: productId },
-        data: {
-          teamIds: updatedTeamIds,
-        },
-      }),
-      db.team.update({
-        where: { id: teamId },
-        data: {
-          products: updatedProducts,
-        },
-      }),
-    ]);
-
-    revalidatePath("/admin/product");
-    return { success: true, message: "Team removed successfully" };
+    console.log("---------------");
+    revalidatePath("/admin/product/product-table");
+    return { success: "Team Included Successfully!", data: updatedProductInfo };
   } catch (error) {
-    console.error("Error excluding team:", error);
-    return { success: false, message: "Failed to remove team" };
+    console.error("Error updating product info:", error);
+    return { error: "Failed to update product info" };
   }
-}
+};
+
+export const removeIncludeTeamInfo = async (
+  teamId: string,
+  productId: string
+) => {
+  try {
+    // Find the existing ProductInfo record
+    const existingProductInfo = await db.productInfo.findFirst({
+      where: {
+        productId,
+        teamId,
+        Max: { gt: 0 },
+        Min: { gt: 0 },
+        Price: { gt: 0 },
+      },
+    });
+
+    if (!existingProductInfo) {
+      return { error: "No matching ProductInfo found to remove." };
+    }
+
+    // Delete the ProductInfo record
+    await db.productInfo.delete({
+      where: { id: existingProductInfo.id },
+    });
+
+    // Update Product model to disconnect the team
+    await db.product.update({
+      where: { id: productId },
+      data: {
+        includedTeams: { disconnect: { teamId } }, // Remove team from includedTeams
+      },
+    });
+
+    // Update Team model to disconnect the product
+    await db.team.update({
+      where: { teamId },
+      data: {
+        includedIn: { disconnect: { id: productId } }, // Remove product from includedIn
+      },
+    });
+    revalidatePath("/admin/product/product-table");
+    return { success: "Team removed successfully from Product!" };
+  } catch (error) {
+    console.error("Error removing team from product:", error);
+    return { error: "Failed to remove team from product." };
+  }
+};
+
+export const removeExcludeTeamInfo = async (
+  teamId: string,
+  productId: string
+) => {
+  try {
+    // Find the existing ProductInfo record
+    const existingProductInfo = await db.productInfo.findFirst({
+      where: { productId, teamId , Max : 0, Min : 0, Price: 0 },
+    });
+
+    if (!existingProductInfo) {
+      return { error: "No matching ProductInfo found to remove." };
+    }
+
+    // Delete the ProductInfo record
+    await db.productInfo.delete({
+      where: { id: existingProductInfo.id },
+    });
+
+    // Update Product model to disconnect the team
+    await db.product.update({
+      where: { id: productId },
+      data: {
+        excludedTeams: { disconnect: { teamId } }, // Remove team from includedTeams
+      },
+    });
+
+    // Update Team model to disconnect the product
+    await db.team.update({
+      where: { teamId },
+      data: {
+        excludedFrom: { disconnect: { id: productId } }, // Remove product from includedIn
+      },
+    });
+    revalidatePath("/admin/product/product-table");
+    return { success: "Team removed successfully from Product!" };
+  } catch (error) {
+    console.error("Error removing team from product:", error);
+    return { error: "Failed to remove team from product." };
+  }
+};

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import EditTeamQuantityForm from "../../../_components/edit-include-team-quantity-form";
 import AddTeamQuantityForm from "../../../_components/add-include-team-quantity-form";
 import AddPanelQuantityForm from "../../../_components/add-include-panel-quantity-form";
+import ExcludeAddPanelForm from "../../../_components/exclude-add-panel-form";
 
 export const generateMetadata = () => {
   return {

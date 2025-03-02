@@ -18,12 +18,13 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { removeExcludeTeamInfo } from "@/actions/admin-product-teams";
 
-const ExcludedTeamRemove = ({ id }: { id: string }) => {
+const ExcludedTeamRemove = ({ id, teamId }: { id: string; teamId: string }) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = (productId: string, teamId: string) => {
+    removeExcludeTeamInfo(teamId, productId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -46,7 +47,7 @@ const ExcludedTeamRemove = ({ id }: { id: string }) => {
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(id)}>Confirm</Button>
+              <Button onClick={() => handleDelete(id, teamId)}>Confirm</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

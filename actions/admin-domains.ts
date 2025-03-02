@@ -39,7 +39,6 @@ export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
         data: {
           domainId: newDomain.id,
           domainName: newDomain.name,
-          
           autmVar: false,
           userId : userId
         },
@@ -53,7 +52,7 @@ export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
       return updatedDomain;
     });
 
-    revalidatePath("/admin/panels/add");
+    revalidatePath("/admin/panels/table");
     return { success: "Domain and settings added successfully!", data: result };
   } catch (error) {
     console.log(error);
@@ -77,9 +76,11 @@ export const updateDomain = async ( values: z.infer<typeof UpdateDomainSchema>) 
         data: updateData,
       });
   
-      revalidatePath("/admin/panels/edit");
+      revalidatePath("/admin/panels/table");
       return { success: "Domain updated successfully!", data: updatedDomain };
     } catch (error) {
       return { error: "Failed to update domain!" };
     }
   };
+
+  

@@ -65,7 +65,7 @@ const TeamCreationForm = ({
           if (data?.success) {
             toast.success(data.success);
             form.reset();
-            router.refresh();
+            router.push(`/admin/team/table/${domainId}`);
           }
           if (data?.error) {
             setError(data.error);

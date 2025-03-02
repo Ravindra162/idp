@@ -4,7 +4,6 @@ import React from "react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
@@ -13,16 +12,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
-  TableFooter,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import IncludedTeamRemove from "./included-team-remove";
-import ExcludedTeamRemove from "./excluded-team-remove";
 import Link from "next/link";
 import IncludedPanelRemove from "./included-panel-remove";
+import ExcludedPanelRemove from "./excluded-panel-remove";
 
 interface Panel {
   id: string;
@@ -51,22 +48,23 @@ const ProductPanelsDialog = ({
   productName,
   productId,
 }: ProductPanelsDialogProps) => {
+  console.log(productId)
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          View Domains
+          View Panels
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
         {/* Included Teams List in Table Format */}
         <Button className="text-sm w-auto ml-auto" asChild>
           <Link href={`/admin/product/panel-quantity/${productId}/add`} className="inline">
-            Include a Panel
+            Include a Panel 
           </Link>
         </Button>
         <DialogTitle>
-          Panel having special access{" "}
+          Panel having special access
           {productName.charAt(0).toUpperCase() + productName.slice(1)}
         </DialogTitle>
         <ScrollArea className="max-h-[300px] mt-4 border rounded-md p-4">
@@ -87,25 +85,31 @@ const ProductPanelsDialog = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {includedPanels.map((panel) => (
+                {includedPanels.map((panel) => {
+                  const productDetails = panel.products.find(
+                    (p) => p.productId === productId
+                  );
+                  console.log(productDetails);
+                  return productDetails ? (
                   <TableRow key={panel.id}>
                     <TableCell>{panel.id}</TableCell>
                     <TableCell>{panel.name}</TableCell>
-                    <TableCell>{/* ${team.products.Price} */}</TableCell>
-                    <TableCell>{/* {team.products[0].Min} */}</TableCell>
-                    <TableCell>{/* {team.products[0].Max} */}</TableCell>
+                    <TableCell>{productDetails.Price}</TableCell>
+                    <TableCell>{productDetails.Min}</TableCell>
+                    <TableCell>{productDetails.Max}</TableCell>
                     <TableCell>
                       <IncludedPanelRemove id={productId} domainId={panel.id} />
                     </TableCell>
                   </TableRow>
-                ))}
+                  ) : null;
+})}
               </TableBody>
             </Table>
           )}
         </ScrollArea>
 
         <Button className="text-sm w-auto ml-auto" asChild>
-          <Link href={``} className="inline">
+          <Link href={`/admin/product/team-quantity/${productId}/exclude-add`} className="inline">
             Exclude a Panel
           </Link>
         </Button>
@@ -135,7 +139,7 @@ const ProductPanelsDialog = ({
                     <TableCell>{panel.id}</TableCell>
                     <TableCell>{panel.name}</TableCell>
                     <TableCell>
-                      <ExcludedTeamRemove id={panel.id} />
+                      <ExcludedPanelRemove id={panel.id} />
                     </TableCell>
                   </TableRow>
                 ))}

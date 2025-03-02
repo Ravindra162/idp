@@ -51,23 +51,65 @@ const ProductRemove = ({ id }: { id: string }) => {
             <DialogTitle>Edit Product</DialogTitle>
             <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <DialogClose>
-              <Button asChild>
-                <Link href={``}> Visible to All Domains</Link>
-              </Button>
-            </DialogClose>
-            <DialogClose>
-              <Button asChild>
-                <Link href={``}> Visible to All Teams</Link>
-              </Button>
-            </DialogClose>
+          <div className="flex justify-end">
             <DialogClose>
               <Button asChild>
                 <Link href={`/admin/product/edit-form/${id}`}>Confirm</Link>
               </Button>
             </DialogClose>
-          </DialogFooter>
+          </div>
+          <div className="mt-4">
+            <table className="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Section
+                  </th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">
+                    Visibility
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2">
+                    Manage Panel
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <DialogClose>
+                      <Button asChild>
+                        <Link href={``}>Visible to All Panels</Link>
+                      </Button>
+                    </DialogClose>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2">
+                    Manage Team
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <DialogClose>
+                      <Button asChild>
+                        <Link href={``}>Visible to All Teams</Link>
+                      </Button>
+                    </DialogClose>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="border border-gray-300 px-4 py-2">
+                    Manage Wallet Types
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    <DialogClose>
+                      <Button asChild>
+                        <Link href={``}>Visible to All Wallet Types</Link>
+                      </Button>
+                    </DialogClose>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </DialogContent>
       </Dialog>
       <Dialog>

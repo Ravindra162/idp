@@ -11,14 +11,15 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { deleteProduct } from "@/actions/products";
 import { toast } from "sonner";
 import Link from "next/link";
+import { deleteTeam } from "@/actions/admin-teams";
 
-const ModifyTeam = ({ id, domainId }: { id: string, domainId : string }) => {
+const ModifyTeam = ({ teamId, domainId }: { teamId: string, domainId : string }) => {
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = (teamId : string, domainId : string) => {
+   console.log(teamId);
+    deleteTeam(teamId, domainId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -42,7 +43,7 @@ const ModifyTeam = ({ id, domainId }: { id: string, domainId : string }) => {
           <DialogFooter>
             <DialogClose>
               <Button asChild>
-                <Link href={`/admin/team/edit/${domainId}/${id}`}>Confirm</Link>
+                <Link href={`/admin/team/edit/${domainId}/${teamId}`}>Confirm</Link>
               </Button>
             </DialogClose>
           </DialogFooter>
@@ -59,7 +60,7 @@ const ModifyTeam = ({ id, domainId }: { id: string, domainId : string }) => {
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(id)}>Confirm</Button>
+              <Button onClick={() => handleDelete(teamId, domainId)}>Confirm</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

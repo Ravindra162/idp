@@ -18,12 +18,13 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { removeIncludeTeamInfo } from "@/actions/admin-product-teams";
 
-const IncludedTeamRemove = ({ id , teamId }: { id: string; teamId : string; }) => {
+const IncludedTeamRemove = ({ id, teamId }: { id: string; teamId: string }) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = (productId: string, teamId: string) => {
+    removeIncludeTeamInfo(teamId, productId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -47,7 +48,11 @@ const IncludedTeamRemove = ({ id , teamId }: { id: string; teamId : string; }) =
           <DialogFooter>
             <DialogClose>
               <Button asChild>
-                <Link href={`/admin/product/team-quantity/${id}/edit/${teamId}`}>Confirm</Link>
+                <Link
+                  href={`/admin/product/team-quantity/${id}/edit/${teamId}`}
+                >
+                  Confirm
+                </Link>
               </Button>
             </DialogClose>
           </DialogFooter>
@@ -64,7 +69,7 @@ const IncludedTeamRemove = ({ id , teamId }: { id: string; teamId : string; }) =
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(id)}>Confirm</Button>
+              <Button onClick={() => handleDelete(id, teamId)}>Confirm</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

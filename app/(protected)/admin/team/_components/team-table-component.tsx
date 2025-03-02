@@ -40,7 +40,7 @@ export async function TeamTable({ searchParams, domainId }: TeamTableProps) {
     take: pageSize,
   });
 
-  revalidatePath(`/teams`);
+  revalidatePath(`/admin/team/table/${domainId}`);
 
   return (
     <section>
@@ -77,7 +77,7 @@ export async function TeamTable({ searchParams, domainId }: TeamTableProps) {
                 </TableCell>
                 <TableCell>{team.leader?.name || "N/A"}</TableCell>
                 <TableCell>
-                  <ModifyTeam domainId={team.domainId ?? ""} id={team.id} />
+                  <ModifyTeam domainId={team.domainId ?? ""}  teamId={team.id} />
                 </TableCell>
               </TableRow>
             ))}

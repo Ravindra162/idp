@@ -68,7 +68,7 @@ export const LoginForm = () => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      login({ ...values, domainId: process.env.DOMAIN_ID }).then((data) => {
+      login({ ...values, domainId: process.env.NEXT_PUBLIC_DOMAIN_ID }).then((data) => {
         setError(data?.error);
       });
     });

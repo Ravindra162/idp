@@ -18,12 +18,19 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { removePaymentMethod } from "@/actions/add-wallet-type";
 
-const PaymentMethodsRemove = ({ walletTypeId , paymentMethodId }: { walletTypeId: string; paymentMethodId : string; }) => {
+const PaymentMethodsRemove = ({
+  walletTypeId,
+  paymentMethodId,
+}: {
+  walletTypeId: string;
+  paymentMethodId: string;
+}) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = (walletTypeId: string, paymentMethodId: string) => {
+    removePaymentMethod(walletTypeId, paymentMethodId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -37,24 +44,6 @@ const PaymentMethodsRemove = ({ walletTypeId , paymentMethodId }: { walletTypeId
     <div className="flex gap-x-3">
       <Dialog>
         <DialogTrigger asChild>
-          <Button>Edit</Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>Edit Payment Method</DialogTitle>
-            <DialogDescription>This action cannot be undone.</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose>
-              <Button asChild>
-                <Link href={`/admin/wallet-types/payment-methods/${walletTypeId}/edit/${paymentMethodId}`}>Confirm</Link>
-              </Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Dialog>
-        <DialogTrigger asChild>
           <Button variant={"destructive"}>Remove</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
@@ -64,7 +53,11 @@ const PaymentMethodsRemove = ({ walletTypeId , paymentMethodId }: { walletTypeId
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(walletTypeId)}>Confirm</Button>
+              <Button
+                onClick={() => handleDelete(walletTypeId, paymentMethodId)}
+              >
+                Confirm
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

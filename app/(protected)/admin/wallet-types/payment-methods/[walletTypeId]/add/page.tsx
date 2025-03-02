@@ -49,6 +49,7 @@ const page = async ({ params }: { params: { walletTypeId: string } }) => {
         </div>
       </section>
     </>
+    
   );
 };
 

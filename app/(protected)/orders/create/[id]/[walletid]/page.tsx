@@ -1,8 +1,8 @@
 import React from "react";
-import OrderForm from "../../../_components/order-form";
+import OrderForm from "../../../../_components/order-form";
 import { db } from "@/lib/db";
-import TopBar from "../../../_components/Topbar";
-import ProductOrderTable from "../../../_components/product-order-table";
+import TopBar from "../../../../_components/Topbar";
+import ProductOrderTable from "../../../../_components/product-order-table";
 
 export const generateMetadata = () => {
   return {
@@ -11,7 +11,7 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async ({ params }: { params: { id: string, walletId : string } }) => {
   const products = await db.product.findMany({
     orderBy: {
       createdAt: "desc",
@@ -61,6 +61,7 @@ const page = async ({ params }: { params: { id: string } }) => {
             id={params.id.toString()}
             products={mergedProducts}
             role={user?.role}
+            walletId={params.walletId}
           >
             <ProductOrderTable products={mergedProducts} />
           </OrderForm>

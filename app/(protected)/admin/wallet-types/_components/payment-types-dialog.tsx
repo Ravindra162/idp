@@ -49,7 +49,7 @@ const WalletPaymentTypesDialog = ({
 
         {/* Included Teams List in Table Format */}
         <Button className="text-sm w-auto ml-auto" asChild>
-          <Link href={`/admin/product/team-quantity/`} className="inline">
+          <Link href={`/admin/wallet-types/payment-methods/${walletTypeId}/add`} className="inline">
             Include a Payment Method
           </Link>
         </Button>

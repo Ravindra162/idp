@@ -18,12 +18,19 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { removeDomain } from "@/actions/add-wallet-type";
 
-const DomainsRemove = ({ walletTypeId , domainId }: { walletTypeId: string; domainId : string; }) => {
+const DomainsRemove = ({
+  walletTypeId,
+  domainId,
+}: {
+  walletTypeId: string;
+  domainId: string;
+}) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = () => {
+    removeDomain(domainId, walletTypeId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -46,7 +53,9 @@ const DomainsRemove = ({ walletTypeId , domainId }: { walletTypeId: string; doma
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(walletTypeId)}>Confirm</Button>
+              <Button onClick={() => handleDelete}>
+                Confirm
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

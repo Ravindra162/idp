@@ -18,11 +18,12 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { deletePaymentType } from "@/actions/add-bank-details";
 
 const ModifyPaymentMethodType = ({ id }: { id: string }) => {
 
   const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+    deletePaymentType({ id }).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }

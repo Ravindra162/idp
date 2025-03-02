@@ -12,24 +12,44 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params } : { params : { productid : string;}}) => {
+const page = async ({ params }: { params: { productid: string } }) => {
   const session = await auth();
-    const teams = await db.team.findMany({
-      select: {
-        id: true,
-        teamId: true,
-        name: true,
-        products: {
-          select: {
-            productId: true,
-            name: true,
-            Price: true,
-            Max: true,
-            Min: true,
-          },
+  const product = await db.product.findUnique({
+    where: { id: params.productid },
+    select : {
+      productName : true
+    }
+  });
+  const teams = await db.team.findMany({
+    where: {
+      products: {
+        none: {
+          productId: params.productid, 
         },
       },
-    });
+    },
+    select: {
+      id: true,
+      teamId: true,
+      domainId: true,
+      domain: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      name: true,
+      products: {
+        select: {
+          productId: true,
+          name: true,
+          Price: true,
+          Max: true,
+          Min: true,
+        },
+      },
+    },
+  });
 
   return (
     <>
@@ -38,7 +58,11 @@ const page = async ({ params } : { params : { productid : string;}}) => {
       </nav>
       <section>
         <div className="m-4">
-          <AddTeamQuantityForm productId={params.productid} teams={teams} />
+          <AddTeamQuantityForm
+            productId={params.productid}
+            teams={teams}
+            productName={product?.productName ?? ""}
+          />
         </div>
       </section>
     </>

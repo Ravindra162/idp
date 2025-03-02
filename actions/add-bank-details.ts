@@ -58,12 +58,17 @@ export const addBankDetails = async (formData: FormData) => {
   const upiid = formData.get("upiid") as string;
   const accountDetails = formData.get("accountDetails") as string;
   const upinumber = formData.get("upinumber") as string;
-  const paymentType = formData.get("paymentType") === "CUSTOM_METHOD" ? PaymentType.CUSTOM_METHOD : formData.get("paymentType") === "MANUAL" ? PaymentType.MANUAL : PaymentType.PAYMENT_GATEWAY;
+  const paymentType =
+    formData.get("paymentType") === "CUSTOM_METHOD"
+      ? PaymentType.CUSTOM_METHOD
+      : formData.get("paymentType") === "MANUAL"
+      ? PaymentType.MANUAL
+      : PaymentType.PAYMENT_GATEWAY;
   try {
     if (user?.role === "ADMIN") {
       await db.paymentTypeModel.create({
         data: {
-          paymentTypeMethod : paymentType,
+          paymentTypeMethod: paymentType,
           secure_url: photos.secure_url,
           public_id: photos.public_id,
           upiid: upiid,
@@ -86,4 +91,90 @@ export const addBankDetails = async (formData: FormData) => {
   revalidatePath("/money/add");
 
   return { success: "Bank details added!" };
+};
+
+export const editBankDetails = async (formData: FormData) => {
+  const file = await uploadPhotosToLocal(formData);
+  const photos = await uploadPhotosToCloudinary(file);
+
+  if (
+    !formData ||
+    !formData.get("paymentMethodId") ||
+    !formData.get("paymentType") ||
+    !formData.get("upiid") ||
+    !formData.get("accountDetails") ||
+    !formData.get("upinumber") ||
+    !formData.get("userId") ||
+    !formData.get("ifsccode") ||
+    !formData.get("name") ||
+    !formData.get("bankName") ||
+    !formData.get("accountType")
+  ) {
+    return { error: "Please fill in all required fields." };
+  }
+
+  const user = await getUserById(formData.get("userId")?.toString() as string);
+  const upiid = formData.get("upiid") as string;
+  const accountDetails = formData.get("accountDetails") as string;
+  const upinumber = formData.get("upinumber") as string;
+  const paymentType =
+    formData.get("paymentType") === "CUSTOM_METHOD"
+      ? PaymentType.CUSTOM_METHOD
+      : formData.get("paymentType") === "MANUAL"
+      ? PaymentType.MANUAL
+      : PaymentType.PAYMENT_GATEWAY;
+  try {
+    if (user?.role === "ADMIN") {
+      await db.paymentTypeModel.update({
+        where: {
+          id: formData.get("paymentMethodId") as string,
+        },
+        data: {
+          paymentTypeMethod: paymentType,
+          secure_url: photos.secure_url,
+          public_id: photos.public_id,
+          upiid: upiid,
+          accountDetails: accountDetails,
+          userId: formData.get("userId") as string,
+          upinumber: upinumber,
+          name: formData.get("name") as string,
+          bankName: formData.get("bankName") as string,
+          accountType: formData.get("accountType") as string,
+          ifsccode: formData.get("ifsccode") as string,
+        },
+      });
+    } else {
+      throw new Error("Unauthorized: Only admins can update bank details.");
+    }
+  } catch (err: any) {
+    return { error: "An error occurred. Please try again later." };
+  }
+
+  revalidatePath("/money/add");
+
+  return { success: "Bank details updated!" };
+};
+
+export const deletePaymentType = async ({ id }: { id: string }) => {
+  try {
+    await db.$transaction([
+      db.walletTypePayment.deleteMany({
+        where: { id: id },
+      }),
+      db.paymentTypeModel.delete({
+        where: { id: id },
+      }),
+    ]);
+
+    console.log(
+      "PaymentTypeModel and related WalletTypePayment records deleted successfully."
+    );
+    revalidatePath("/admin/payment-method/table");
+    return { success: "Payment Method Details removed" };
+  } catch (error) {
+    console.error("Error deleting Payment Method Details:", error);
+    return { error: "Error deleting payment method details" };
+  } finally {
+    await db.$disconnect();
+  }
 };

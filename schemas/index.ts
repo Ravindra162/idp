@@ -42,7 +42,7 @@ export const RegisterSchema = z
     confirmPassword: z.string().min(6, {
       message: "Minimum of 6 characters required",
     }),
-    domainId: z.string().optional(),
+    domainId: z.string().min(1, "Panel Code is required for registration"),
     referralCode: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -344,6 +344,14 @@ export const PaymentMethodDetailsSchema = z.object({
     .pipe(z.custom<File>()),
 });
 
+export const EditPaymentMethodDetailsSchema = PaymentMethodDetailsSchema.extend(
+  {
+    paymentMethodid: z
+      .string()
+      .min(1, { message: "Payment Method Id is required" }),
+  }
+);
+
 export const RejectInvoiceSchema = z.object({
   id: z.string(),
   reason: z.string().min(10, { message: "Minimum of 10 characters required" }),
@@ -428,6 +436,7 @@ export const ProductSchema = z.object({
 export const EditPanelQuantitySchema = z.object({
   id: z.string().nonempty("Product ID is required"),
   domainId: z.string().nonempty("Domain ID is required"),
+  name: z.string().nonempty("Product Name is required"),
   minProduct: z.coerce
     .number()
     .min(1, { message: "Min product is required" })
@@ -446,6 +455,25 @@ export const EditPanelQuantitySchema = z.object({
 export const EditTeamQuantitySchema = z.object({
   id: z.string().nonempty("Product ID is required"),
   teamId: z.string().nonempty("Team ID is required"),
+  name: z.string().nonempty("Product Name is required"),
+  minProduct: z.coerce
+    .number()
+    .min(1, { message: "Min product is required" })
+    .nonnegative(),
+  maxProduct: z.coerce
+    .number()
+    .min(1, {
+      message: "Max product must be greater than min product",
+    })
+    .nonnegative(),
+  price: z.coerce.number().nonnegative().min(1, {
+    message: "Price must be greater than zero",
+  }),
+});
+
+export const EditWalletTypeQuantitySchema = z.object({
+  id: z.string().nonempty("Product ID is required"),
+  walletTypeId: z.string().nonempty("WalletType Id is required"),
   minProduct: z.coerce
     .number()
     .min(1, { message: "Min product is required" })
@@ -807,8 +835,6 @@ export const UpdateWalletTypeSchema = z.object({
   currencyCode: z.string().nonempty("CurrencyCode is required"),
   description: z.string().optional(),
 });
-
-
 
 export const TeamCreateSchema = z.object({
   teamName: z.string().min(1, "Team name is required"),

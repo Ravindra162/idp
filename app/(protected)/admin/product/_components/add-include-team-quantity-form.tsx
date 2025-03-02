@@ -22,12 +22,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormError } from "@/components/shared/form-error";
 import { addProduct } from "@/actions/products";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { includeTeamInfo } from "@/actions/admin-product-teams";
+import { useRouter } from "next/navigation";
 
 interface Team {
   id: string;
   teamId: string;
+  domainId: string;
   name: string;
+  domain: {
+    id: string;
+    name: string;
+  };
   products: {
     productId: string;
     name: string;
@@ -39,18 +52,23 @@ interface Team {
 
 const AddTeamQuantityForm = ({
   productId,
-  teams
+  productName,
+  teams,
 }: {
   productId: string;
-  teams : Team[]
+  productName: string;
+  teams: Team[];
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof EditTeamQuantitySchema>>({
     resolver: zodResolver(EditTeamQuantitySchema),
     defaultValues: {
       id: productId,
+      teamId: "",
+      name : productName,
       minProduct: 0,
       maxProduct: 1,
       price: 0,
@@ -60,15 +78,16 @@ const AddTeamQuantityForm = ({
   const onSubmit = (values: z.infer<typeof EditTeamQuantitySchema>) => {
     setError("");
     startTransition(() => {
-      //   addProduct(values).then((data) => {
-      //     if (data?.success) {
-      //       toast.success(data.success);
-      //       form.reset();
-      //     }
-      //     if (data?.error) {
-      //       setError(data.error);
-      //     }
-      //   });
+      includeTeamInfo(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.push("/admin/product/product-table")
+        }
+        if (data?.error) {
+          setError(data.error);
+        }
+      });
     });
   };
   return (
@@ -80,33 +99,33 @@ const AddTeamQuantityForm = ({
             className="space-y-6 w-[100]%"
           >
             <FormField
-                    control={form.control}
-                    name="teamId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Team </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          disabled={isPending}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Team" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <FormMessage />
-                          <SelectContent>
-                            {teams.map((team) => (
-                              <SelectItem key={team.teamId} value={team.teamId}>
-                                {`${team.name} - ${team.teamId} `}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
+              control={form.control}
+              name="teamId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Team </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Team" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <FormMessage />
+                    <SelectContent>
+                      {teams.map((team) => (
+                        <SelectItem key={team.teamId} value={team.teamId}>
+                          {`${team.name} - ${team.domain.name} `}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="price"
@@ -147,7 +166,7 @@ const AddTeamQuantityForm = ({
               )}
             />
             <Button type="submit" disabled={isPending} className="mt-0 w-full">
-              Edit Team Quantity
+              Add Team Quantity
             </Button>
           </form>
         </Form>

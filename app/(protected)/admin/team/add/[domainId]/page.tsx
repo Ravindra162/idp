@@ -18,6 +18,9 @@ const page = async ({ params }: { params: { domainId: string } }) => {
     orderBy: {
       createdAt: "desc",
     },
+    where : {
+      role : "USER"
+    }
   });
 
   return (

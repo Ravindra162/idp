@@ -22,40 +22,53 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormError } from "@/components/shared/form-error";
 import { addProduct } from "@/actions/products";
 import { toast } from "sonner";
+import { includeTeamInfo } from "@/actions/admin-product-teams";
+import { useRouter } from "next/navigation";
 
 const EditTeamQuantityForm = ({
   teamId,
   productId,
+  name,
+  minProduct,
+  maxProduct,
+  price,
 }: {
   teamId: string;
   productId: string;
+  name: string;
+  minProduct: number;
+  maxProduct: number;
+  price: number;
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof EditTeamQuantitySchema>>({
     resolver: zodResolver(EditTeamQuantitySchema),
     defaultValues: {
       id: productId,
       teamId: teamId,
-      minProduct: 0,
-      maxProduct: 1,
-      price: 0,
+      name: name,
+      minProduct: minProduct,
+      maxProduct: maxProduct,
+      price: price,
     },
   });
 
   const onSubmit = (values: z.infer<typeof EditTeamQuantitySchema>) => {
     setError("");
     startTransition(() => {
-      //   addProduct(values).then((data) => {
-      //     if (data?.success) {
-      //       toast.success(data.success);
-      //       form.reset();
-      //     }
-      //     if (data?.error) {
-      //       setError(data.error);
-      //     }
-      //   });
+      includeTeamInfo(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.push("/admin/product/product-table")
+        }
+        if (data?.error) {
+          setError(data.error);
+        }
+      });
     });
   };
   return (

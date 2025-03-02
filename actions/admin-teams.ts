@@ -9,27 +9,25 @@ import { getUserById } from "@/data/user";
 
 export async function createTeam(values: z.infer<typeof TeamCreateSchema>) {
   try {
-
     const leader = await getUserById(values.teamLeader);
-    console.log(values)
+    console.log(values);
 
     if (!leader) {
       return { error: "Selected team leader not found" };
     }
 
-    const refCode = generateRandomCode(); 
+    const refCode = generateRandomCode();
 
     const team = await db.team.create({
       data: {
         name: values.teamName,
         leaderId: values.teamLeader,
         referralCode: refCode,
-        teamId : refCode,
-        description : values.teamDescription || "",
-        domainId : values.domainId
+        teamId: refCode,
+        description: values.teamDescription || "",
+        domainId: values.domainId,
       },
     });
-
 
     console.log("Team - ", team);
 
@@ -57,7 +55,6 @@ export async function createTeam(values: z.infer<typeof TeamCreateSchema>) {
     return { error: "Something went wrong. Please try again." };
   }
 }
-
 
 export async function editTeam(values: z.infer<typeof EditTeamSchema>) {
   try {
@@ -102,3 +99,93 @@ export async function editTeam(values: z.infer<typeof EditTeamSchema>) {
     return { error: "Something went wrong. Please try again." };
   }
 }
+
+export const deleteTeam = async (teamId: string, domainId: string) => {
+  try {
+    console.log("Deleting team:", teamId);
+
+    const result = await db.$transaction(async (prisma) => {
+      const team = await prisma.team.findUnique({
+        where: { id: teamId },
+        include: { leader: true },
+      });
+
+      if (!team) {
+        throw new Error("Team not found!");
+      }
+
+      const productsWithIncludedTeam = await prisma.product.findMany({
+        where: { includedTeamIds: { has: teamId } },
+        select: { id: true, includedTeamIds: true },
+      });
+
+      await Promise.all(
+        productsWithIncludedTeam.map(async (product) => {
+          await prisma.product.update({
+            where: { id: product.id },
+            data: {
+              includedTeamIds: product.includedTeamIds.filter(
+                (id) => id !== teamId
+              ),
+            },
+          });
+        })
+      );
+
+      const productsWithExcludedTeam = await prisma.product.findMany({
+        where: { excludedTeamIds: { has: teamId } },
+        select: { id: true, excludedTeamIds: true },
+      });
+
+      await Promise.all(
+        productsWithExcludedTeam.map(async (product) => {
+          await prisma.product.update({
+            where: { id: product.id },
+            data: {
+              excludedTeamIds: product.excludedTeamIds.filter(
+                (id) => id !== teamId
+              ),
+            },
+          });
+        })
+      );
+
+      if (team.leader.role === "LEADER") {
+        await prisma.user.update({
+          where: { id: team.leaderId },
+          data: { role: "USER", teamId: null },
+        });
+      }
+
+      const teamMembers = await prisma.user.findMany({
+        where: { teamId: teamId },
+        select: { id: true },
+      });
+
+      const teamMemberIds = teamMembers.map((member) => member.id);
+
+      if (teamMemberIds.length > 0) {
+        await prisma.proUser.deleteMany({
+          where: { userId: { in: teamMemberIds } },
+        });
+
+        await prisma.user.updateMany({
+          where: { id: { in: teamMemberIds } },
+          data: { teamId: null, role: "USER" },
+        });
+      }
+
+      await prisma.team.delete({ where: { id: teamId } });
+
+      console.log("Team deleted successfully:", teamId);
+      revalidatePath(`/admin/team/table/${domainId}`);
+
+      return { success: "Team deleted successfully!" };
+    });
+
+    return { success: "Team Deleted Successfully", data: result };
+  } catch (error: any) {
+    console.error("TEAM_DELETION_ERROR", error);
+    return { error: error.message || "Failed to delete team!" };
+  }
+};

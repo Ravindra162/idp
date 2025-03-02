@@ -27,11 +27,20 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Email already in use!" };
   }
 
+  console.log(domainId);
+
   try {
     return await db.$transaction(
       async (tx) => {
         let domain = null;
         let walletTypes = null;
+
+         domain = await tx.domain.findUnique({
+          where : {
+            id : domainId
+          }
+        });
+
 
         const createdUser = await tx.user.create({
           data: {
@@ -52,6 +61,8 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             },
           });
 
+        console.log(walletTypes);
+        
           const createdWallets = await Promise.all(
             walletTypes.map(async (walletType) => {
               return tx.wallet.create({

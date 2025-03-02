@@ -3,7 +3,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { useState, useTransition } from "react";
-import { PaymentMethodDetailsSchema } from "@/schemas";
+import { EditPaymentMethodDetailsSchema, PaymentMethodDetailsSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { addBankDetails } from "@/actions/add-bank-details";
+import { addBankDetails, editBankDetails } from "@/actions/add-bank-details";
 import { toast } from "sonner";
 import { FormError } from "@/components/shared/form-error";
 import {
@@ -46,20 +46,23 @@ export type PaymentTypeMethod = {
 type PaymentMethodDetailsFormProps = {
   userId: string;
   initialValues: PaymentTypeMethod;
+  paymentMethodDetailsId : string;
   paymentTypes: PaymentTypeProps[];
 };
 
 const EditPaymentMethodDetailsForm = ({
   userId,
   initialValues,
+  paymentMethodDetailsId,
   paymentTypes,
 }: PaymentMethodDetailsFormProps) => {
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof PaymentMethodDetailsSchema>>({
-    resolver: zodResolver(PaymentMethodDetailsSchema),
+  const form = useForm<z.infer<typeof EditPaymentMethodDetailsSchema>>({
+    resolver: zodResolver(EditPaymentMethodDetailsSchema),
     defaultValues: {
+      paymentMethodid : paymentMethodDetailsId,
       paymentType: initialValues.paymentType || "",
       accountDetails: initialValues?.accountDetails || "",
       upiid: initialValues?.upiid || "",
@@ -73,9 +76,10 @@ const EditPaymentMethodDetailsForm = ({
     },
   });
 
-  function onSubmit(values: z.infer<typeof PaymentMethodDetailsSchema>) {
+  function onSubmit(values: z.infer<typeof EditPaymentMethodDetailsSchema>) {
     const formData = new FormData();
-    formData.append("paymentTypeModel", values.paymentType);
+    formData.append("paymentMethodId", values.paymentMethodid);
+    formData.append("paymentType", values.paymentType);
     formData.append("userId", userId);
     formData.append("accountDetails", values.accountDetails);
     formData.append("upiid", values.upiid);
@@ -92,7 +96,7 @@ const EditPaymentMethodDetailsForm = ({
     }
 
     startTransition(() => {
-      addBankDetails(formData).then((data) => {
+      editBankDetails(formData).then((data) => {
         if (data?.error) {
           setError(data.error);
         }

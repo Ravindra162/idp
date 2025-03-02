@@ -11,7 +11,7 @@ import {
 import { db } from "@/lib/db";
 import React from "react";
 import PaginationBar from "@/components/shared/search-paginationbar";
-import EditDomainButton from "../../admin/_components/edit-domain-button";
+import EditDomainButton from "../../admin/panels/_components/edit-domain-button";
 
 const SearchPanel = async ({
   searchParams,

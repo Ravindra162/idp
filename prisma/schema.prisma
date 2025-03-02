@@ -109,6 +109,7 @@ model Domain {
   settingsId      String
   support         Support[]
   users           User[]
+  team            Team[]
 }
 
 model PaymentTypeModel {
@@ -143,15 +144,20 @@ model WalletTypePayment {
 }
 
 model WalletType {
-  id           String              @id @default(uuid()) @map("_id")
-  name         String              @unique
-  currencyCode String
-  description  String?
-  domainIds    String[]
-  createdAt    DateTime            @default(now()) @map("created_at")
-  updatedAt    DateTime            @updatedAt
-  payments     WalletTypePayment[]
-  wallets      Wallet[]
+  id              String              @id @default(uuid()) @map("_id")
+  name            String              @unique
+  currencyCode    String
+  description     String?
+  domainIds       String[]
+  products        ProductInfo[]
+  includedIn      Product[]           @relation("IncludedWalletTypes", fields: [includedInIds], references: [id])
+  includedInIds   String[]
+  excludedFrom    Product[]           @relation("ExcludedWalletTypes", fields: [excludedFromIds], references: [id])
+  excludedFromIds String[]
+  createdAt       DateTime            @default(now()) @map("created_at")
+  updatedAt       DateTime            @updatedAt
+  payments        WalletTypePayment[]
+  wallets         Wallet[]
 }
 
 model Wallet {
@@ -193,6 +199,7 @@ model Money {
   id                  String           @id @default(uuid()) @map("_id")
   name                String
   amount              String?
+  walletId            String
   upiId               String
   payment_method_id   String
   accountNumber       String?
@@ -215,7 +222,6 @@ model Money {
   walletFlow          WalletFlow?
   paymentMetaData     PaymentMetaData? @relation(fields: [payment_metaData_id], references: [id])
   payment_metaData_id String?
-  payments            Payment[]
 }
 
 model WithdrawalRequest {
@@ -248,7 +254,6 @@ model Payment {
   createdAt     DateTime    @default(now()) @map("created_at")
   processedAt   DateTime?
   user          User        @relation(fields: [userId], references: [id])
-  paymentMethod Money       @relation(fields: [methodId], references: [id])
 
   @@index([userId, status])
 }
@@ -280,47 +285,54 @@ model Support {
 }
 
 model Product {
-  id                  String           @id @default(uuid()) @map("_id")
-  userId              String?
-  user                User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productName         String           @unique
-  description         String
-  price               Float
-  minProduct          Int
-  maxProduct          Int
-  stock               Int
-  sheetLink           String
-  sheetName           String
-  visibleToAllDomains Boolean          @default(true)
-  includedDomains     Domain[]         @relation("IncludedDomains", fields: [includedDomainIds], references: [id])
-  includedDomainIds   String[]
-  excludedDomains     Domain[]         @relation("ExcludedDomains", fields: [excludedDomainIds], references: [id])
-  excludedDomainIds   String[]
-  visibleToAllTeams   Boolean          @default(true)
-  includedTeams       Team[]           @relation("IncludedTeams", fields: [includedTeamIds], references: [id])
-  includedTeamIds     String[]
-  excludedTeams       Team[]           @relation("ExcludedTeams", fields: [excludedTeamIds], references: [id])
-  excludedTeamIds     String[]
-  createdAt           DateTime         @default(now()) @map("created_at")
-  updatedAt           DateTime         @updatedAt
-  orderId             String?
-  order               Order?           @relation(fields: [orderId], references: [id])
-  orderedProducts     productOrdered[]
+  id                      String           @id @default(uuid()) @map("_id")
+  userId                  String?
+  user                    User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productName             String           @unique
+  description             String
+  price                   Float
+  minProduct              Int
+  maxProduct              Int
+  stock                   Int
+  sheetLink               String
+  sheetName               String
+  visibleToAllDomains     Boolean          @default(true)
+  visibleToAllWalletTypes Boolean          @default(true)
+  includedWalletTypes     WalletType[]     @relation("IncludedWalletTypes", fields: [includedWalletTypeIds], references: [id])
+  includedWalletTypeIds   String[]
+  excludedWalletTypes     WalletType[]     @relation("ExcludedWalletTypes", fields: [excludedWalletTypeIds], references: [id])
+  excludedWalletTypeIds   String[]
+  includedDomains         Domain[]         @relation("IncludedDomains", fields: [includedDomainIds], references: [id])
+  includedDomainIds       String[]
+  excludedDomains         Domain[]         @relation("ExcludedDomains", fields: [excludedDomainIds], references: [id])
+  excludedDomainIds       String[]
+  visibleToAllTeams       Boolean          @default(true)
+  includedTeams           Team[]           @relation("IncludedTeams", fields: [includedTeamIds], references: [id])
+  includedTeamIds         String[]
+  excludedTeams           Team[]           @relation("ExcludedTeams", fields: [excludedTeamIds], references: [id])
+  excludedTeamIds         String[]
+  createdAt               DateTime         @default(now()) @map("created_at")
+  updatedAt               DateTime         @updatedAt
+  orderId                 String?
+  order                   Order?           @relation(fields: [orderId], references: [id])
+  orderedProducts         productOrdered[]
 }
 
 model ProductInfo {
-  id        String   @id @default(uuid()) @map("_id")
-  productId String
-  name      String
-  Min       Int
-  Max       Int
-  Price     Float
-  domain    Domain?  @relation(fields: [domainId], references: [id])
-  domainId  String?
-  proUser   ProUser? @relation(fields: [proUserId], references: [id])
-  proUserId String?
-  team      Team?    @relation(fields: [teamId], references: [id])
-  teamId    String?
+  id           String      @id @default(uuid()) @map("_id")
+  productId    String
+  name         String
+  Min          Int
+  Max          Int
+  Price        Float
+  walletTypeId String?
+  walletType   WalletType? @relation(fields: [walletTypeId], references: [id])
+  domain       Domain?     @relation(fields: [domainId], references: [id])
+  domainId     String?
+  proUser      ProUser?    @relation(fields: [proUserId], references: [id])
+  proUserId    String?
+  team         Team?       @relation(fields: [teamId], references: [teamId])
+  teamId       String?
 }
 
 model Order {
@@ -394,10 +406,11 @@ model Team {
   includedInIds   String[]
   excludedFrom    Product[]     @relation("ExcludedTeams", fields: [excludedFromIds], references: [id])
   excludedFromIds String[]
-  domainId        String?
+  domainId        String
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt
   leader          User          @relation(fields: [leaderId], references: [id])
+  domain          Domain        @relation(fields: [domainId] , references: [id])
 }
 
 model PaymentMetaData {

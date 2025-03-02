@@ -14,6 +14,18 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const EditDomainButton = ({ id }: { id: string }) => {
+  const [isPending, startTransition] = React.useTransition();
+
+  const handleDelete = (id: string) => {
+    // deleteProduct({ id }).then((data) => {
+    //   if (data?.success) {
+    //     toast.success(data.success);
+    //   }
+    //   if (data?.error) {
+    //     toast.error(data.error);
+    //   }
+    // });
+  };
   return (
     <div className="flex gap-x-3">
       <Dialog>
@@ -34,6 +46,22 @@ const EditDomainButton = ({ id }: { id: string }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* <Dialog>
+        <DialogTrigger asChild>
+          <Button variant={"destructive"}>Remove</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure??</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose>
+              <Button onClick={() => handleDelete(id)}>Confirm</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog> */}
     </div>
   );
 };

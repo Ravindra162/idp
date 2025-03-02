@@ -92,25 +92,37 @@ const ProductTeamsDialog = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {includedTeams.map((team) => (
-                  <TableRow key={team.teamId}>
-                    <TableCell>{team.teamId}</TableCell>
-                    <TableCell>{team.name}</TableCell>
-                    <TableCell>{/* ${team.products.Price} */}</TableCell>
-                    <TableCell>{/* {team.products[0].Min} */}</TableCell>
-                    <TableCell>{/* {team.products[0].Max} */}</TableCell>
-                    <TableCell>
-                      <IncludedTeamRemove id={productId} teamId={team.teamId} />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {includedTeams.map((team) => {
+                  const productDetails = team.products.find(
+                    (p) => p.productId === productId
+                  );
+                  console.log(productDetails);
+                  return productDetails ? (
+                    <TableRow key={team.id}>
+                      <TableCell>{team.teamId}</TableCell>
+                      <TableCell>{team.name}</TableCell>
+                      <TableCell>{productDetails.Price}</TableCell>
+                      <TableCell>{productDetails.Min}</TableCell>
+                      <TableCell>{productDetails.Max}</TableCell>
+                      <TableCell>
+                        <IncludedTeamRemove
+                          id={productId}
+                          teamId={team.teamId}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ) : null;
+                })}
               </TableBody>
             </Table>
           )}
         </ScrollArea>
 
         <Button className="text-sm w-auto ml-auto" asChild>
-          <Link href={``} className="inline">
+          <Link
+            href={`/admin/product/team-quantity/${productId}/exclude-add`}
+            className="inline"
+          >
             Exclude a Team
           </Link>
         </Button>
@@ -121,7 +133,7 @@ const ProductTeamsDialog = ({
         </DialogTitle>
 
         <ScrollArea className="max-h-[300px] mt-4 border rounded-md p-4">
-          {includedTeams.length === 0 ? (
+          {excludedTeams.length === 0 ? (
             <p className="text-center text-muted-foreground py-4">
               No teams are using this product
             </p>
@@ -135,12 +147,12 @@ const ProductTeamsDialog = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {includedTeams.map((team) => (
+                {excludedTeams.map((team) => (
                   <TableRow key={team.teamId}>
                     <TableCell>{team.teamId}</TableCell>
                     <TableCell>{team.name}</TableCell>
                     <TableCell>
-                      <ExcludedTeamRemove id={team.teamId} />
+                      <ExcludedTeamRemove id={productId} teamId={team.teamId} />
                     </TableCell>
                   </TableRow>
                 ))}

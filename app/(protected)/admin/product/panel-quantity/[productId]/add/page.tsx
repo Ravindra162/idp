@@ -15,6 +15,13 @@ export const generateMetadata = () => {
 
 const page = async ({ params }: { params: { productid: string } }) => {
   const session = await auth();
+  console.log(params.productid)
+  const product = await db.product.findUnique({
+    where: { id: params.productid ?? "" },
+    select: {
+      productName: true,
+    },
+  });
   const panels = await db.domain.findMany({
     select: {
       id: true,
@@ -38,7 +45,11 @@ const page = async ({ params }: { params: { productid: string } }) => {
       </nav>
       <section>
         <div className="m-4">
-          <AddPanelQuantityForm productId={params.productid} panels={panels} />
+          <AddPanelQuantityForm
+            productId={params.productid}
+            panels={panels}
+            productName={product?.productName ?? ""}
+          />
         </div>
       </section>
     </>

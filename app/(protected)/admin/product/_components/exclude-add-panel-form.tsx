@@ -58,7 +58,9 @@ const ExcludeAddPanelForm = ({
 
   const onSubmit = (values: z.infer<typeof EditPanelQuantitySchema>) => {
     setError("");
-    startTransition(() => {});
+    startTransition(() => {
+      
+    });
   };
   return (
     <div className="flex flex-col lg:flex-row md:justify-between gap-4 md:gap-x-10">

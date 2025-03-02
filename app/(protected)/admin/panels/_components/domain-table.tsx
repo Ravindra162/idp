@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import PaginationBar from "../../../money/_components/PaginationBar";
 import Search from "@/components/shared/search";
-import EditDomainButton from "../../_components/edit-domain-button";
+import EditDomainButton from "./edit-domain-button";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";

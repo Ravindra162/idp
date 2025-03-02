@@ -19,6 +19,9 @@ const page = async ({
   const session = await auth();
 
   const users = await db.user.findMany({
+    where: {
+      role: "USER",
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -26,13 +29,13 @@ const page = async ({
 
   const team = await db.team.findUnique({
     where: { id: params.id },
-    select : {
-        teamId : true,
-        name : true,
-        description : true,
-        leader : true,
-        leaderId : true
-    }
+    select: {
+      teamId: true,
+      name: true,
+      description: true,
+      leader: true,
+      leaderId: true,
+    },
   });
 
   console.log("Params Id:-");

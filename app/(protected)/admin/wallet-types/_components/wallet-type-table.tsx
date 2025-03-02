@@ -44,13 +44,16 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
   const upWalletTypes = await Promise.all(
     walletTypes.map(async (walletType) => {
       const domains = await db.domain.findMany({
-        where: { id: { in: walletType.domainIds } },
+        where: {
+          id: { in: walletType.domainIds },
+        },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          base_url: true,
+        },
       });
-
-      const domainMap = domains.reduce((acc, domain) => {
-        acc[domain.id] = domain.name;
-        return acc;
-      }, {} as Record<string, string>);
 
       const walletPayments = await db.walletTypePayment.findMany({
         where: { walletTypeId: walletType.id },
@@ -67,8 +70,7 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
 
       return {
         ...walletType,
-        domainNames: domainMap,
-        domains: domains,
+        domains: domains ?? [],
         paymentTypes: paymentTypes,
       };
     })
@@ -132,10 +134,10 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
                 />
               </TableCell>
               <TableCell>
-                {/* <DomainDialog
+                <DomainDialog
                   walletTypeId={walletType.id}
                   domains={walletType.domains}
-                /> */}
+                />
               </TableCell>
               <TableCell>
                 <ModifyWalletType id={walletType.id} />

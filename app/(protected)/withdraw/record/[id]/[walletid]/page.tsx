@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 import Image from "next/image";
-import { WithdrawalTable } from "../../_components/request-table";
+import { WithdrawalTable } from "../../../_components/request-table";
 import Link from "next/link";
 import { auth } from "@/auth";
 import TopBar from "@/app/(protected)/_components/Topbar";

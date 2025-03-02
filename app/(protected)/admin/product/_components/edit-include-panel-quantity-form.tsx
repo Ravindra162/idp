@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { includePanelInfo } from "@/actions/admin-product-panels";
+import { useRouter } from "next/navigation";
 
 interface Team {
   teamId: string;
@@ -35,36 +37,47 @@ interface Team {
 const EditPanelQuantityForm = ({
   domainId,
   productId,
+  name,
+  minProduct,
+  maxProduct,
+  price,
 }: {
   productId: string;
   domainId: string;
+  name: string;
+  minProduct: number;
+  maxProduct: number;
+  price: number;
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof EditPanelQuantitySchema>>({
     resolver: zodResolver(EditPanelQuantitySchema),
     defaultValues: {
-      id: "",
-      domainId: "",
-      maxProduct: 0,
-      minProduct: 0,
-      price: 0,
+      id: productId,
+      domainId: domainId,
+      name: name,
+      minProduct: minProduct,
+      maxProduct: maxProduct,
+      price: price,
     },
   });
 
   const onSubmit = (values: z.infer<typeof EditPanelQuantitySchema>) => {
     setError("");
     startTransition(() => {
-    //   addProduct(values).then((data) => {
-    //     if (data?.success) {
-    //       toast.success(data.success);
-    //       form.reset();
-    //     }
-    //     if (data?.error) {
-    //       setError(data.error);
-    //     }
-    //   });
+      includePanelInfo(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.push("/admin/product/product-table");
+        }
+        if (data?.error) {
+          setError(data.error);
+        }
+      });
     });
   };
   return (

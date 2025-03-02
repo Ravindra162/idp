@@ -1,12 +1,12 @@
 import React from "react";
 import Image from "next/image";
-import AddMoneyForm from "../../_components/add-money";
+import AddMoneyForm from "../../../_components/add-money";
 import DownloadButton from "@/components/shared/download";
 import { db } from "@/lib/db";
 import { headers } from "next/headers";
 import TopBar from "@/app/(protected)/_components/Topbar";
 import CopyButton from "@/components/shared/copy-button";
-import PaymentGateway from "../../_components/payment-options";
+import PaymentGateway from "../../../_components/payment-options";
 
 export const generateMetadata = () => ({
   title: "Add Money | GrowonsMedia",
@@ -14,7 +14,9 @@ export const generateMetadata = () => ({
 });
 
 const ManualPaymentTopBar = () => <TopBar title="Add Money (Manual Method)" />;
-const PaymentGatewayTopBar = () => <TopBar title="Add Money (Payment Gateway)" />;
+const PaymentGatewayTopBar = () => (
+  <TopBar title="Add Money (Payment Gateway)" />
+);
 
 const ManualPaymentSection = ({
   bankDetails,
@@ -125,15 +127,15 @@ const page = async ({ params }: { params: { id: string } }) => {
 
   const userDetails = await db.user.findUnique({
     where: { id: params.id.toString() },
-    select: { paymentType: true },
   });
 
-  const bankDetails = await db.bankDetails.findFirst({
-    orderBy: { createdAt: "desc" },
-    take: 1,
-  });
+  const paymentType = "MANUAL";
 
-  const paymentType = userDetails?.paymentType;
+  const bankDetails = await db.wallet.findFirst({
+    where: {
+      id: params.id,
+    },
+  });
 
   return (
     <>
@@ -142,21 +144,18 @@ const page = async ({ params }: { params: { id: string } }) => {
           <div className="hidden md:block">
             <ManualPaymentTopBar />
           </div>
-          <ManualPaymentSection
-            bankDetails={bankDetails}
-            userId={params.id.toString()}
-          />
+          <ManualPaymentSection bankDetails={bankDetails} userId={params.id.toString()} />
         </>
       ) : (
         <>
           <div className="hidden md:block">
             <PaymentGatewayTopBar />
           </div>
-          <PaymentGatewaySection
+          {/* <PaymentGatewaySection
             isMobile={isMobile}
             userId={params.id.toString()}
             bankDetails={bankDetails}
-          />
+          /> */}
         </>
       )}
     </>

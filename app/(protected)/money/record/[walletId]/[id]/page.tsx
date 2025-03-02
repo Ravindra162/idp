@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
 import Image from "next/image";
-import { MoneyTable } from "../../_components/money-table";
+import { MoneyTable } from "../../../_components/money-table";
 import Link from "next/link";
 import { auth } from "@/auth";
 import TopBar from "@/app/(protected)/_components/Topbar";
@@ -14,7 +14,7 @@ export const generateMetadata = () => {
 };
 
 type RecordProps = {
-  params: { id: string };
+  params: { id: string; walletId: string };
   searchParams: { page: string };
 };
 
@@ -28,7 +28,7 @@ const page = async ({ params, searchParams }: RecordProps) => {
       <section className="space-y-4 md:max-h-[90vh] w-full md:w-[100%] p-2">
         <div className="flex items-center gap-x-2">
           <Button className="flex items-center " asChild>
-            <Link href={`/money/add/${session?.user.id}`} className="inline">
+            <Link href={`/money/add/${session?.user.id}/${params.walletId}`} className="inline">
               <Image
                 src="/svgs/plus.svg"
                 alt="add money"
@@ -44,6 +44,7 @@ const page = async ({ params, searchParams }: RecordProps) => {
           <MoneyTable
             userId={params.id.toString()}
             searchParams={searchParams}
+            walletId={params.walletId.toString()}
           />
         </section>
       </section>

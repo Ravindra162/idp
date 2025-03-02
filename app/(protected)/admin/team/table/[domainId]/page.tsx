@@ -8,8 +8,8 @@ import { TeamTable } from "../../_components/team-table-component";
 
 export const generateMetadata = () => {
   return {
-    title: "Payment Methods | GrowonsMedia",
-    description: "View and manage your payment methods",
+    title: "Teams | GrowonsMedia",
+    description: "View and manage your teams",
   };
 };
 
