@@ -6,21 +6,26 @@ import { z } from "zod";
 export const includePanelInfo = async (
   values: z.infer<typeof EditPanelQuantitySchema>
 ) => {
-  const parsedData = EditPanelQuantitySchema.parse(values);
-
-  const { id, name, domainId, minProduct, maxProduct, price } = parsedData;
-
   try {
-    console.log(domainId);
+    const parsedData = EditPanelQuantitySchema.safeParse(values);
+
+    if (!parsedData.success) {
+      return { error: "Invalid input values" };
+    }
+
+    const { id, name, domainId, minProduct, maxProduct, price } = parsedData.data;
+
+    console.log(domainId, id, name);
 
     const existingProductInfo = await db.productInfo.findFirst({
-      where: { productId: id, domainId },
+      where: { productId: id, domainId: domainId },
     });
 
     let updatedProductInfo;
+
     if (existingProductInfo) {
       updatedProductInfo = await db.productInfo.update({
-        where: { id: existingProductInfo.id }, // Using unique id for update
+        where: { id: existingProductInfo.id },
         data: { Min: minProduct, Max: maxProduct, Price: price },
       });
     } else {
@@ -32,34 +37,50 @@ export const includePanelInfo = async (
           Max: maxProduct,
           Price: price,
           domain: {
-            connect: { id : domainId },
+            connect: { id: domainId },
           },
         },
       });
     }
 
-    await db.product.update({
+    // Ensure product exists before updating
+    const existingProduct = await db.product.findUnique({
       where: { id },
-      data: {
-        includedDomains: { connect: { id : domainId } },
-      },
     });
 
-    await db.domain.update({
-      where: { id : domainId },
-      data: {
-        includedIn: { connect: { id : domainId } },
-      },
+    if (existingProduct) {
+      await db.product.update({
+        where: { id },
+        data: {
+          includedDomains: { connect: { id: domainId } },
+        },
+      });
+    }
+
+    // Ensure domain exists before updating
+    const existingDomain = await db.domain.findUnique({
+      where: { id: domainId },
     });
+
+    if (existingDomain) {
+      await db.domain.update({
+        where: { id: domainId },
+        data: {
+          includedIn: { connect: { id: domainId } },
+        },
+      });
+    }
 
     console.log("---------------");
     revalidatePath("/admin/product/product-table");
+
     return { success: "Team Included Successfully!", data: updatedProductInfo };
   } catch (error) {
     console.error("Error updating product info:", error);
     return { error: "Failed to update product info" };
   }
 };
+
 
 export const excludePanelInfo = async (
   values: z.infer<typeof EditPanelQuantitySchema>
@@ -106,7 +127,7 @@ export const excludePanelInfo = async (
       await db.domain.update({
         where: { id : domainId },
         data: {
-          includedIn: { connect: { id : domainId } },
+          includedIn: { connect: { id : id } },
         },
       });
   

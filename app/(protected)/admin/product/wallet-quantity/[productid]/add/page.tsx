@@ -13,23 +13,29 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params } : { params : { productid : string;}}) => {
+const page = async ({ params }: { params: { productid: string } }) => {
   const session = await auth();
-    const walletTypes = await db.walletType.findMany({
-      select: {
-        id: true,
-        name: true,
-        products: {
-          select: {
-            productId: true,
-            name: true,
-            Price: true,
-            Max: true,
-            Min: true,
-          },
+  const product = await db.product.findUnique({
+    where: { id: params.productid },
+    select: {
+      productName: true,
+    },
+  });
+  const walletTypes = await db.walletType.findMany({
+    select: {
+      id: true,
+      name: true,
+      products: {
+        select: {
+          productId: true,
+          name: true,
+          Price: true,
+          Max: true,
+          Min: true,
         },
       },
-    });
+    },
+  });
 
   return (
     <>
@@ -38,7 +44,11 @@ const page = async ({ params } : { params : { productid : string;}}) => {
       </nav>
       <section>
         <div className="m-4">
-          <AddWalletQuantityForm productId={params.productid} wallets={walletTypes} />
+          <AddWalletQuantityForm
+            productId={params.productid}
+            wallets={walletTypes}
+            productName={product?.productName ?? ""}
+          />
         </div>
       </section>
     </>

@@ -13,7 +13,11 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import * as z from "zod";
-import { EditPanelQuantitySchema, ProductSchema } from "@/schemas";
+import {
+  EditPanelQuantitySchema,
+  EditWalletTypeQuantitySchema,
+  ProductSchema,
+} from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormError } from "@/components/shared/form-error";
 import { addProduct } from "@/actions/products";
@@ -25,10 +29,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { includePanelInfo } from "@/actions/admin-product-panels";
 import { useRouter } from "next/navigation";
+import { includeWalletTypeInfo } from "@/actions/admin-product-walletTypes";
 
-interface Panel {
+interface Wallet {
   id: string;
   name: string;
   products: {
@@ -40,35 +44,34 @@ interface Panel {
   }[];
 }
 
-const AddPanelQuantityForm = ({
+const AddExcludeWalletQuantityForm = ({
   productId,
-  panels,
+  wallets,
   productName,
 }: {
-  productId: string;
   productName: string;
-  panels: Panel[];
+  productId: string;
+  wallets: Wallet[];
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
   const router = useRouter();
-
-  const form = useForm<z.infer<typeof EditPanelQuantitySchema>>({
-    resolver: zodResolver(EditPanelQuantitySchema),
+  const form = useForm<z.infer<typeof EditWalletTypeQuantitySchema>>({
+    resolver: zodResolver(EditWalletTypeQuantitySchema),
     defaultValues: {
       id: productId,
-      domainId: "",
+      walletTypeId: "",
       name: productName,
-      maxProduct: 1,
       minProduct: 0,
+      maxProduct: 1,
       price: 0,
     },
   });
 
-  const onSubmit = (values: z.infer<typeof EditPanelQuantitySchema>) => {
+  const onSubmit = (values: z.infer<typeof EditWalletTypeQuantitySchema>) => {
     setError("");
     startTransition(() => {
-      includePanelInfo(values).then((data) => {
+      includeWalletTypeInfo(values).then((data) => {
         if (data?.success) {
           toast.success(data.success);
           form.reset();
@@ -90,10 +93,10 @@ const AddPanelQuantityForm = ({
           >
             <FormField
               control={form.control}
-              name="domainId"
+              name="walletTypeId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Panel</FormLabel>
+                  <FormLabel>Wallet </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     disabled={isPending}
@@ -101,14 +104,14 @@ const AddPanelQuantityForm = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Panel" />
+                        <SelectValue placeholder="Select Wallet" />
                       </SelectTrigger>
                     </FormControl>
                     <FormMessage />
                     <SelectContent>
-                      {panels.map((panel) => (
-                        <SelectItem key={panel.id} value={panel.id}>
-                          {`${panel.name}`}
+                      {wallets.map((wallet) => (
+                        <SelectItem key={wallet.id} value={wallet.id}>
+                          {`${wallet.name} - ${wallet.id} `}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -116,47 +119,9 @@ const AddPanelQuantityForm = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Price</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isPending} type="number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="minProduct"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Minimum Product</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isPending} type="number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="maxProduct"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Maximum Product</FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={isPending} type="number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            
             <Button type="submit" disabled={isPending} className="mt-0 w-full">
-              Add Panel Quantity
+              Exclude the Wallet
             </Button>
           </form>
         </Form>
@@ -165,4 +130,4 @@ const AddPanelQuantityForm = ({
   );
 };
 
-export default AddPanelQuantityForm;
+export default AddExcludeWalletQuantityForm;

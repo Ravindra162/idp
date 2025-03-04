@@ -22,7 +22,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormError } from "@/components/shared/form-error";
 import { addProduct } from "@/actions/products";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useRouter } from "next/navigation";
+import { includeWalletTypeInfo } from "@/actions/admin-product-walletTypes";
 
 interface Wallet {
   id: string;
@@ -38,19 +46,22 @@ interface Wallet {
 
 const AddWalletQuantityForm = ({
   productId,
-  wallets
+  wallets,
+  productName,
 }: {
+  productName: string;
   productId: string;
-  wallets : Wallet[]
+  wallets: Wallet[];
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
-
+  const router = useRouter();
   const form = useForm<z.infer<typeof EditWalletTypeQuantitySchema>>({
     resolver: zodResolver(EditWalletTypeQuantitySchema),
     defaultValues: {
       id: productId,
-      walletTypeId : "",
+      walletTypeId: "",
+      name: productName,
       minProduct: 0,
       maxProduct: 1,
       price: 0,
@@ -60,15 +71,16 @@ const AddWalletQuantityForm = ({
   const onSubmit = (values: z.infer<typeof EditWalletTypeQuantitySchema>) => {
     setError("");
     startTransition(() => {
-      //   addProduct(values).then((data) => {
-      //     if (data?.success) {
-      //       toast.success(data.success);
-      //       form.reset();
-      //     }
-      //     if (data?.error) {
-      //       setError(data.error);
-      //     }
-      //   });
+      includeWalletTypeInfo(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.push("/admin/product/product-table");
+        }
+        if (data?.error) {
+          setError(data.error);
+        }
+      });
     });
   };
   return (
@@ -80,33 +92,33 @@ const AddWalletQuantityForm = ({
             className="space-y-6 w-[100]%"
           >
             <FormField
-                    control={form.control}
-                    name="walletTypeId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Wallet </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          disabled={isPending}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Wallet" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <FormMessage />
-                          <SelectContent>
-                            {wallets.map((wallet) => (
-                              <SelectItem key={wallet.id} value={wallet.id}>
-                                {`${wallet.name} - ${wallet.id} `}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
+              control={form.control}
+              name="walletTypeId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Wallet </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Wallet" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <FormMessage />
+                    <SelectContent>
+                      {wallets.map((wallet) => (
+                        <SelectItem key={wallet.id} value={wallet.id}>
+                          {`${wallet.name} - ${wallet.id} `}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="price"
@@ -147,7 +159,7 @@ const AddWalletQuantityForm = ({
               )}
             />
             <Button type="submit" disabled={isPending} className="mt-0 w-full">
-              Edit Wallet Quantity
+              Include a the Wallet
             </Button>
           </form>
         </Form>

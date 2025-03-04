@@ -474,6 +474,7 @@ export const EditTeamQuantitySchema = z.object({
 export const EditWalletTypeQuantitySchema = z.object({
   id: z.string().nonempty("Product ID is required"),
   walletTypeId: z.string().nonempty("WalletType Id is required"),
+  name: z.string().nonempty("Product Name is required"),
   minProduct: z.coerce
     .number()
     .min(1, { message: "Min product is required" })

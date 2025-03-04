@@ -48,7 +48,7 @@ const ProductPanelsDialog = ({
   productName,
   productId,
 }: ProductPanelsDialogProps) => {
-  console.log(productId)
+  console.log(productId);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -59,12 +59,15 @@ const ProductPanelsDialog = ({
       <DialogContent className="max-w-2xl">
         {/* Included Teams List in Table Format */}
         <Button className="text-sm w-auto ml-auto" asChild>
-          <Link href={`/admin/product/panel-quantity/${productId}/add`} className="inline">
-            Include a Panel 
+          <Link
+            href={`/admin/product/panel-quantity/${productId}/add`}
+            className="inline"
+          >
+            Include a Panel
           </Link>
         </Button>
         <DialogTitle>
-          Panel having special access
+          Panel having special access{" "}
           {productName.charAt(0).toUpperCase() + productName.slice(1)}
         </DialogTitle>
         <ScrollArea className="max-h-[300px] mt-4 border rounded-md p-4">
@@ -89,27 +92,32 @@ const ProductPanelsDialog = ({
                   const productDetails = panel.products.find(
                     (p) => p.productId === productId
                   );
-                  console.log(productDetails);
                   return productDetails ? (
-                  <TableRow key={panel.id}>
-                    <TableCell>{panel.id}</TableCell>
-                    <TableCell>{panel.name}</TableCell>
-                    <TableCell>{productDetails.Price}</TableCell>
-                    <TableCell>{productDetails.Min}</TableCell>
-                    <TableCell>{productDetails.Max}</TableCell>
-                    <TableCell>
-                      <IncludedPanelRemove id={productId} domainId={panel.id} />
-                    </TableCell>
-                  </TableRow>
+                    <TableRow key={panel.id}>
+                      <TableCell>{panel.id}</TableCell>
+                      <TableCell>{panel.name}</TableCell>
+                      <TableCell>{productDetails.Price}</TableCell>
+                      <TableCell>{productDetails.Min}</TableCell>
+                      <TableCell>{productDetails.Max}</TableCell>
+                      <TableCell>
+                        <IncludedPanelRemove
+                          id={productId}
+                          domainId={panel.id}
+                        />
+                      </TableCell>
+                    </TableRow>
                   ) : null;
-})}
+                })}
               </TableBody>
             </Table>
           )}
         </ScrollArea>
 
         <Button className="text-sm w-auto ml-auto" asChild>
-          <Link href={`/admin/product/team-quantity/${productId}/exclude-add`} className="inline">
+          <Link
+            href={`/admin/product/team-quantity/${productId}/exclude-add`}
+            className="inline"
+          >
             Exclude a Panel
           </Link>
         </Button>
