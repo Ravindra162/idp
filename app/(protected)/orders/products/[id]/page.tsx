@@ -6,6 +6,7 @@ import ProductOrderTable from "../../../_components/product-order-table";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { getFinalFilteredProducts } from "@/actions/user-products-fetch";
 
 export const generateMetadata = () => {
   return {
@@ -15,47 +16,12 @@ export const generateMetadata = () => {
 };
 
 const page = async ({ params }: { params: { id: string } }) => {
-  const products = await db.product.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
 
-  const proUser = await db.proUser.findUnique({
-    where: {
-      userId: params.id,
-    },
-  });
+  const proFilteredProducts = (await getFinalFilteredProducts("", params.id, "", "")) ?? [];
 
-  const user = await db.user.findUnique({
-    where: {
-      id: params.id,
-    },
-    select: {
-      role: true,
-    },
-  });
-
-  const mergedProducts = products.map((product) => {
-    //@ts-ignore
-    const proUserProduct = proUser?.products?.find(
-      (proUserProduct: any) => proUserProduct.name === product.productName
-    );
-
-    return {
-      id: product.id,
-      name: product.productName,
-      stock: product.stock,
-      minProduct: proUserProduct?.minProduct ?? product.minProduct,
-      maxProduct: proUserProduct?.maxProduct ?? product.maxProduct,
-      price: proUserProduct?.price ?? product.price,
-      description: product.description,
-    };
-  });
-
-  const half = Math.ceil(mergedProducts.length / 2);
-  const firstHalf = mergedProducts.slice(0, half);
-  const secondHalf = mergedProducts.slice(half);
+  const half = Math.ceil(proFilteredProducts.length / 2);
+  const firstHalf = proFilteredProducts.slice(0, half);
+  const secondHalf = proFilteredProducts.slice(half);
 
   return (
     <>
