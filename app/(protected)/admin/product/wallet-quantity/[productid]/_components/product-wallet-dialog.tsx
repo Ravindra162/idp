@@ -82,8 +82,7 @@ const ProductWalletsDialog = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Wallet ID</TableHead>
-                  <TableHead>Wallet Name</TableHead>
+                  <TableHead>Wallet Type Name</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Min</TableHead>
                   <TableHead>Max</TableHead>
@@ -91,25 +90,32 @@ const ProductWalletsDialog = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {includedWallets.map((wallet) => (
-                  <TableRow key={wallet.id}>
-                    <TableCell>{wallet.id}</TableCell>
-                    <TableCell>{wallet.name}</TableCell>
-                    <TableCell>{/* ${wallet.products.Price} */}</TableCell>
-                    <TableCell>{/* {wallet.products[0].Min} */}</TableCell>
-                    <TableCell>{/* {wallet.products[0].Max} */}</TableCell>
-                    <TableCell>
-                      <IncludedWalletRemove id={productId} walletId={wallet.id} />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {includedWallets.map((wallet) => {
+                  const productDetails = wallet.products.find(
+                    (p) => p.productId === productId
+                  );
+                  return productDetails ? (
+                    <TableRow key={wallet.id}>
+                      <TableCell>{wallet.name}</TableCell>
+                      <TableCell>{productDetails.Price}</TableCell>
+                      <TableCell>{productDetails.Min}</TableCell>
+                      <TableCell>{productDetails.Max}</TableCell>
+                      <TableCell>
+                        <IncludedWalletRemove
+                          id={productId}
+                          walletId={wallet.id}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ) : null;
+                })}
               </TableBody>
             </Table>
           )}
         </ScrollArea>
 
         <Button className="text-sm w-auto ml-auto" asChild>
-          <Link href={``} className="inline">
+          <Link href={`/admin/product/wallet-quantity/${productId}/exclude-add`} className="inline">
             Exclude a Wallet Type
           </Link>
         </Button>
@@ -139,7 +145,7 @@ const ProductWalletsDialog = ({
                     <TableCell>{wallet.id}</TableCell>
                     <TableCell>{wallet.name}</TableCell>
                     <TableCell>
-                      <ExcludedWalletRemove id={wallet.id} />
+                      <ExcludedWalletRemove walletId={wallet.id} id={productId}  />
                     </TableCell>
                   </TableRow>
                 ))}

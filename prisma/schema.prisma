@@ -327,12 +327,12 @@ model ProductInfo {
   Price        Float
   walletTypeId String?
   walletType   WalletType? @relation(fields: [walletTypeId], references: [id])
-  domain       Domain?     @relation(fields: [domainId], references: [id])
   domainId     String?
-  proUser      ProUser?    @relation(fields: [proUserId], references: [id])
+  domain       Domain?     @relation(fields: [domainId], references: [id])
   proUserId    String?
-  team         Team?       @relation(fields: [teamId], references: [teamId])
+  proUser      ProUser?    @relation(fields: [proUserId], references: [id])
   teamId       String?
+  team         Team?       @relation(fields: [teamId], references: [teamId])
 }
 
 model Order {
@@ -410,7 +410,7 @@ model Team {
   createdAt       DateTime      @default(now()) @map("created_at")
   updatedAt       DateTime      @updatedAt
   leader          User          @relation(fields: [leaderId], references: [id])
-  domain          Domain        @relation(fields: [domainId] , references: [id])
+  domain          Domain        @relation(fields: [domainId], references: [id])
 }
 
 model PaymentMetaData {

@@ -30,7 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import { includeWalletTypeInfo } from "@/actions/admin-product-walletTypes";
+import { excludeWalletTypeInfo } from "@/actions/admin-product-walletTypes";
 
 interface Wallet {
   id: string;
@@ -62,16 +62,16 @@ const AddExcludeWalletQuantityForm = ({
       id: productId,
       walletTypeId: "",
       name: productName,
-      minProduct: 0,
-      maxProduct: 1,
-      price: 0,
+      minProduct: 1,
+      maxProduct: 2,
+      price: 1,
     },
   });
 
   const onSubmit = (values: z.infer<typeof EditWalletTypeQuantitySchema>) => {
     setError("");
     startTransition(() => {
-      includeWalletTypeInfo(values).then((data) => {
+      excludeWalletTypeInfo(values).then((data) => {
         if (data?.success) {
           toast.success(data.success);
           form.reset();

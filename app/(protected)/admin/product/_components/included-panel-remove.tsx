@@ -18,12 +18,19 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { removeIncludeDomainInfo } from "@/actions/admin-product-panels";
 
-const IncludedPanelRemove = ({ id, domainId }: { id: string; domainId : string; }) => {
+const IncludedPanelRemove = ({
+  id,
+  domainId,
+}: {
+  id: string;
+  domainId: string;
+}) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = (productId: string, panelId: string) => {
+    removeIncludeDomainInfo(panelId, productId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -47,7 +54,11 @@ const IncludedPanelRemove = ({ id, domainId }: { id: string; domainId : string; 
           <DialogFooter>
             <DialogClose>
               <Button asChild>
-                <Link href={`/admin/product/panel-quantity/${id}/edit/${domainId}`}>Confirm</Link>
+                <Link
+                  href={`/admin/product/panel-quantity/${id}/edit/${domainId}`}
+                >
+                  Confirm
+                </Link>
               </Button>
             </DialogClose>
           </DialogFooter>
@@ -64,7 +75,9 @@ const IncludedPanelRemove = ({ id, domainId }: { id: string; domainId : string; 
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(id)}>Confirm</Button>
+              <Button onClick={() => handleDelete(id, domainId)}>
+                Confirm
+              </Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

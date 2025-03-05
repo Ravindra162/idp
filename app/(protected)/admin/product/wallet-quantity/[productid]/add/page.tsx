@@ -8,8 +8,8 @@ import AddWalletQuantityForm from "../_components/add-include-wallet-quantity-fo
 
 export const generateMetadata = () => {
   return {
-    title: "Add Team Quantity | GrowonsMedia",
-    description: "Add Team Quantity",
+    title: "Add WalletType Quantity | GrowonsMedia",
+    description: "Add WalletType Quantity",
   };
 };
 
@@ -19,9 +19,17 @@ const page = async ({ params }: { params: { productid: string } }) => {
     where: { id: params.productid },
     select: {
       productName: true,
+      includedWalletTypeIds: true,
+      excludedWalletTypeIds: true,
     },
   });
   const walletTypes = await db.walletType.findMany({
+    where: {
+      AND: [
+        { id: { notIn: product?.includedWalletTypeIds } },
+        { id: { notIn: product?.excludedWalletTypeIds } },
+      ],
+    },
     select: {
       id: true,
       name: true,

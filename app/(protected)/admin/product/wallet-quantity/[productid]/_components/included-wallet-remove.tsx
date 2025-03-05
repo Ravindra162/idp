@@ -18,12 +18,13 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { removeExcludeWalletTypeInfo, removeIncludeWalletTypeInfo } from "@/actions/admin-product-walletTypes";
 
 const IncludedWalletRemove = ({ id , walletId }: { id: string; walletId : string; }) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = (productId: string, walletTypeId: string) => {
+    removeIncludeWalletTypeInfo(walletTypeId, productId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -64,7 +65,7 @@ const IncludedWalletRemove = ({ id , walletId }: { id: string; walletId : string
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(id)}>Confirm</Button>
+              <Button onClick={() => handleDelete(id, walletId)}>Confirm</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>

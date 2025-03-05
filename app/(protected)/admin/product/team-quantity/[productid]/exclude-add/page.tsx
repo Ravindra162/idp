@@ -18,16 +18,17 @@ const page = async ({ params }: { params: { productid: string } }) => {
   const product = await db.product.findUnique({
     where: { id: params.productid },
     select : {
-      productName : true
+      productName : true,
+      includedTeamIds : true,
+      excludedTeamIds : true
     }
   });
   const teams = await db.team.findMany({
     where: {
-      products: {
-        none: {
-          productId: params.productid, 
-        },
-      },
+      AND: [
+        { id: { notIn: product?.includedTeamIds } },
+        { id: { notIn: product?.excludedTeamIds } },
+      ],
     },
     select: {
       id: true,

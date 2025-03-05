@@ -14,6 +14,7 @@ export const includeWalletTypeInfo = async (
   const { id, name, walletTypeId, minProduct, maxProduct, price } = parsedData;
 
   try {
+
     console.log(walletTypeId);
 
     const existingProductInfo = await db.productInfo.findFirst({
@@ -41,12 +42,15 @@ export const includeWalletTypeInfo = async (
       });
     }
 
+
     await db.product.update({
       where: { id },
       data: {
-        includedTeams: { connect: { id : walletTypeId } },
+        includedWalletTypes: { connect: { id : walletTypeId } },
       },
     });
+
+    console.log("---------------");
 
     await db.walletType.update({
       where: { id : walletTypeId  },
@@ -55,34 +59,34 @@ export const includeWalletTypeInfo = async (
       },
     });
 
-    console.log("---------------");
     revalidatePath("/admin/product/product-table");
-    return { success: "Team Included Successfully!", data: updatedProductInfo };
+    return { success: "WalletType Included Successfully!", data: updatedProductInfo };
   } catch (error) {
     console.error("Error updating product info:", error);
     return { error: "Failed to update product info" };
   }
 };
 
-export const excludeTeamInfo = async (
-  values: z.infer<typeof EditTeamQuantitySchema>
+export const excludeWalletTypeInfo = async (
+  values: z.infer<typeof EditWalletTypeQuantitySchema>
 ) => {
-  const parsedData = EditTeamQuantitySchema.parse(values);
+  const parsedData = EditWalletTypeQuantitySchema.parse(values);
 
-  const { id, name, teamId, minProduct, maxProduct, price } = parsedData;
+  const { id, name, walletTypeId, minProduct, maxProduct, price } = parsedData;
 
   try {
-    console.log(teamId);
+
+    console.log(walletTypeId);
 
     const existingProductInfo = await db.productInfo.findFirst({
-      where: { productId: id, teamId },
+      where: { productId: id, walletTypeId },
     });
 
     let updatedProductInfo;
     if (existingProductInfo) {
       updatedProductInfo = await db.productInfo.update({
         where: { id: existingProductInfo.id }, // Using unique id for update
-        data: { Min: 0, Max: 0, Price: 0 },
+        data: { Min: minProduct, Max: maxProduct, Price: price },
       });
     } else {
       updatedProductInfo = await db.productInfo.create({
@@ -92,38 +96,40 @@ export const excludeTeamInfo = async (
           Min: 0,
           Max: 0,
           Price: 0,
-          team: {
-            connect: { teamId: teamId },
+          walletType: {
+            connect: { id : walletTypeId },
           },
         },
       });
     }
 
+
     await db.product.update({
       where: { id },
       data: {
-        excludedTeams: { connect: { teamId } },
+        excludedWalletTypes: { connect: { id : walletTypeId } },
       },
     });
 
-    await db.team.update({
-      where: { teamId },
+    console.log("---------------");
+
+    await db.walletType.update({
+      where: { id : walletTypeId  },
       data: {
         excludedFrom: { connect: { id } },
       },
     });
 
-    console.log("---------------");
     revalidatePath("/admin/product/product-table");
-    return { success: "Team Included Successfully!", data: updatedProductInfo };
+    return { success: "WalletType Excluded Successfully!", data: updatedProductInfo };
   } catch (error) {
     console.error("Error updating product info:", error);
     return { error: "Failed to update product info" };
   }
 };
 
-export const removeIncludeTeamInfo = async (
-  teamId: string,
+export const removeIncludeWalletTypeInfo = async (
+  walletTypeId: string,
   productId: string
 ) => {
   try {
@@ -131,7 +137,7 @@ export const removeIncludeTeamInfo = async (
     const existingProductInfo = await db.productInfo.findFirst({
       where: {
         productId,
-        teamId,
+        walletTypeId,
         Max: { gt: 0 },
         Min: { gt: 0 },
         Price: { gt: 0 },
@@ -151,33 +157,33 @@ export const removeIncludeTeamInfo = async (
     await db.product.update({
       where: { id: productId },
       data: {
-        includedTeams: { disconnect: { teamId } }, // Remove team from includedTeams
+        includedWalletTypes: { disconnect: { id: walletTypeId } }, // Remove team from includedTeams
       },
     });
 
     // Update Team model to disconnect the product
-    await db.team.update({
-      where: { teamId },
+    await db.walletType.update({
+      where: { id : walletTypeId },
       data: {
         includedIn: { disconnect: { id: productId } }, // Remove product from includedIn
       },
     });
     revalidatePath("/admin/product/product-table");
-    return { success: "Team removed successfully from Product!" };
+    return { success: "WalletType removed successfully from Product!" };
   } catch (error) {
     console.error("Error removing team from product:", error);
     return { error: "Failed to remove team from product." };
   }
 };
 
-export const removeExcludeTeamInfo = async (
-  teamId: string,
+export const removeExcludeWalletTypeInfo = async (
+  walletTypeId: string,
   productId: string
 ) => {
   try {
     // Find the existing ProductInfo record
     const existingProductInfo = await db.productInfo.findFirst({
-      where: { productId, teamId , Max : 0, Min : 0, Price: 0 },
+      where: { productId, walletTypeId , Max : 0, Min : 0, Price: 0 },
     });
 
     if (!existingProductInfo) {
@@ -193,19 +199,19 @@ export const removeExcludeTeamInfo = async (
     await db.product.update({
       where: { id: productId },
       data: {
-        excludedTeams: { disconnect: { teamId } }, // Remove team from includedTeams
+        excludedWalletTypes: { disconnect: { id : walletTypeId } }, // Remove team from includedTeams
       },
     });
 
     // Update Team model to disconnect the product
-    await db.team.update({
-      where: { teamId },
+    await db.walletType.update({
+      where: { id : walletTypeId },
       data: {
         excludedFrom: { disconnect: { id: productId } }, // Remove product from includedIn
       },
     });
     revalidatePath("/admin/product/product-table");
-    return { success: "Team removed successfully from Product!" };
+    return { success: "WalletType removed successfully from Product!" };
   } catch (error) {
     console.error("Error removing team from product:", error);
     return { error: "Failed to remove team from product." };

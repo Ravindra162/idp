@@ -16,7 +16,21 @@ export const generateMetadata = () => {
 
 const page = async ({ params }: { params: { productid: string } }) => {
   const session = await auth();
+  const product = await db.product.findUnique({
+    where: { id: params.productid },
+    select: {
+      productName: true,
+      includedDomainIds: true,
+      excludedDomainIds: true,
+    },
+  });
   const panels = await db.domain.findMany({
+    where: {
+      AND: [
+        { id: { notIn: product?.includedDomainIds } },
+        { id: { notIn: product?.excludedDomainIds } },
+      ],
+    },
     select: {
       id: true,
       name: true,
@@ -39,7 +53,11 @@ const page = async ({ params }: { params: { productid: string } }) => {
       </nav>
       <section>
         <div className="m-4">
-          <ExcludeAddPanelForm productId={params.productid} panels={panels} />
+          <ExcludeAddPanelForm
+            productId={params.productid}
+            panels={panels}
+            name={product?.productName ?? ""}
+          />
         </div>
       </section>
     </>

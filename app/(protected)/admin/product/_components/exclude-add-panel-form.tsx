@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { excludePanelInfo } from "@/actions/admin-product-panels";
+import { useRouter } from "next/navigation";
 
 interface Panel {
   id: string;
@@ -41,25 +43,42 @@ interface Panel {
 const ExcludeAddPanelForm = ({
   productId,
   panels,
+  name
 }: {
   productId: string;
+  name: string;
   panels: Panel[];
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof EditPanelQuantitySchema>>({
     resolver: zodResolver(EditPanelQuantitySchema),
     defaultValues: {
       id: productId,
       domainId: "",
+      name: name,
+      maxProduct: 1,
+      minProduct: 2,
+      price: 1,
     },
   });
 
   const onSubmit = (values: z.infer<typeof EditPanelQuantitySchema>) => {
     setError("");
     startTransition(() => {
-      
+      console.log(values.domainId)
+      excludePanelInfo(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.push("/admin/product/product-table");
+        }
+        if (data?.error) {
+          setError(data.error);
+        }
+      });
     });
   };
   return (

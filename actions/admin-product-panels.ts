@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/lib/db";
 import { EditPanelQuantitySchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
@@ -6,79 +8,69 @@ import { z } from "zod";
 export const includePanelInfo = async (
   values: z.infer<typeof EditPanelQuantitySchema>
 ) => {
-  try {
-    const parsedData = EditPanelQuantitySchema.safeParse(values);
+    const parsedData = EditPanelQuantitySchema.parse(values);
 
-    if (!parsedData.success) {
-      return { error: "Invalid input values" };
-    }
+    const { id, name, domainId, minProduct, maxProduct, price } = parsedData;
 
-    const { id, name, domainId, minProduct, maxProduct, price } = parsedData.data;
+    try {
 
-    console.log(domainId, id, name);
+      console.log(domainId);
+      console.log(id);
 
-    const existingProductInfo = await db.productInfo.findFirst({
-      where: { productId: id, domainId: domainId },
-    });
-
-    let updatedProductInfo;
-
-    if (existingProductInfo) {
-      updatedProductInfo = await db.productInfo.update({
-        where: { id: existingProductInfo.id },
-        data: { Min: minProduct, Max: maxProduct, Price: price },
+      console.log("Parsed Data:", parsedData);
+      if (!id || !domainId) {
+        console.error("Error: id or domainId is undefined");
+        return { error: "Invalid product or domain data" };
+      }
+  
+      const existingProductInfo = await db.productInfo.findFirst({
+        where: { productId: id, domainId },
       });
-    } else {
-      updatedProductInfo = await db.productInfo.create({
-        data: {
-          productId: id,
-          name: name,
-          Min: minProduct,
-          Max: maxProduct,
-          Price: price,
-          domain: {
-            connect: { id: domainId },
+  
+      let updatedProductInfo;
+      if (existingProductInfo) {
+        updatedProductInfo = await db.productInfo.update({
+          where: { id: existingProductInfo.id }, // Using unique id for update
+          data: { Min: minProduct, Max: maxProduct, Price: price },
+        });
+      } else {
+        updatedProductInfo = await db.productInfo.create({
+          data: {
+            productId: id,
+            name: name,
+            Min: minProduct,
+            Max: maxProduct,
+            Price: price,
+            domain: {
+              connect: { id : domainId },
+            },
           },
-        },
-      });
-    }
-
-    // Ensure product exists before updating
-    const existingProduct = await db.product.findUnique({
-      where: { id },
-    });
-
-    if (existingProduct) {
+        });
+      }
+  
+  
       await db.product.update({
         where: { id },
         data: {
-          includedDomains: { connect: { id: domainId } },
+          includedDomains: { connect: { id : domainId } },
         },
       });
-    }
-
-    // Ensure domain exists before updating
-    const existingDomain = await db.domain.findUnique({
-      where: { id: domainId },
-    });
-
-    if (existingDomain) {
+  
+      console.log("---------------");
+  
       await db.domain.update({
-        where: { id: domainId },
+        where: { id : domainId  },
         data: {
-          includedIn: { connect: { id: domainId } },
+          includedIn: { connect: { id } },
         },
       });
+  
+      revalidatePath("/admin/product/product-table");
+      return { success: "Panel Included Successfully!", data: updatedProductInfo };
+    } catch (error) {
+      console.error("Error updating product info:", error);
+      return { error: "Failed to update product info" };
     }
-
-    console.log("---------------");
-    revalidatePath("/admin/product/product-table");
-
-    return { success: "Team Included Successfully!", data: updatedProductInfo };
-  } catch (error) {
-    console.error("Error updating product info:", error);
-    return { error: "Failed to update product info" };
-  }
 };
 
 
@@ -120,20 +112,20 @@ export const excludePanelInfo = async (
       await db.product.update({
         where: { id },
         data: {
-          includedDomains: { connect: { id : domainId } },
+          excludedDomains: { connect: { id : domainId } },
         },
       });
   
       await db.domain.update({
         where: { id : domainId },
         data: {
-          includedIn: { connect: { id : id } },
+          excludedFrom: { connect: { id : id } },
         },
       });
   
       console.log("---------------");
       revalidatePath("/admin/product/product-table");
-      return { success: "Team Included Successfully!", data: updatedProductInfo };
+      return { success: "Panel Excluded Successfully!", data: updatedProductInfo };
     } catch (error) {
       console.error("Error updating product info:", error);
       return { error: "Failed to update product info" };
@@ -188,7 +180,7 @@ export const removeIncludeDomainInfo = async (
   }
 };
 
-export const removeExcludeTeamInfo = async (
+export const removeExcludeDomainInfo = async (
   domainId: string,
   productId: string
 ) => {

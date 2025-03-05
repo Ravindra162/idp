@@ -2,15 +2,12 @@ import React from "react";
 import { auth } from "@/auth";
 import TopBar from "../../../../../_components/Topbar";
 import { db } from "@/lib/db";
-import EditTeamQuantityForm from "../../../_components/edit-include-team-quantity-form";
-import AddTeamQuantityForm from "../../../_components/add-include-team-quantity-form";
-import AddWalletQuantityForm from "../_components/add-include-wallet-quantity-form";
 import AddExcludeWalletQuantityForm from "../_components/add-exclude-wallet-quantity-form";
 
 export const generateMetadata = () => {
   return {
-    title: "Add Team Quantity | GrowonsMedia",
-    description: "Add Team Quantity",
+    title: "Exclude WalletType | GrowonsMedia",
+    description: "Exclude WalletType",
   };
 };
 
@@ -20,9 +17,17 @@ const page = async ({ params }: { params: { productid: string } }) => {
     where: { id: params.productid },
     select: {
       productName: true,
+      includedWalletTypeIds: true,
+      excludedWalletTypeIds: true,
     },
   });
   const walletTypes = await db.walletType.findMany({
+    where: {
+      AND: [
+        { id: { notIn: product?.includedWalletTypeIds } },
+        { id: { notIn: product?.excludedWalletTypeIds } },
+      ],
+    },
     select: {
       id: true,
       name: true,
@@ -41,7 +46,7 @@ const page = async ({ params }: { params: { productid: string } }) => {
   return (
     <>
       <nav className="md:block hidden">
-        <TopBar title="Add Team Quantity" />
+        <TopBar title="Exclude WalletType" />
       </nav>
       <section>
         <div className="m-4">

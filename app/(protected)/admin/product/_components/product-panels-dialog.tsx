@@ -79,7 +79,6 @@ const ProductPanelsDialog = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Panel ID</TableHead>
                   <TableHead>Panel Name</TableHead>
                   <TableHead>Price</TableHead>
                   <TableHead>Min</TableHead>
@@ -94,7 +93,6 @@ const ProductPanelsDialog = ({
                   );
                   return productDetails ? (
                     <TableRow key={panel.id}>
-                      <TableCell>{panel.id}</TableCell>
                       <TableCell>{panel.name}</TableCell>
                       <TableCell>{productDetails.Price}</TableCell>
                       <TableCell>{productDetails.Min}</TableCell>
@@ -115,7 +113,7 @@ const ProductPanelsDialog = ({
 
         <Button className="text-sm w-auto ml-auto" asChild>
           <Link
-            href={`/admin/product/team-quantity/${productId}/exclude-add`}
+            href={`/admin/product/panel-quantity/${productId}/exclude-add`}
             className="inline"
           >
             Exclude a Panel
@@ -136,7 +134,6 @@ const ProductPanelsDialog = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Panel ID</TableHead>
                   <TableHead>Panel Name</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -144,10 +141,9 @@ const ProductPanelsDialog = ({
               <TableBody>
                 {excludedPanels.map((panel) => (
                   <TableRow key={panel.id}>
-                    <TableCell>{panel.id}</TableCell>
                     <TableCell>{panel.name}</TableCell>
                     <TableCell>
-                      <ExcludedPanelRemove id={panel.id} />
+                      <ExcludedPanelRemove panelId={panel.id} productId={productId} />
                     </TableCell>
                   </TableRow>
                 ))}

@@ -18,12 +18,19 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { removeExcludeDomainInfo } from "@/actions/admin-product-panels";
 
-const ExcludedPanelRemove = ({ id }: { id: string }) => {
+const ExcludedPanelRemove = ({
+  productId,
+  panelId,
+}: {
+  productId: string;
+  panelId: string;
+}) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = (id: string) => {
-    deleteProduct({ id }).then((data) => {
+  const handleDelete = (productId: string, panelId: string) => {
+    removeExcludeDomainInfo(panelId, productId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
       }
@@ -46,7 +53,7 @@ const ExcludedPanelRemove = ({ id }: { id: string }) => {
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete(id)}>Confirm</Button>
+              <Button onClick={() => handleDelete(productId, panelId)}>Confirm</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
