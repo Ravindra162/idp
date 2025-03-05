@@ -18,6 +18,7 @@ import { EditProductFormSchema } from "@/schemas";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import AdminVisibility from "./admin-visibility-form";
 
 const ProductRemove = ({ id }: { id: string }) => {
   const [isPending, startTransition] = React.useTransition();
@@ -76,11 +77,11 @@ const ProductRemove = ({ id }: { id: string }) => {
                     Manage Panel
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    <DialogClose>
-                      <Button asChild>
-                        <Link href={``}>Visible to All Panels</Link>
-                      </Button>
-                    </DialogClose>
+                    <AdminVisibility
+                      productId={id}
+                      text="Panels"
+                      field="visibleToAllDomains"
+                    />
                   </td>
                 </tr>
                 <tr>
@@ -88,11 +89,11 @@ const ProductRemove = ({ id }: { id: string }) => {
                     Manage Team
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    <DialogClose>
-                      <Button asChild>
-                        <Link href={``}>Visible to All Teams</Link>
-                      </Button>
-                    </DialogClose>
+                    <AdminVisibility
+                      productId={id}
+                      text="Teams"
+                      field="visibleToAllTeams"
+                    />
                   </td>
                 </tr>
                 <tr>
@@ -100,11 +101,11 @@ const ProductRemove = ({ id }: { id: string }) => {
                     Manage Wallet Types
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
-                    <DialogClose>
-                      <Button asChild>
-                        <Link href={``}>Visible to All Wallet Types</Link>
-                      </Button>
-                    </DialogClose>
+                    <AdminVisibility
+                      productId={id}
+                      text="Wallet Types"
+                      field="visibleToAllWalletTypes"
+                    />
                   </td>
                 </tr>
               </tbody>
