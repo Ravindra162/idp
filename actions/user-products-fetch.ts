@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/lib/db";
 
 export async function getFilteredProducts(domainId: string, userId: string) {
@@ -14,6 +16,7 @@ export async function getFilteredProducts(domainId: string, userId: string) {
         excludedFromIds: true,
       },
     });
+
   
     if (!domain) {
       throw new Error("Invalid domain ID");
@@ -47,6 +50,7 @@ export async function getFilteredProducts(domainId: string, userId: string) {
         description: product.description,
       };
     });
+
   
     return mergedProducts;
   }
@@ -74,6 +78,8 @@ export async function getFilteredProducts(domainId: string, userId: string) {
         return product.includedTeamIds.includes(teamId);
       }
     });
+
+    console.log(teamFilteredProducts)
   
     // Fetch product-specific overrides for the team
     const productInfos = await db.productInfo.findMany({

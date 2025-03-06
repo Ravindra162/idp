@@ -32,7 +32,7 @@ const PanelListingTable = ({ wallets }: { wallets: any[]}) => {
                   <TableCell>{`${wallet.currencyCode} - ${wallet.balance}`}</TableCell>
                   <TableCell>
                     <Button className="bg-transparent text-black border border-gray-300 hover:bg-gray-100">
-                    <Link href={`/orders/create/${wallet.userId}/${wallet.userId}`}>Select Wallet</Link></Button>
+                    <Link href={`/orders/products/${wallet.userId}/${wallet.walletTypeId}`}>Select Wallet</Link></Button>
                   </TableCell>
                 </TableRow>
               </TableBody>

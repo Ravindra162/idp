@@ -1,12 +1,13 @@
 import React from "react";
-import OrderForm from "../../../_components/order-form";
+import OrderForm from "../../../../_components/order-form";
 import { db } from "@/lib/db";
-import TopBar from "../../../_components/Topbar";
-import ProductOrderTable from "../../../_components/product-order-table";
+import TopBar from "../../../../_components/Topbar";
+import ProductOrderTable from "../../../../_components/product-order-table";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { getFinalFilteredProducts } from "@/actions/user-products-fetch";
+import { auth } from "@/auth";
 
 export const generateMetadata = () => {
   return {
@@ -15,9 +16,15 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async ({ params }: { params: { id: string; walletTypeId : string } }) => {
 
-  const proFilteredProducts = (await getFinalFilteredProducts("", params.id, "", "")) ?? [];
+  const user = await db.user.findUnique({
+    where : {
+      id : params.id
+    }
+  })
+
+  const proFilteredProducts = (await getFinalFilteredProducts(user?.domainId ?? "", params.id, user?.teamId ?? "", params.walletTypeId)) ?? [];
 
   const half = Math.ceil(proFilteredProducts.length / 2);
   const firstHalf = proFilteredProducts.slice(0, half);
