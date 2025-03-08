@@ -28,10 +28,10 @@ export const generateMetadata = () => {
 
 type AdminHistoryProps = {
   searchParams: { page: string };
-  params : {domainId : string};
+  params: { domainId: string };
 };
 
-const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
+const AdminWallet = async ({ searchParams, params }: AdminHistoryProps) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 12;
@@ -40,7 +40,11 @@ const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const Orders = await db.order.findMany({
-    where : {domainId : params.domainId},
+    where: { domainId: params.domainId },
+    include: {
+      user: true,
+      products: { include: { order: true } },
+    },
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
@@ -76,7 +80,11 @@ const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
             </TableFooter>
           )}
           <TableBody>
-            {Orders?.map((order, index) => {
+            {Orders?.map(async (order, index) => {
+              const products = order.products;
+              const wallet = await db.wallet.findUnique({
+                where: { id: order.walletId },
+              });
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">
@@ -106,10 +114,12 @@ const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
                   </TableCell>
                   <TableCell>
                     <ViewProducts
-                      products={JSON.parse(JSON.stringify(order.products))}
+                      products={JSON.parse(JSON.stringify(products))}
                     />
                   </TableCell>
-                  <TableCell>{formatPrice(order.amount, "")}</TableCell>
+                  <TableCell>
+                    {formatPrice(order.amount, wallet?.currencyCode ?? "")}
+                  </TableCell>
                   <TableCell className="flex flex-col">
                     <span>{order.createdAt.toDateString()}</span>
                     <span>
@@ -124,7 +134,7 @@ const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
               );
             })}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4}>Total</TableCell>
@@ -135,7 +145,7 @@ const AdminWallet = async ({ searchParams , params }: AdminHistoryProps) => {
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </section>
 

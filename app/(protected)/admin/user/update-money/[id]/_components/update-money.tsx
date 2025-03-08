@@ -16,13 +16,20 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateMoney } from "@/actions/user";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const UpdateMoneyForm = ({
   userId,
-  amount,
+  wallets,
 }: {
   userId: string;
-  amount: number;
+  wallets: any;
 }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
@@ -30,7 +37,8 @@ const UpdateMoneyForm = ({
     resolver: zodResolver(updateMoneySchema),
     defaultValues: {
       userId: userId,
-      amount: amount,
+      walletId: "",
+      amount: 0,
     },
   });
 
@@ -55,6 +63,47 @@ const UpdateMoneyForm = ({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name={`walletId`}
+            render={({ field }) => (
+              <FormItem className="w-full md:w-1/2">
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    console.log(value)
+                    const selectedWallet = wallets.find(
+                      (p: any) => p.id === value
+                    );
+                    console.log(selectedWallet)
+                    if (selectedWallet) {
+                      form.setValue(`amount`, selectedWallet.balance);
+                    }
+                  }}
+                  disabled={isPending}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a Wallet" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <FormMessage />
+                  <SelectContent>
+                    {wallets.map((wallet: any) => (
+                      <SelectItem
+                        value={wallet.id}
+                        key={wallet.id}
+                        className="capitalize"
+                      >
+                        {wallet.walletName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="amount"

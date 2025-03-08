@@ -58,6 +58,7 @@ const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
         {
           name: "",
           quantity: 0,
+          productId : "" 
         },
       ],
       price: 0,
@@ -75,28 +76,32 @@ const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
       toast.error("Order cannot be empty");
       return;
     }
+
+    console.log(id);
+    console.log(walletId);
+
     values.price = calculateTotalAmount();
     console.log("Form values", values);
     // update this addOrder functionality 
-    // startTransition(() => {
-    //   addOrder(values).then((data) => {
-    //     if (data?.success) {
-    //       toast.success(data.success);
-    //       form.reset();
-    //       router.refresh();
-    //     }
+    startTransition(() => {
+      addOrder(values).then((data) => {
+        if (data?.success) {
+          toast.success(data.success);
+          form.reset();
+          router.refresh();
+        }
 
-    //     if (data?.error) {
-    //       setError(data.error);
-    //       toast.error(data.error, {
-    //         action: {
-    //           label: "close",
-    //           onClick: () => console.log("Undo"),
-    //         },
-    //       });
-    //     }
-    //   });
-    // });
+        if (data?.error) {
+          setError(data.error);
+          toast.error(data.error, {
+            action: {
+              label: "close",
+              onClick: () => console.log("Undo"),
+            },
+          });
+        }
+      });
+    });
   };
 
   const calculateTotalAmount = () => {
@@ -124,7 +129,13 @@ const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
                   render={({ field }) => (
                     <FormItem>
                       <Select
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          const selectedProduct = products.find((p: any) => p.name === value);
+                          if (selectedProduct) {
+                            form.setValue(`products.${index}.productId`, selectedProduct.id);
+                          }
+                        }}
                         disabled={isPending}
                         defaultValue={field.value}
                       >
@@ -191,6 +202,7 @@ const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
                             append({
                               name: "",
                               quantity: 0,
+                              productId : "",
                             });
                           } else {
                             const lastProduct =
@@ -200,6 +212,7 @@ const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
                               append({
                                 name: "",
                                 quantity: 0,
+                                productId : "",
                               });
                             } else {
                               toast.error(

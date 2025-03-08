@@ -12,9 +12,9 @@ import { db } from "@/lib/db";
 import { formatPrice } from "@/components/shared/formatPrice";
 import { revalidatePath } from "next/cache";
 import TopBar from "@/app/(protected)/_components/Topbar";
-import AdminOrderForm from "../_components/admin-order-form";
+import AdminOrderForm from "../../../_components/admin-order-form";
 import PaginationBar from "@/app/(protected)/money/_components/PaginationBar";
-import BalanceCell from "../_components/Balance-cell";
+import BalanceCell from "../../../_components/Balance-cell";
 import Search from "@/components/shared/search";
 
 export const generateMetadata = () => {
@@ -26,10 +26,10 @@ export const generateMetadata = () => {
 
 const AdminOrders = async ({
   searchParams,
-  params
+  params,
 }: {
   searchParams: { page: string };
-  params : {domainId : string};
+  params: { domainId: string };
 }) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
@@ -37,7 +37,7 @@ const AdminOrders = async ({
 
   const totalItemCount = (
     await db.order.findMany({
-      where: { status: "PENDING" , domainId : params.domainId },
+      where: { status: "PENDING", domainId: params.domainId },
     })
   ).length;
 
@@ -46,13 +46,14 @@ const AdminOrders = async ({
   const orders = await db.order.findMany({
     where: {
       status: "PENDING",
-      domainId : params.domainId
+      domainId: params.domainId,
     },
     orderBy: {
       createdAt: "desc",
     },
     include: {
-      User: true,
+      user: true,
+      products: { include: { order: true } },
     },
     skip: currentPage - 1,
     take: pageSize,
@@ -80,31 +81,34 @@ const AdminOrders = async ({
           </TableHeader>
           {totalItemCount === 0 && <TableCaption>No Orders found</TableCaption>}
           <TableBody>
-            {orders.map((order) => {
+            {orders.map(async (order) => {
               const products = order.products;
+              const wallet = await db.wallet.findUnique({
+                where: { id: order.walletId },
+              });
               return (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">
-                    {order.User?.name}
+                    {order.user?.name}
                   </TableCell>
                   <TableCell>
-                    {Array.isArray(products) &&
-                      products.map((product: any, index: number) => (
-                        <div key={index}>
-                          <span>{product.name}</span>{" "}
-                          <span> - Quantity: {product.quantity}</span>
-                        </div>
-                      ))}
+                    {order.products.map((productOrdered, index) => (
+                      <div key={index}>
+                        <span>{productOrdered.name}</span>{" "}
+                        <span>- Quantity: {productOrdered.quantity}</span>{" "}
+                      </div>
+                    ))}
                   </TableCell>
                   <TableCell>
-                    <BalanceCell id={order.userId} />
+                    <BalanceCell id={order.userId} walletId={order.walletId} />
                   </TableCell>
-                  <TableCell>{formatPrice(order.amount)}</TableCell>
+                  <TableCell>{formatPrice(order.amount, wallet?.currencyCode ?? "")}</TableCell>
                   <TableCell>
                     <AdminOrderForm
                       userId={order.userId}
                       id={order.id}
                       orderId={order.orderId}
+                      walletId={order.walletId}
                       amount={order.amount}
                       products={products}
                     />
@@ -114,16 +118,17 @@ const AdminOrders = async ({
             })}
           </TableBody>
 
-          <TableFooter>
+          {/* <TableFooter>
             <TableRow>
               <TableCell colSpan={3}>Total</TableCell>
               <TableCell>
                 {formatPrice(
-                  orders?.reduce((acc, order) => acc + order.amount, 0) ?? 0
+                  orders?.reduce((acc, order) => acc + order.amount, 0) ?? 0,
+                  ""
                 )}
               </TableCell>
             </TableRow>
-          </TableFooter>
+          </TableFooter> */}
         </Table>
       </section>
       {totalPages > 1 && (

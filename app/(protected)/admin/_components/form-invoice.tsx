@@ -29,9 +29,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 type InvoiceProps = {
   id: string;
   userId: string;
+  walletId : string;
 };
 
-const FormInvoice = ({ id, userId }: InvoiceProps) => {
+const FormInvoice = ({ id, userId, walletId }: InvoiceProps) => {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof RejectInvoiceSchema>>({
@@ -46,6 +47,7 @@ const FormInvoice = ({ id, userId }: InvoiceProps) => {
     const values = {
       invoiceId:id,
       userId: userId,
+      walletId : walletId
     };
     startTransition(() => {
       acceptInvoice(values).then((data) => {

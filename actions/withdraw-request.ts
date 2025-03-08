@@ -2,12 +2,15 @@
 import { db } from "@/lib/db";
 import { getUserById } from "@/data/user";
 import { revalidatePath } from "next/cache";
+import { validate } from "uuid";
 
 export const RequestWithdrawal = async (formData: FormData) => {
   const userId = formData.get("userId")?.toString() ?? "";
   const user = await getUserById(userId);
   const username = user?.name;
+  const walletId = formData.get("walletId")?.toString();
 
+  console.log(walletId)
   if (!user) {
     return { error: "User not found" };
   }
@@ -20,15 +23,24 @@ export const RequestWithdrawal = async (formData: FormData) => {
       };
     }
 
-    const walletFlow = await db.walletFlow.findMany({
+    const wallet = await db.wallet.findUnique({
       where: {
-        userId: userId,
+        id: walletId,
       },
     });
 
+    const walletFlow = await db.walletFlow.findMany({
+      where: {
+        userId: userId,
+        walletId: walletId,
+      },
+    });
+
+    console.log(walletFlow);
+
     const calculateTotalMoney = walletFlow.reduce((acc, flow) => {
       const amount =
-        flow.purpose?.toLowerCase() === "wallet recharge"
+        flow.purpose?.toLowerCase() === "add_money"
           ? flow.status === "SUCCESS"
             ? Math.abs(flow.amount)
             : 0
@@ -43,14 +55,20 @@ export const RequestWithdrawal = async (formData: FormData) => {
       return acc + amount;
     }, 0);
 
-    const isAmountMatching = calculateTotalMoney === user?.totalMoney;
+    const isAmountMatching = calculateTotalMoney === wallet?.balance;
 
     if (!isAmountMatching) {
       await db.user.update({
         where: { id: userId },
         data: {
           role: "BLOCKED",
-          totalMoney: calculateTotalMoney,
+        },
+      });
+
+      await db.wallet.update({
+        where: { id: walletId },
+        data: {
+          balance: calculateTotalMoney,
         },
       });
 
@@ -60,7 +78,7 @@ export const RequestWithdrawal = async (formData: FormData) => {
     }
 
     const withdrawAmount = formData.get("withdrawAmount")?.toString() ?? "0";
-    if (user.totalMoney < parseInt(withdrawAmount, 10)) {
+    if (wallet.balance < parseInt(withdrawAmount, 10)) {
       return { error: "Insufficient funds for withdrawal" };
     }
 
@@ -73,10 +91,12 @@ export const RequestWithdrawal = async (formData: FormData) => {
         secure_url: "",
         public_id: "",
         transactionId: "",
-        reason: formData.get("reason")?.toString() ?? "",
+        purpose: "WITHDRAWAL",
         userId: userId,
         name: username ?? "",
         status: "PENDING",
+        walletId: walletId ?? "",
+        domainId: process.env.NEXT_PUBLIC_DOMAIN_ID ?? "",
       },
     });
   } catch (err: any) {

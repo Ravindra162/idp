@@ -10,10 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import FormWithdrawal from "../_components/form-withdrawal"; // Component for Accept/Reject functionality
-import PaginationBar from "../../money/_components/PaginationBar";
+import FormWithdrawal from "../../../_components/form-withdrawal"; // Component for Accept/Reject functionality
+import PaginationBar from "../../../../money/_components/PaginationBar";
 import CopyButton from "@/components/shared/copy-button";
-import TopBar from "../../_components/Topbar";
+import TopBar from "../../../../_components/Topbar";
 import Search from "@/components/shared/search";
 
 export const generateMetadata = () => {
@@ -25,10 +25,13 @@ export const generateMetadata = () => {
 
 type AdminWithdrawalParams = {
   searchParams: { page: string };
-  params : {domainId : string};
+  params: { domainId: string };
 };
 
-const AdminWithdrawal = async ({ searchParams, params }: AdminWithdrawalParams) => {
+const AdminWithdrawal = async ({
+  searchParams,
+  params,
+}: AdminWithdrawalParams) => {
   const currentPage = parseInt(searchParams.page) || 1;
   const pageSize = 7;
   const totalItemCount = (
@@ -39,7 +42,7 @@ const AdminWithdrawal = async ({ searchParams, params }: AdminWithdrawalParams) 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const withdrawals = await db.withdrawalRequest.findMany({
-    where: { status: "PENDING", domainId : params.domainId},
+    where: { status: "PENDING", domainId: params.domainId },
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
@@ -55,6 +58,7 @@ const AdminWithdrawal = async ({ searchParams, params }: AdminWithdrawalParams) 
           <TableCaption>A list of pending withdrawal requests.</TableCaption>
           <TableHeader>
             <TableRow>
+              <TableHead>Wallet Type</TableHead>
               <TableHead>Account No</TableHead>
               <TableHead>IFSC Code</TableHead>
               <TableHead>Withdraw Amount</TableHead>
@@ -67,41 +71,57 @@ const AdminWithdrawal = async ({ searchParams, params }: AdminWithdrawalParams) 
             </TableRow>
           </TableHeader>
           <TableBody>
-            {withdrawals.map((request) => (
-              <TableRow key={request.id}>
-                <TableCell>
-                  <div className="flex gap-1 items-center">
-                    {request.accountNumber}
-                    <CopyButton text={request.accountNumber} />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1 items-center">
-                    {request.ifscCode}
-                    <CopyButton text={request.ifscCode} />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {formatPrice(Number(request.withdrawAmount))}
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-1 items-center">
-                    {request.beneficiaryName}
-                    <CopyButton text={request.beneficiaryName} />
-                  </div>
-                </TableCell>
-                <TableCell>{request.createdAt.toDateString()}</TableCell>
-                <TableCell>{request.name || "N/A"}</TableCell>
-                <TableCell>
-                  <FormWithdrawal
-                    requestId={request.id}
-                    userId={request.userId}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+            {withdrawals.map(async (request) => {
+              const walletDetails = await db.wallet.findUnique({
+                where: {
+                  id: request.walletId,
+                },
+                include: {
+                  walletType: true,
+                },
+              });
+              return (
+                <TableRow key={request.id}>
+                  <TableCell>
+                    <div className="flex gap-1 items-center">
+                      {walletDetails?.walletType.name}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 items-center">
+                      {request.accountNumber}
+                      <CopyButton text={request.accountNumber} />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 items-center">
+                      {request.ifscCode}
+                      <CopyButton text={request.ifscCode} />
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {formatPrice(Number(request.withdrawAmount), walletDetails?.walletType.currencyCode ?? "")}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 items-center">
+                      {request.beneficiaryName}
+                      <CopyButton text={request.beneficiaryName} />
+                    </div>
+                  </TableCell>
+                  <TableCell>{request.createdAt.toDateString()}</TableCell>
+                  <TableCell>{request.name || "N/A"}</TableCell>
+                  <TableCell>
+                    <FormWithdrawal
+                      requestId={request.id}
+                      userId={request.userId}
+                      walletId={request.walletId}
+                    />
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={2}>Total</TableCell>
@@ -110,12 +130,13 @@ const AdminWithdrawal = async ({ searchParams, params }: AdminWithdrawalParams) 
                     withdrawals.reduce(
                       (acc, cur) => acc + Number(cur.withdrawAmount || "0"),
                       0
-                    )
+                    ),
+                    ""
                   )}
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </div>
       {totalPages > 1 && (

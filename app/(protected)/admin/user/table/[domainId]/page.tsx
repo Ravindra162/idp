@@ -16,6 +16,7 @@ import ProUser from "../../../_components/upgrade-to-pro";
 import TopBar from "../../../../_components/Topbar";
 import EditUser from "../../_components/edit-user";
 import Search from "@/components/shared/search";
+import WalletBalances from "@/app/(protected)/_components/wallets-balance";
 
 const UserTable = async ({
   searchParams,
@@ -86,7 +87,7 @@ const UserTable = async ({
               <TableCell className="capitalize">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <BalanceCell id={user.id} />
+                <WalletBalances userId={user.id} />
               </TableCell>
               <TableCell>{user.createdAt.toDateString()}</TableCell>
               <TableCell>

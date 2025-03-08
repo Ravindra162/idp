@@ -30,9 +30,10 @@ import { AcceptWithdrawalSchema, RejectWithdrawalSchema } from "@/schemas";
 type FormWithdrawalProps = {
   requestId: string;
   userId: string;
+  walletId: string;
 };
 
-const FormWithdrawal = ({ requestId, userId }: FormWithdrawalProps) => {
+const FormWithdrawal = ({ requestId, userId, walletId }: FormWithdrawalProps) => {
   const [isPending, startTransition] = useTransition();
 
   const acceptForm = useForm<z.infer<typeof AcceptWithdrawalSchema>>({
@@ -40,6 +41,7 @@ const FormWithdrawal = ({ requestId, userId }: FormWithdrawalProps) => {
     defaultValues: {
       transactionId: "",
       image: undefined,
+      walletId : walletId
     },
   });
 
@@ -47,6 +49,7 @@ const FormWithdrawal = ({ requestId, userId }: FormWithdrawalProps) => {
     resolver: zodResolver(RejectWithdrawalSchema),
     defaultValues: {
       reason: "",
+      walletId: walletId
     },
   });
 

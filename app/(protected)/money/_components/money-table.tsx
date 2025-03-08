@@ -40,6 +40,15 @@ export async function MoneyTable({ userId, walletId, searchParams }: TableProps)
     take: pageSize,
   });
 
+  const wallet = await db.wallet.findUnique({
+    where : {
+      id : walletId
+    },
+    include : {
+      walletType : true
+    }
+  });
+
   revalidatePath(`/money/record/${userId}`);
 
   return (
@@ -68,16 +77,16 @@ export async function MoneyTable({ userId, walletId, searchParams }: TableProps)
           )}
           <TableBody>
             {invoices.map((invoice) => (
-              <TableRow key={invoice.upiid}>
+              <TableRow key={invoice.upiId}>
                 <TableCell>{invoice.accountNumber}</TableCell>
-                <TableCell>{invoice.upiid}</TableCell>
+                <TableCell>{invoice.upiId}</TableCell>
                 <TableCell>{invoice.transactionId}</TableCell>
-                <TableCell>{formatPrice(Number(invoice.amount))}</TableCell>
+                <TableCell>{formatPrice(Number(invoice.amount), wallet?.walletType.currencyCode ?? "")}</TableCell>
                 <TableCell className="cursor-pointer">
-                  {invoice.status === "FAILED" && invoice.reason !== null ? (
+                  {invoice.status === "FAILED" && invoice.failureReason !== null ? (
                     <ReasonDialog
                       status={invoice.status}
-                      reason={invoice.reason}
+                      reason={invoice.failureReason}
                     />
                   ) : (
                     <BadgeStatus status={invoice.status} />
@@ -88,7 +97,7 @@ export async function MoneyTable({ userId, walletId, searchParams }: TableProps)
                     imageLink={
                       invoice.secure_url === "PayGIC Payment Gateway"
                         ? "/svgs/logo.webp"
-                        : invoice.secure_url
+                        : invoice.secure_url ?? ""
                     }
                   />
                 </TableCell>
@@ -102,7 +111,7 @@ export async function MoneyTable({ userId, walletId, searchParams }: TableProps)
                 <TableCell colSpan={3}>Total</TableCell>
                 <TableCell className="text-left" colSpan={4}>
                   {formatPrice(
-                    invoices.reduce((acc, cur) => acc + Number(cur.amount), 0)
+                    invoices.reduce((acc, cur) => acc + Number(cur.amount), 0), wallet?.walletType.currencyCode ?? ""
                   )}
                 </TableCell>
               </TableRow>

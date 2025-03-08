@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
 import ImageDialog from "@/components/shared/Image-dialog";
-import PaginationBar from "../../../money/_components/PaginationBar";
-import TopBar from "../../../_components/Topbar";
+import PaginationBar from "../../../../money/_components/PaginationBar";
+import TopBar from "../../../../_components/Topbar";
 import ReasonDialog from "@/components/shared/ReasonDialog";
 import BadgeStatus from "@/app/(protected)/money/_components/BadgeStatus";
 import Search from "@/components/shared/search";
@@ -75,13 +75,13 @@ const WithdrawRequests = async ({ searchParams , params }: WithdrawRequestsParam
                 <TableCell>{withdrawal.ifscCode}</TableCell>
                 <TableCell>{withdrawal.transactionId || "N/A"}</TableCell>
                 <TableCell>
-                  {formatPrice(Number(withdrawal.withdrawAmount))}
+                  {formatPrice(Number(withdrawal.withdrawAmount), "")}
                 </TableCell>
                 <TableCell className="cursor-pointer">
-                  {withdrawal.status === "FAILED" && withdrawal.reason ? (
+                  {withdrawal.status === "FAILED" && withdrawal.failureReason ? (
                     <ReasonDialog
                       status={withdrawal.status}
-                      reason={withdrawal.reason}
+                      reason={withdrawal.failureReason}
                     />
                   ) : (
                     <BadgeStatus status={withdrawal.status} />
@@ -98,7 +98,7 @@ const WithdrawRequests = async ({ searchParams , params }: WithdrawRequestsParam
               </TableRow>
             ))}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4}>Total</TableCell>
@@ -112,7 +112,7 @@ const WithdrawRequests = async ({ searchParams , params }: WithdrawRequestsParam
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </section>
 

@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { getFinalFilteredProducts } from "@/actions/user-products-fetch";
-import { auth } from "@/auth";
 
 export const generateMetadata = () => {
   return {
@@ -16,7 +15,7 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params }: { params: { id: string; walletTypeId : string } }) => {
+const page = async ({ params }: { params: { id: string; wallletTypeId : string } }) => {
 
   const user = await db.user.findUnique({
     where : {
@@ -24,7 +23,8 @@ const page = async ({ params }: { params: { id: string; walletTypeId : string } 
     }
   })
 
-  const proFilteredProducts = (await getFinalFilteredProducts(user?.domainId ?? "", params.id, user?.teamId ?? "", params.walletTypeId)) ?? [];
+  const proFilteredProducts = 
+  (await getFinalFilteredProducts(user?.domainId ?? "", params.id, user?.teamId ?? "", params.wallletTypeId)) ?? [];
 
   const half = Math.ceil(proFilteredProducts.length / 2);
   const firstHalf = proFilteredProducts.slice(0, half);
@@ -38,7 +38,7 @@ const page = async ({ params }: { params: { id: string; walletTypeId : string } 
       <section className="space-y-4 md:max-h-[90vh] w-full md:w-[100%] p-2">
         <div className="flex items-center gap-x-2">
           <Button className="flex items-center " asChild>
-            <Link href={`/orders/wallets-listing/${params.id}`} className="inline">
+            <Link href={`/orders/create/${params.id}/${params.wallletTypeId}`} className="inline">
               <Image
                 src="/svgs/plus.svg"
                 alt="add money"

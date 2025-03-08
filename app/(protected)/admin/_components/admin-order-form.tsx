@@ -32,6 +32,7 @@ import { downloadLeads } from "@/actions/download-leads";
 type InvoiceProps = {
   id: string;
   orderId: string;
+  walletId: string;
   userId: string;
   amount: number;
   products: any;
@@ -40,6 +41,7 @@ type InvoiceProps = {
 const AdminOrderForm = ({
   id,
   orderId,
+  walletId,
   amount,
   userId,
   products,
@@ -51,6 +53,7 @@ const AdminOrderForm = ({
     defaultValues: {
       id: id,
       reason: "",
+      walletId: walletId,
       orderId: orderId,
       userId: userId,
       amount: amount,
@@ -62,6 +65,7 @@ const AdminOrderForm = ({
     defaultValues: {
       id: id,
       orderId: orderId,
+      walletId: walletId,
       files: undefined,
     },
   });

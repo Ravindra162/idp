@@ -4,6 +4,8 @@ import { db } from "@/lib/db";
 import { OrderSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
+import { getFinalFilteredProducts } from "./user-products-fetch";
+import { use } from "react";
 
 type ProductError = {
   error: string;
@@ -20,7 +22,7 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
 
   if (!validatedFields.success) return { error: "Invalid fields!" };
 
-  const { id, price, products } = validatedFields.data;
+  const { id, walletId, products, price } = validatedFields.data;
 
   const user = await getUserById(id);
 
@@ -30,15 +32,23 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
     },
   });
 
-  const existingProducts = await db.product.findMany({
-    orderBy: {
-      createdAt: "desc",
+  const wallet = await db.wallet.findUnique({
+    where: {
+      id: walletId,
     },
   });
 
+  const existingProducts = await getFinalFilteredProducts(
+    user?.domainId ?? "",
+    user?.id ?? "",
+    user?.teamId ?? "",
+    wallet?.walletTypeId ?? ""
+  );
+
   const orderId = Date.now() + Math.floor(Math.random() * 100000);
   if (!user) return { error: "User not found" };
-  const money = user.totalMoney;
+
+  const money = wallet?.balance ?? 0;
 
   if (!user || user.role === "BLOCKED") {
     return { error: "You have been blocked contact admin to know more" };
@@ -52,7 +62,7 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
 
   const calculateTotalMoney = walletFlow.reduce((acc, flow) => {
     const amount =
-      flow.purpose?.toLowerCase() === "wallet recharge"
+      flow.purpose?.toLowerCase() === "add_money"
         ? flow.status === "SUCCESS"
           ? Math.abs(flow.amount)
           : 0
@@ -67,14 +77,22 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
     return acc + amount;
   }, 0);
 
-  const isAmountMatching = calculateTotalMoney === user?.totalMoney;
+  const isAmountMatching = calculateTotalMoney === wallet?.balance;
 
   if (!isAmountMatching) {
     await db.user.update({
       where: { id: id },
       data: {
         role: "BLOCKED",
-        totalMoney: calculateTotalMoney,
+      },
+    });
+
+    await db.wallet.update({
+      where: {
+        id: walletId,
+      },
+      data: {
+        balance: calculateTotalMoney,
       },
     });
 
@@ -87,21 +105,19 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
 
   const allProducts = products.map((product) => {
     const existingProduct = existingProducts.find(
-      (p) => p.productName === product.name
+      (p) => p.id === product.productId
     );
 
     //@ts-ignore
-    const proProduct = subUser?.products?.find(
-      (pp: any) => pp.name === product.name
-    );
 
     return {
+      productId: product.productId,
       name: product.name,
       quantity: product.quantity,
       stock: existingProduct?.stock ?? 0,
-      minProduct: proProduct?.minProduct ?? existingProduct?.minProduct ?? 1,
-      maxProduct: proProduct?.maxProduct ?? existingProduct?.maxProduct,
-      price: proProduct?.price ?? existingProduct?.price,
+      minProduct: existingProduct?.minProduct ?? 1,
+      maxProduct: existingProduct?.maxProduct,
+      price: existingProduct?.price,
     };
   });
 
@@ -232,19 +248,27 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
     return { error: errorMessages };
   }
 
-  if (user.totalMoney === price || user.totalMoney > price) {
+  if (wallet.balance === price || wallet.balance > price) {
     try {
       const order = db.order.create({
         data: {
           userId: id,
+          domainId: user?.domainId ?? process.env.NEXT_PUBLIC_DOMAIN_ID ?? "",
+          walletId: wallet.id,
           orderId: orderId.toString().slice(-10),
-          products: allProducts.map((product) => ({
-            name: product.name,
-            quantity: product.quantity,
-            productPrice: product.price,
-          })),
+          products: {
+            create: allProducts.map((product) => ({
+              name: product.name,
+              productId: product.productId,
+              quantity: product.quantity,
+              price: product.price,
+            })),
+          },
           amount: price,
           name: user.name,
+        },
+        include: {
+          products: true,
         },
       });
 
@@ -254,20 +278,21 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
           data: { stock: product.stock - product.quantity },
         });
       });
-      const money_updation = db.user.update({
+      const money_updation = db.wallet.update({
         where: {
-          id,
+          id: walletId,
         },
         data: {
-          totalMoney: user.totalMoney - price,
+          balance: wallet.balance - price,
         },
       });
 
       const walletFlow_creation = db.walletFlow.create({
         data: {
           amount: Number(price),
+          walletId: walletId,
           moneyId: orderId.toString().slice(-10),
-          purpose: "Order placed",
+          purpose: "ORDER",
           userId: id,
           status: "PENDING",
         },
@@ -287,30 +312,30 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
     }
   }
 
-  if (user.totalMoney < price && user.role === "USER") {
+  if (wallet.balance < price && user.role === "USER") {
     return { error: "You don't have enough money!" };
   }
 
-  if (user.totalMoney < price && user.role === "PRO") {
+  if (wallet.balance < price && user.role === "PRO") {
     if (!subUser) {
       return { error: "You are not a proUser!" };
     }
-    if (Math.sign(user.totalMoney) === -1) {
-      let userTotalMoney = Math.abs(user.totalMoney);
+    if (Math.sign(wallet.balance) === -1) {
+      let userTotalMoney = Math.abs(wallet.balance);
       if (userTotalMoney + price > subUser.amount_limit) {
         console.log("You don't have enough money!");
         return { error: "You don't have enough money!" };
       }
     }
-    if (Math.sign(user.totalMoney) === 1) {
-      if (user.totalMoney < price) {
-        if (user.totalMoney + subUser.amount_limit < price) {
+    if (Math.sign(wallet.balance) === 1) {
+      if (wallet.balance < price) {
+        if (wallet.balance + subUser.amount_limit < price) {
           return { error: "You don't have enough money!" };
         }
       }
     }
 
-    if (Math.sign(user.totalMoney) === 0) {
+    if (Math.sign(wallet.balance) === 0) {
       if (price > subUser.amount_limit) {
         return { error: "You don't have enough money!" };
       }
@@ -330,14 +355,22 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
         const orderCreation = db.order.create({
           data: {
             userId: id,
+            domainId: user?.domainId ?? process.env.NEXT_PUBLIC_DOMAIN_ID ?? "",
             orderId: orderId.toString().slice(-10),
-            products: allProducts.map((product) => ({
-              name: product.name,
-              quantity: product.quantity,
-              productPrice: product.price,
-            })),
+            walletId: wallet.id,
+            products: {
+              create: allProducts.map((product) => ({
+                name: product.name,
+                productId: product.productId,
+                quantity: product.quantity,
+                price: product.price,
+              })),
+            },
             amount: price,
             name: user.name,
+          },
+          include: {
+            products: true,
           },
         });
 
@@ -348,20 +381,21 @@ export const addOrder = async (values: z.infer<typeof OrderSchema>) => {
           });
         });
 
-        const user_money_updation = db.user.update({
+        const user_money_updation = db.wallet.update({
           where: {
-            id: id,
+            id: walletId,
           },
           data: {
-            totalMoney: remainingPrice,
+            balance: remainingPrice,
           },
         });
 
         const walletFlow_updation = db.walletFlow.create({
           data: {
             amount: Number(price),
+            walletId: walletId,
             moneyId: orderId.toString().slice(-10),
-            purpose: "Order placed",
+            purpose: "ORDER",
             userId: id,
           },
         });

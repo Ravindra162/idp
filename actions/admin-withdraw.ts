@@ -40,6 +40,7 @@ export const acceptWithdrawal = async (formData: FormData) => {
   const transactionId = formData.get("transactionId")?.toString() || "";
   const requestId = formData.get("requestId")?.toString() || "";
   const userId = formData.get("userId")?.toString() || "";
+  const walletId = formData.get("walletId")?.toString() || "";
 
   try {
     const file = await uploadPhotosToLocal(formData);
@@ -48,6 +49,10 @@ export const acceptWithdrawal = async (formData: FormData) => {
     if (photos?.error) {
       return { error: "Failed to upload screenshot to Cloudinary." };
     }
+
+    const wallet = await db.wallet.findUnique({
+      where: { id: walletId },
+    });
 
     const withdrawal_updation = await db.withdrawalRequest.update({
       where: { id: requestId },
@@ -67,23 +72,27 @@ export const acceptWithdrawal = async (formData: FormData) => {
       data: {
         amount: Number(withdrawalRequest?.withdrawAmount),
         moneyId: transactionId,
-        purpose: "Withdraw Request",
+        purpose: "WITHDRAWAL",
+        walletId: walletId,
         userId: userId,
         status: "SUCCESS",
       },
     });
 
+    console.log(withdrawalRequest);
+    console.log(wallet);
+
     if (withdrawalRequest?.withdrawAmount) {
-      const user = await db.user.findUnique({ where: { id: userId } });
-      if (user) {
-        await db.user.update({
-          where: { id: userId },
-          data: {
-            totalMoney:
-              user.totalMoney - parseFloat(withdrawalRequest.withdrawAmount),
+      await db.wallet.update({
+        where: {
+          id: walletId,
+        },
+        data: {
+          balance: {
+            decrement: parseFloat(withdrawalRequest.withdrawAmount),
           },
-        });
-      }
+        },
+      });
     }
 
     await Promise.all([
@@ -107,7 +116,7 @@ export const rejectWithdrawal = async (formData: FormData) => {
   try {
     await db.withdrawalRequest.update({
       where: { id: requestId },
-      data: { status: "FAILED", reason: reason },
+      data: { status: "FAILED", failureReason: reason },
     });
   } catch (error) {
     console.error("Error in rejectWithdrawal:", error);

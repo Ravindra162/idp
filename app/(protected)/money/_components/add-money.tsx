@@ -33,9 +33,11 @@ type BankDetailsProps = {
 type AddMoneyFormProps = {
   userId: string;
   bankDetails: BankDetailsProps;
+  walletId : string;
+  paymentModelId : string;
 };
 
-const AddMoneyForm = ({ bankDetails, userId }: AddMoneyFormProps) => {
+const AddMoneyForm = ({ bankDetails, userId, walletId, paymentModelId }: AddMoneyFormProps) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const form = useForm<z.infer<typeof MoneySchema>>({
@@ -43,6 +45,8 @@ const AddMoneyForm = ({ bankDetails, userId }: AddMoneyFormProps) => {
     defaultValues: {
       amount: 0,
       transactionId: "",
+      walletId : walletId,
+      paymentModelId : paymentModelId,
       upiid: bankDetails?.upiid ?? "",
       upiinumber: bankDetails?.upinumber ?? "",
       accountNumber: bankDetails?.accountDetails ?? "",
@@ -60,7 +64,7 @@ const AddMoneyForm = ({ bankDetails, userId }: AddMoneyFormProps) => {
     startTransition(() => {
       try {
         formData.append("userId", userId);
-
+        console.log("-------------")
         for (const field of Object.keys(values) as Array<keyof typeof values>) {
           if (field === "image") {
             formData.append("image", values[field]);

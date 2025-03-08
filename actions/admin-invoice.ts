@@ -8,9 +8,10 @@ import * as z from "zod";
 type ValuesProps = {
   userId: string;
   invoiceId: string;
+  walletId: string;
 };
 
-export const acceptInvoice = async ({ userId, invoiceId }: ValuesProps) => {
+export const acceptInvoice = async ({ userId, invoiceId, walletId }: ValuesProps) => {
   try {
     await db.money.update({
       where: { id: invoiceId },
@@ -29,21 +30,32 @@ export const acceptInvoice = async ({ userId, invoiceId }: ValuesProps) => {
 
     const updatedMoney = Number(money?.amount);
 
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: {
-        totalMoney: true,
+    const wallet = await db.wallet.findUnique({
+      where : {
+        id : walletId
       },
+      include : {
+        walletType : true
+      }
     });
 
-    const totalMoney = Number(user?.totalMoney);
+    const totalMoney = Number(wallet?.balance);
 
     await db.user.update({
       where: { id: userId },
       data: {
-        totalMoney: totalMoney + updatedMoney,
+        
       },
     });
+    await db.wallet.update({
+      where : {
+        id : walletId
+      },
+      data : {
+        balance: totalMoney + updatedMoney,
+      }
+    });
+
 
     await db.walletFlow.update({
       where: { moneyId: money?.transactionId },
@@ -82,7 +94,7 @@ export const rejectInvoice = async (
 
     await db.money.update({
       where: { id: values.id },
-      data: { status: "FAILED", reason: values.reason },
+      data: { status: "FAILED", failureReason: values.reason },
     });
 
     await db.walletFlow.update({

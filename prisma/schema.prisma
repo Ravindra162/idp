@@ -20,6 +20,7 @@ enum Reason {
   WITHDRAWAL
   ORDER
   ADD_MONEY
+  ADMIN
 }
 
 enum PaymentType {
@@ -203,14 +204,15 @@ model Money {
   upiId               String
   payment_method_id   String
   accountNumber       String?
-  accountType         ACTYPE           @default(SAVINGS)
+  accountType         String?
   paymentType         PaymentType      @default(MANUAL)
   bankName            String?
   ifscCode            String?
   transactionId       String           @unique
   public_id           String?          @unique
   secure_url          String?
-  reason              String?
+  purpose             Reason
+  failureReason       String?     
   paymentProces       Boolean          @default(false)
   paymentMode         PaymentType
   counter             Int              @default(0)
@@ -227,6 +229,7 @@ model Money {
 model WithdrawalRequest {
   id              String        @id @default(uuid()) @map("_id")
   userId          String
+  walletId        String
   domainId        String
   name            String
   accountNumber   String
@@ -236,7 +239,8 @@ model WithdrawalRequest {
   transactionId   String?
   secure_url      String?
   public_id       String?
-  reason          String?
+  purpose         Reason
+  failureReason   String?
   status          RequestStatus @default(PENDING)
   user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt       DateTime      @default(now()) @map("created_at")
@@ -259,18 +263,17 @@ model Payment {
 }
 
 model WalletFlow {
-  id           String           @id @default(uuid()) @map("_id")
-  moneyId      String           @unique
-  walletId     String           @unique
-  currencyCode String
-  userId       String
-  user         User             @relation(fields: [userId], references: [id])
-  money        Money            @relation(fields: [moneyId], references: [id])
-  amount       Float
-  reason       Reason
-  status       WalletFlowStatus @default(PENDING)
-  createdAt    DateTime         @default(now()) @map("created_at")
-  updatedAt    DateTime         @updatedAt
+  id        String           @id @default(uuid()) @map("_id")
+  moneyId   String           @unique
+  walletId  String
+  userId    String
+  user      User?            @relation(fields: [userId], references: [id])
+  money     Money?           @relation(fields: [moneyId], references: [id])
+  amount    Float
+  purpose   Reason
+  status    WalletFlowStatus @default(PENDING)
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt
 }
 
 model Support {
@@ -285,10 +288,10 @@ model Support {
 }
 
 model Product {
-  id                      String           @id @default(uuid()) @map("_id")
+  id                      String       @id @default(uuid()) @map("_id")
   userId                  String?
-  user                    User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productName             String           @unique
+  user                    User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productName             String       @unique
   description             String
   price                   Float
   minProduct              Int
@@ -296,26 +299,25 @@ model Product {
   stock                   Int
   sheetLink               String
   sheetName               String
-  visibleToAllDomains     Boolean          @default(true)
-  visibleToAllWalletTypes Boolean          @default(true)
-  includedWalletTypes     WalletType[]     @relation("IncludedWalletTypes", fields: [includedWalletTypeIds], references: [id])
+  visibleToAllDomains     Boolean      @default(true)
+  visibleToAllWalletTypes Boolean      @default(true)
+  includedWalletTypes     WalletType[] @relation("IncludedWalletTypes", fields: [includedWalletTypeIds], references: [id])
   includedWalletTypeIds   String[]
-  excludedWalletTypes     WalletType[]     @relation("ExcludedWalletTypes", fields: [excludedWalletTypeIds], references: [id])
+  excludedWalletTypes     WalletType[] @relation("ExcludedWalletTypes", fields: [excludedWalletTypeIds], references: [id])
   excludedWalletTypeIds   String[]
-  includedDomains         Domain[]         @relation("IncludedDomains", fields: [includedDomainIds], references: [id])
+  includedDomains         Domain[]     @relation("IncludedDomains", fields: [includedDomainIds], references: [id])
   includedDomainIds       String[]
-  excludedDomains         Domain[]         @relation("ExcludedDomains", fields: [excludedDomainIds], references: [id])
+  excludedDomains         Domain[]     @relation("ExcludedDomains", fields: [excludedDomainIds], references: [id])
   excludedDomainIds       String[]
-  visibleToAllTeams       Boolean          @default(true)
-  includedTeams           Team[]           @relation("IncludedTeams", fields: [includedTeamIds], references: [id])
+  visibleToAllTeams       Boolean      @default(true)
+  includedTeams           Team[]       @relation("IncludedTeams", fields: [includedTeamIds], references: [id])
   includedTeamIds         String[]
-  excludedTeams           Team[]           @relation("ExcludedTeams", fields: [excludedTeamIds], references: [id])
+  excludedTeams           Team[]       @relation("ExcludedTeams", fields: [excludedTeamIds], references: [id])
   excludedTeamIds         String[]
-  createdAt               DateTime         @default(now()) @map("created_at")
-  updatedAt               DateTime         @updatedAt
+  createdAt               DateTime     @default(now()) @map("created_at")
+  updatedAt               DateTime     @updatedAt
   orderId                 String?
-  order                   Order?           @relation(fields: [orderId], references: [id])
-  orderedProducts         productOrdered[]
+  order                   Order?       @relation(fields: [orderId], references: [id])
 }
 
 model ProductInfo {
@@ -341,6 +343,7 @@ model Order {
   name      String
   userId    String
   domainId  String
+  walletId  String
   user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
   products  productOrdered[]
   files     Json?
@@ -358,7 +361,7 @@ model productOrdered {
   orderId   String
   order     Order    @relation(fields: [orderId], references: [id])
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
+  name      String
   quantity  Int
   price     Float
   createdAt DateTime @default(now()) @map("created_at")

@@ -40,13 +40,13 @@ const TopBar = async ({ title }: { title: string }) => {
               className="w-6 h-6 m-2"
             />
             Wallets
-            <div className="absolute hidden group-hover:flex flex-col bg-white shadow-md p-2 rounded-lg top-10 right-[10px] w-48 border transition-opacity duration-300 ease-in-out">
+            <div className="absolute hidden  group-hover:flex flex-col bg-white shadow-md p-2 rounded-lg top-10 right-[10px] border transition-opacity duration-300 ease-in-out">
               <p className="font-semibold text-center">Wallets</p>
               <DropdownMenuSeparator />
               {wallets.map((wallet: any, index: number) => (
-                <div key={index} className="flex justify-between p-2">
-                  <span>{wallet.walletName}</span>
-                  <span>{formatPrice(wallet.balance, wallet.currencyCode)}</span>
+                <div key={index} className="flex justify-between items-center p-2 m-4">
+                  <span className="flex justify-between pr-2">{wallet.walletName}</span>
+                  <span className="flex justify-between pl-2">{formatPrice(wallet.balance, wallet.currencyCode)}</span>
                 </div>
               ))}
             </div>

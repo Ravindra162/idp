@@ -59,6 +59,7 @@ const AdminWallet = async ({ searchParams , params }: AdminWalletParams) => {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Transaction id</TableHead>
+              <TableHead>Wallet Type</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead>Screenshot</TableHead>
               <TableHead>
@@ -67,8 +68,16 @@ const AdminWallet = async ({ searchParams , params }: AdminWalletParams) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice) => (
-              <TableRow key={invoice.userId}>
+            {invoices.map(async (invoice) => {
+              const walletDetails = await db.wallet.findUnique({
+                where : {
+                  id : invoice.walletId
+                },
+                include : {
+                  walletType : true
+                }
+              });
+             return( <TableRow key={invoice.userId}>
                 <TableCell className="font-medium">{invoice.name}</TableCell>
                 <TableCell>
                   <div className="flex gap-1 items-center">
@@ -78,20 +87,26 @@ const AdminWallet = async ({ searchParams , params }: AdminWalletParams) => {
                     </span>
                   </div>
                 </TableCell>
-                <TableCell>{formatPrice(Number(invoice.amount))}</TableCell>
                 <TableCell>
-                  <ImageDialog imageLink={invoice.secure_url} />
+                  {walletDetails?.walletType.name}
+                </TableCell>
+                <TableCell>{formatPrice(Number(invoice.amount), walletDetails?.currencyCode ?? "")}</TableCell>
+                <TableCell>
+                  <ImageDialog imageLink={invoice.secure_url ?? ""} />
                 </TableCell>
                 <TableCell>
                   <FormInvoice
                     id={invoice.id.toString()}
                     userId={invoice.userId}
+                    walletId={invoice.walletId}
                   />
                 </TableCell>
               </TableRow>
-            ))}
+             );
+            }
+            )}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={2}>Total</TableCell>
@@ -102,7 +117,7 @@ const AdminWallet = async ({ searchParams , params }: AdminWalletParams) => {
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </div>
       {totalPages > 1 && (

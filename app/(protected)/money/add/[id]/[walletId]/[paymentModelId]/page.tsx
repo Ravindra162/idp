@@ -1,12 +1,12 @@
 import React from "react";
 import Image from "next/image";
-import AddMoneyForm from "../../../_components/add-money";
+import AddMoneyForm from "../../../../_components/add-money";
 import DownloadButton from "@/components/shared/download";
 import { db } from "@/lib/db";
 import { headers } from "next/headers";
 import TopBar from "@/app/(protected)/_components/Topbar";
 import CopyButton from "@/components/shared/copy-button";
-import PaymentGateway from "../../../_components/payment-options";
+import PaymentGateway from "../../../../_components/payment-options";
 
 export const generateMetadata = () => ({
   title: "Add Money | GrowonsMedia",
@@ -21,9 +21,11 @@ const PaymentGatewayTopBar = () => (
 const ManualPaymentSection = ({
   bankDetails,
   userId,
+  walletId
 }: {
   bankDetails: any;
   userId: string;
+  walletId : string;
 }) => (
   <section className="mt-4 mx-2">
     <div className="flex flex-col-reverse md:flex-row">
@@ -58,7 +60,7 @@ const ManualPaymentSection = ({
           </div>
         )}
         <DownloadButton imageLink={bankDetails?.secure_url ?? ""} />
-        <AddMoneyForm userId={userId} bankDetails={bankDetails} />
+        <AddMoneyForm userId={userId} bankDetails={bankDetails} walletId={walletId} paymentModelId={bankDetails.id}/>
       </div>
       <div className="md:w-[50%]">
         <p className="font-bold font-2xl mb-2">Bank Details :</p>
@@ -120,7 +122,7 @@ const PaymentGatewaySection = ({
   </>
 );
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async ({ params }: { params: { id: string; paymentModelId : string; walletId : string } }) => {
   const headersInstance = headers();
   const userAgent = headersInstance.get("user-agent") || "";
   const isMobile = /mobile|android|iphone|ipad/i.test(userAgent);
@@ -129,13 +131,14 @@ const page = async ({ params }: { params: { id: string } }) => {
     where: { id: params.id.toString() },
   });
 
-  const paymentType = "MANUAL";
-
-  const bankDetails = await db.wallet.findFirst({
+  
+  const bankDetails = await db.paymentTypeModel.findFirst({
     where: {
-      id: params.id,
+      id: params.paymentModelId,
     },
   });
+  
+  const paymentType = bankDetails?.paymentTypeMethod;
 
   return (
     <>
@@ -144,18 +147,18 @@ const page = async ({ params }: { params: { id: string } }) => {
           <div className="hidden md:block">
             <ManualPaymentTopBar />
           </div>
-          <ManualPaymentSection bankDetails={bankDetails} userId={params.id.toString()} />
+          <ManualPaymentSection bankDetails={bankDetails} userId={params.id.toString()}  walletId={params.walletId}/>
         </>
       ) : (
         <>
           <div className="hidden md:block">
             <PaymentGatewayTopBar />
           </div>
-          {/* <PaymentGatewaySection
+          <PaymentGatewaySection
             isMobile={isMobile}
             userId={params.id.toString()}
             bankDetails={bankDetails}
-          /> */}
+          />
         </>
       )}
     </>

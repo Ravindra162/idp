@@ -11,6 +11,7 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { getUserByEmail, getUserById } from "@/data/user";
 import { auth } from "@/auth";
+import { connect } from "http2";
 
 export const blockUser = async (id: string) => {
   try {
@@ -121,8 +122,6 @@ export const editUser = async (values: z.infer<typeof EditUserSchema>) => {
         name: name,
         number: number,
         email: email,
-        paymentType:
-          paymentType === "PAYMENT GATEWAY" ? "PAYMENT_GATEWAY" : "MANUAL",
       },
     });
   } catch (error) {
@@ -143,25 +142,33 @@ export const updateMoney = async (
     return { error: "Invalid Fields" };
   }
 
-  const { userId, amount } = validatedFields.data;
+  const { userId, walletId, amount } = validatedFields.data;
 
   const user = await getUserById(userId);
+
+  const wallet = await db.wallet.findUnique({
+    where: {
+      id: walletId,
+      userId: userId,
+    },
+  });
 
   if (!user) {
     return { error: "User not found" };
   }
-  let newAmount = user.totalMoney;
+  let newAmount = wallet?.balance;
 
   if (newAmount === amount) {
     return { error: "No change in amount" };
   }
   try {
-    await db.user.update({
+    const updatedWallet = await db.wallet.update({
       where: {
-        id: userId,
+        id: walletId,
+        userId: userId,
       },
       data: {
-        totalMoney: amount,
+        balance: amount,
       },
     });
 
@@ -170,6 +177,7 @@ export const updateMoney = async (
     await db.walletFlow.updateMany({
       where: {
         userId: userId,
+        walletId: walletId,
       },
       data: {
         status: "TERMINATED",
@@ -179,10 +187,11 @@ export const updateMoney = async (
     await db.walletFlow.create({
       data: {
         userId: userId,
-        moneyId: moneyId.toString().slice(-11),
-        amount: amount || 0,
+        walletId: walletId,
+        moneyId: moneyId.toString().slice(-10),
+        amount: amount || 0.0,
         purpose: "ADMIN",
-        status: "SUCCESS",
+        status: "SUCCESS"
       },
     });
   } catch (error) {

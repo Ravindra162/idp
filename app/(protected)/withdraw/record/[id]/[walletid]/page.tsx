@@ -14,7 +14,7 @@ export const generateMetadata = () => {
 };
 
 type RecordProps = {
-  params: { id: string };
+  params: { id: string; walletid : string };
   searchParams: { page: string };
 };
 
@@ -30,7 +30,7 @@ const page = async ({ params, searchParams }: RecordProps) => {
         <div className="flex items-center gap-x-2">
           <Button className="flex items-center" asChild>
             <Link
-              href={`/withdraw/request/${session?.user.id}`}
+              href={`/withdraw/request/${session?.user.id}/${params.walletid}`}
               className="inline"
             >
               <Image

@@ -62,7 +62,7 @@ export const createPaymentRequest = async (formData: FormData) => {
 
     const calculateTotalMoney = walletFlow.reduce((acc, flow) => {
       const amount =
-        flow.purpose?.toLowerCase() === "wallet recharge"
+        flow.purpose?.toLowerCase() === "add_money"
           ? flow.status === "SUCCESS"
             ? Math.abs(flow.amount)
             : 0
@@ -162,7 +162,7 @@ export const createPaymentRequest = async (formData: FormData) => {
       data: {
         amount: Number(amount),
         moneyId: merchantReferenceId,
-        purpose: "Wallet recharge",
+        purpose: "ADD_MONEY",
         userId,
         status: "PENDING",
       },
@@ -212,7 +212,7 @@ export const createCollectRequest = async (formData: FormData) => {
       customer_email: user.email,
       customer_mobile: user.number,
       vpa: formData.get("vpa")?.toString(),
-      remark: "Wallet Rechage",
+      remark: "ADD_MONEY",
     };
 
     const currentDate = new Date();
@@ -255,7 +255,7 @@ export const createCollectRequest = async (formData: FormData) => {
         secure_url: "https://img.icons8.com/ios/50/invoice.png",
         public_id: generateSpecialCharacterString(10),
         transactionId: merchantReferenceId,
-        upiid: formData.get("upiid")?.toString() || "",
+        upiId: formData.get("upiid")?.toString() || "",
         accountNumber: formData.get("accountNumber")?.toString() || "",
         userId,
         paymentMode:
@@ -270,7 +270,7 @@ export const createCollectRequest = async (formData: FormData) => {
       data: {
         amount: Number(amount),
         moneyId: merchantReferenceId,
-        purpose: "Wallet recharge",
+        purpose: "ADD_MONEY",
         userId,
         status: "PENDING",
       },

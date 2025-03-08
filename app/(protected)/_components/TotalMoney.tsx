@@ -13,7 +13,7 @@ const TotalMoney = () => {
 
   return (
     <>
-      <span className="font-semibold">{formatPrice(amount)}</span>
+      <span className="font-semibold">{formatPrice(amount, "")}</span>
     </>
   );
 };

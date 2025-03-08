@@ -43,7 +43,7 @@ const ProductOrderTable = async ({ products }: { products: any[] }) => {
                     </TableCell>
                     <TableCell>{product.minProduct}</TableCell>
                     <TableCell>{product.maxProduct}</TableCell>
-                    <TableCell>{formatPrice(product.price)}</TableCell>
+                    <TableCell>{formatPrice(product.price, "")}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

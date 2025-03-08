@@ -82,7 +82,15 @@ const WalletFlow = async ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {walletFlow.map((flow) => {
+            {walletFlow.map(async (flow) => {
+              const walletDetails = await db.wallet.findUnique({
+                where : {
+                  id : flow.walletId
+                },
+                include : {
+                  walletType : true
+                }
+              });
               return (
                 <TableRow key={flow.id}>
                   <TableCell>{flow.purpose}</TableCell>
@@ -93,12 +101,12 @@ const WalletFlow = async ({
                     {
                       <>
                         {flow.purpose === "ADMIN" ? (
-                          <span>{formatPrice(flow.amount)}</span>
+                          <span>{formatPrice(flow.amount, walletDetails?.currencyCode ?? "")}</span>
                         ) : (
                           <span>
-                            {flow.purpose?.toLowerCase() === "wallet recharge"
-                              ? `+${formatPrice(Math.abs(flow.amount))}`
-                              : `-${formatPrice(Math.abs(flow.amount))}`}
+                            {flow.purpose?.toLowerCase() === "add_money"
+                              ? `+${formatPrice(Math.abs(flow.amount), walletDetails?.currencyCode ?? "")}`
+                              : `-${formatPrice(Math.abs(flow.amount), walletDetails?.currencyCode ?? "")}`}
                           </span>
                         )}
                       </>

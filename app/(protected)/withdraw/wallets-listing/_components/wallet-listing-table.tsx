@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
+import { formatPrice } from "@/components/shared/formatPrice";
 
 const PanelListingTable = ({ wallets }: { wallets: any[]}) => {
   return (
@@ -29,10 +30,10 @@ const PanelListingTable = ({ wallets }: { wallets: any[]}) => {
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell>{`${wallet.currencyCode} - ${wallet.balance}`}</TableCell>
+                  <TableCell>{formatPrice(wallet.balance, wallet.currencyCode)}</TableCell>
                   <TableCell>
                     <Button className="bg-transparent text-black border border-gray-300 hover:bg-gray-100">
-                    <Link href={`/withdraw/record/${wallet.userId}/${wallet.userId}`}>Select Wallet</Link></Button>
+                    <Link href={`/withdraw/record/${wallet.userId}/${wallet.id}`}>Select Wallet</Link></Button>
                   </TableCell>
                 </TableRow>
               </TableBody>

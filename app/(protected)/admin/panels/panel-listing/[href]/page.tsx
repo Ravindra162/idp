@@ -41,7 +41,7 @@ const page = async ({ params }: { params: { href: string } }) => {
     basehref = "/admin/team/table";
   }
   else if(params.href === "order"){
-    basehref = "/admin/orders";
+    basehref = "/admin/orders/records";
   }
   else if(params.href === "order-history"){
     basehref = "/admin/orders/history";

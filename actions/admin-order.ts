@@ -5,6 +5,7 @@ import { RejectOrderSchema } from "@/schemas";
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { v2 as cloudinary } from "cloudinary";
+import { productOrdered } from "@prisma/client";
 
 type Product = {
   name: string;
@@ -22,23 +23,43 @@ export const rejectOrder = async (
 
   const order = await db.order.findUnique({
     where: { id: values.id },
+    include: {
+      user: true,
+      products: { include: { order: true } },
+    },
   });
 
-  const products = await db.product.findMany({
+  let products = await db.product.findMany({
     orderBy: {
       createdAt: "desc",
     },
   });
 
+  products = products.filter((product) => {
+    if (product.visibleToAllDomains) {
+      return !product.excludedDomainIds.includes(order?.domainId ?? "");
+    } else {
+      return product.includedDomainIds.includes(order?.domainId ?? "");
+    }
+  });
+
+  products = products.filter((product) => {
+    if (product.visibleToAllWalletTypes) {
+      return !product.excludedWalletTypeIds.includes(order?.walletId ?? "");
+    } else {
+      return product.includedWalletTypeIds.includes(order?.walletId ?? "");
+    }
+  });
+
+
+
   if (!order?.products) {
     return { error: "Order not found!" };
   }
 
-  const rejectedProducts: Product[] = (order.products as Product[]).map(
-    (product: Product) => {
-      const existingProduct = products.find(
-        (p) => p.productName === product.name
-      );
+  const rejectedProducts: Product[] = (order.products as productOrdered[]).map(
+    (product: productOrdered) => {
+      const existingProduct = products.find((p) => p.id === product.id);
 
       return {
         name: product.name,
@@ -54,17 +75,17 @@ export const rejectOrder = async (
       data: { status: "FAILED", reason: values.reason },
     });
 
-    const user = await db.user.findUnique({
-      where: { id: values.userId },
+    const wallet = await db.wallet.findUnique({
+      where: { id: values.walletId },
       select: {
-        totalMoney: true,
+        balance: true,
       },
     });
 
-    const userMoney_updation = db.user.update({
-      where: { id: values.userId },
+    const userMoney_updation = db.wallet.update({
+      where: { id: values.walletId },
       data: {
-        totalMoney: (user?.totalMoney ?? 0) + values.amount,
+        balance: (wallet?.balance ?? 0) + values.amount,
       },
     });
 

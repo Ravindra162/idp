@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
 import ImageDialog from "@/components/shared/Image-dialog";
-import PaginationBar from "../../../money/_components/PaginationBar";
-import TopBar from "../../../_components/Topbar";
+import PaginationBar from "../../../../money/_components/PaginationBar";
+import TopBar from "../../../../_components/Topbar";
 import ReasonDialog from "@/components/shared/ReasonDialog";
 import BadgeStatus from "@/app/(protected)/money/_components/BadgeStatus";
 import Search from "@/components/shared/search";
@@ -68,31 +68,39 @@ const AdminWallet = async ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice) => (
-              <TableRow key={invoice.upiid}>
+            {invoices.map(async (invoice) => {
+              const walletDetails = await db.wallet.findUnique({
+                where : {
+                  id : invoice.walletId
+                },
+                include : {
+                  walletType : true
+                }
+              });
+              return( <TableRow key={invoice.upiId}>
                 <TableCell>{invoice.name}</TableCell>
                 <TableCell>{invoice.accountNumber}</TableCell>
-                <TableCell>{invoice.upiid}</TableCell>
+                <TableCell>{invoice.upiId}</TableCell>
                 <TableCell>{invoice.transactionId}</TableCell>
-                <TableCell>{formatPrice(Number(invoice.amount))}</TableCell>
+                <TableCell>{formatPrice(Number(invoice.amount), walletDetails?.currencyCode ?? "")}</TableCell>
                 <TableCell className="cursor-pointer">
-                  {invoice.status === "FAILED" && invoice.reason !== null ? (
+                  {invoice.status === "FAILED" && invoice.failureReason !== null ? (
                     <ReasonDialog
                       status={invoice.status}
-                      reason={invoice.reason}
+                      reason={invoice.failureReason}
                     />
                   ) : (
                     <BadgeStatus status={invoice.status} />
                   )}
                 </TableCell>
                 <TableCell>
-                  <ImageDialog imageLink={invoice.secure_url} />
+                  <ImageDialog imageLink={invoice.secure_url ?? ""} />
                 </TableCell>
                 <TableCell>{invoice.createdAt.toDateString()}</TableCell>
               </TableRow>
-            ))}
+            )})}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4}>Total</TableCell>
@@ -103,7 +111,7 @@ const AdminWallet = async ({
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </section>
 

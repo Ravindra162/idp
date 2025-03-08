@@ -9,40 +9,40 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Link from "next/link";
-import { formatPrice } from "@/components/shared/formatPrice";
+import { auth } from "firebase-admin";
 
-const PanelListingTable = ({ wallets }: { wallets: any[]}) => {
+const PaymentTypesListingTable = ({ paymentMethods, id, walletId }: { paymentMethods: any[], id : string, walletId : string}) => {
   return (
     <>
-      {wallets?.map((wallet) => (
-        <div
-          key={wallet.id}
+      {paymentMethods?.map((method) => {
+        return (<div
+          key={method.paymentModel.id}
           className="p-2 mt-4 border-2 border-gray-300 rounded-lg"
         >
-          <div className="text-lg capitalize font-semibold">{wallet.walletName}</div>
+          <div className="text-lg capitalize font-semibold">{method.paymentModel.name}</div>
           <div>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Balance</TableHead>
+                  <TableHead>Method Type</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell>{formatPrice(wallet.balance, wallet.currencyCode)}</TableCell>
+                  <TableCell>{method.paymentModel.paymentTypeMethod}</TableCell>
                   <TableCell>
                     <Button className="bg-transparent text-black border border-gray-300 hover:bg-gray-100">
-                    <Link href={`/orders/products/${wallet.userId}/${wallet.walletTypeId}`}>Select Wallet</Link></Button>
+                    <Link href={`/money/add/${id}/${walletId}/${method.paymentModel.id}`}>Select Payment Type</Link></Button>
                   </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </div>
         </div>
-      ))}
+      )})}
     </>
-  );
+  )
 };
 
-export default PanelListingTable;
+export default PaymentTypesListingTable;

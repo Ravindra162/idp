@@ -3,6 +3,7 @@ import OrderForm from "../../../../_components/order-form";
 import { db } from "@/lib/db";
 import TopBar from "../../../../_components/Topbar";
 import ProductOrderTable from "../../../../_components/product-order-table";
+import { getFinalFilteredProducts } from "@/actions/user-products-fetch";
 
 export const generateMetadata = () => {
   return {
@@ -11,45 +12,22 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params }: { params: { id: string, walletId : string } }) => {
-  const products = await db.product.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+const page = async ({ params }: { params: { id: string, walletid : string } }) => {
+   const user = await db.user.findUnique({
+     where : {
+       id : params.id
+     }
+   })
 
-  const proUser = await db.proUser.findUnique({
-    where: {
-      userId: params.id,
-    },
-  });
-
-  const user = await db.user.findUnique({
-    where: {
-      id: params.id,
-    },
-    select: {
-      role: true,
-    },
-  });
-
-  const mergedProducts = products.map((product) => {
-    //@ts-ignore
-    const proUserProduct = proUser?.products?.find(
-      (proUserProduct: any) => proUserProduct.name === product.productName
-    );
-
-    return {
-      id: product.id,
-      name: product.productName,
-      stock: product.stock,
-      minProduct: proUserProduct?.minProduct ?? product.minProduct,
-      maxProduct: proUserProduct?.maxProduct ?? product.maxProduct,
-      price: proUserProduct?.price ?? product.price,
-      description: product.description,
-    };
-  });
-
+   const wallet = await db.wallet.findFirst({
+    where : {
+      userId : params.id,
+      walletTypeId : params.walletid
+    }
+   });
+ 
+   const mergedProducts = 
+   (await getFinalFilteredProducts(user?.domainId ?? "", params.id, user?.teamId ?? "", params.walletid)) ?? [];
   return (
     <>
       <div className="hidden md:block">
@@ -61,7 +39,7 @@ const page = async ({ params }: { params: { id: string, walletId : string } }) =
             id={params.id.toString()}
             products={mergedProducts}
             role={user?.role}
-            walletId={params.walletId}
+            walletId={wallet?.id ?? ""}
           >
             <ProductOrderTable products={mergedProducts} />
           </OrderForm>

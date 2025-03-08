@@ -3,6 +3,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { db } from "@/lib/db";
 import { getUserById } from "@/data/user";
 import { revalidatePath } from "next/cache";
+import { validate } from "uuid";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -41,7 +42,21 @@ export const AddMoney = async (formData: FormData) => {
   const user = await getUserById(formData.get("userId")?.toString() ?? "");
   const userId = formData.get("userId")?.toString();
   const username = user?.name;
+  const walletId = formData.get("walletId")?.toString();
+  const paymentModelId = formData.get("paymentModelId")?.toString();
   const transactionId = formData.get("transactionId")?.toString() ?? "";
+
+  const wallet = await db.wallet.findUnique({
+    where: {
+      id: walletId,
+    },
+  });
+
+  const walletType = await db.paymentTypeModel.findUnique({
+    where: {
+      id: paymentModelId,
+    }
+  });
 
   const redunctantId = await db.money.findUnique({
     where: {
@@ -69,7 +84,7 @@ export const AddMoney = async (formData: FormData) => {
 
     const calculateTotalMoney = walletFlow.reduce((acc, flow) => {
       const amount =
-        flow.purpose?.toLowerCase() === "wallet recharge"
+        flow.purpose?.toLowerCase() === "add_money"
           ? flow.status === "SUCCESS"
             ? Math.abs(flow.amount)
             : 0
@@ -84,14 +99,22 @@ export const AddMoney = async (formData: FormData) => {
       return acc + amount;
     }, 0);
 
-    const isAmountMatching = calculateTotalMoney === user?.totalMoney;
+    const isAmountMatching = calculateTotalMoney === wallet?.balance;
 
     if (!isAmountMatching) {
       await db.user.update({
         where: { id: userId },
         data: {
           role: "BLOCKED",
-          totalMoney: calculateTotalMoney,
+        },
+      });
+
+      await db.wallet.update({
+        where: {
+          id: walletId,
+        },
+        data: {
+          balance: calculateTotalMoney,
         },
       });
 
@@ -102,17 +125,23 @@ export const AddMoney = async (formData: FormData) => {
 
     await db.money.create({
       data: {
-        amount: formData.get("amount")?.toString(),
+        amount: formData.get("amount")?.toString() ?? "",
         secure_url: photos.secure_url,
         public_id: photos.public_id,
         transactionId: formData.get("transactionId")?.toString() ?? "",
-        upiid: formData.get("upiid")?.toString() ?? "",
-        accountNumber: formData.get("accountNumber")?.toString(),
+        upiId: formData.get("upiid")?.toString() ?? "",
+        accountNumber: formData.get("accountNumber")?.toString() ?? "",
+        walletId: walletId ?? "",
         paymentMode:
-          user.paymentType === "MANUAL" ? "MANUAL" : "PAYMENT_GATEWAY",
+          walletType?.paymentTypeMethod === "MANUAL"
+            ? "MANUAL"
+            : "PAYMENT_GATEWAY",
         paymentProces: false,
-        userId: userId,
+        purpose: "ADD_MONEY",
+        userId: userId ?? "",
         name: username ?? "",
+        domainId: process.env.NEXT_PUBLIC_DOMAIN_ID ?? "",
+        payment_method_id: "",
       },
     });
 
@@ -120,7 +149,8 @@ export const AddMoney = async (formData: FormData) => {
       data: {
         amount: Number(formData.get("amount")),
         moneyId: formData.get("transactionId") as string,
-        purpose: "Wallet recharge",
+        purpose: "ADD_MONEY",
+        walletId: walletId ?? "",
         userId: userId as string,
         status: "PENDING",
       },

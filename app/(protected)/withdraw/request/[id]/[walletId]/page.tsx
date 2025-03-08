@@ -1,5 +1,5 @@
 import React from "react";
-import RequestWithdrawalForm from "../../_components/withdraw-request";
+import RequestWithdrawalForm from "../../../_components/withdraw-request";
 import TopBar from "@/app/(protected)/_components/Topbar";
 
 export const generateMetadata = () => {
@@ -9,7 +9,8 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params }: { params: { id: string } }) => {
+const page = async ({ params }: { params: { id: string; walletId : string } }) => {
+  console.log(params.walletId)
   return (
     <>
       <div className="hidden md:block">
@@ -18,7 +19,7 @@ const page = async ({ params }: { params: { id: string } }) => {
       <section className="mt-4 mx-2">
         <div className="flex flex-col md:flex-row">
           <div className="md:w-full">
-            <RequestWithdrawalForm userId={params.id.toString()} />
+            <RequestWithdrawalForm userId={params.id.toString()} walletId={params.walletId.toString()} />
           </div>
         </div>
       </section>

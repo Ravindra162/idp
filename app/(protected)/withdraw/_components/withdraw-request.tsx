@@ -21,14 +21,16 @@ import { RequestWithdrawal } from "@/actions/withdraw-request";
 
 type RequestWithdrawalFormProps = {
   userId: string;
+  walletId : string;
 };
 
-const RequestWithdrawalForm = ({ userId }: RequestWithdrawalFormProps) => {
+const RequestWithdrawalForm = ({ userId, walletId }: RequestWithdrawalFormProps) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const form = useForm<z.infer<typeof WithdrawMoneySchema>>({
     resolver: zodResolver(WithdrawMoneySchema),
     defaultValues: {
+      walletId : walletId,
       accountNumber: "",
       ifscCode: "",
       beneficiaryName: "",

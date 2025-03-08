@@ -81,6 +81,7 @@ export const EditUserSchema = z.object({
 export const updateMoneySchema = z.object({
   userId: z.string(),
   amount: z.coerce.number().optional(),
+  walletId : z.string().min(1, "Wallet is required")
 });
 
 export const UpdatePasswordSchema = z
@@ -133,8 +134,10 @@ export const MoneySchema = z.object({
   amount: z.coerce.number().min(1, {
     message: "Amount must be greater than 0",
   }),
+  walletId : z.string(),
   upiid: z.string(),
   accountNumber: z.string(),
+  paymentModelId : z.string(),
   transactionId: z
     .string()
     .min(1, {
@@ -208,6 +211,7 @@ export const UpiFormSchema = z.object({
 });
 
 export const WithdrawMoneySchema = z.object({
+  walletId : z.string().nonempty("Wallet is Required"),
   accountNumber: z
     .string()
     .nonempty("Account Number is required")
@@ -232,6 +236,7 @@ export const WithdrawMoneySchema = z.object({
 });
 
 export const AcceptWithdrawalSchema = z.object({
+  walletId : z.string().nonempty("Wallet is Required"),
   transactionId: z
     .string()
     .min(1, "Transaction ID is required")
@@ -279,6 +284,7 @@ export const AcceptWithdrawalSchema = z.object({
 
 export const RejectWithdrawalSchema = z.object({
   reason: z.string().min(10, { message: "Minimum of 10 characters required" }),
+  walletId : z.string().nonempty("Wallet is Required"),
 });
 
 export const PaymentMethodDetailsSchema = z.object({
@@ -492,11 +498,12 @@ export const EditWalletTypeQuantitySchema = z.object({
 
 export const OrderSchema = z.object({
   id: z.string(),
-  walletId: z.string(),
+  walletId: z.string().min(1, { message: "Wallet Id is required" }),
   products: z.array(
     z.object({
       name: z.string().min(1, { message: "Product Name is required" }),
       quantity: z.coerce.number().min(1, { message: "Quantity is required" }),
+      productId : z.string().min(1, { message: "Product Id is required" }),
     })
   ),
   price: z.coerce.number().gte(0),
@@ -573,6 +580,7 @@ export const FeedbackFileSchema = z.object({
 export const AcceptOrderSchema = z.object({
   id: z.string(),
   orderId: z.string(),
+  walletId: z.string(),
   files: z
     .array(
       z
@@ -612,6 +620,7 @@ export const RejectOrderSchema = z.object({
   reason: z.string().min(10, { message: "Minimum of 10 characters required" }),
   userId: z.string(),
   orderId: z.string(),
+  walletId: z.string(),
   amount: z.coerce.number(),
 });
 

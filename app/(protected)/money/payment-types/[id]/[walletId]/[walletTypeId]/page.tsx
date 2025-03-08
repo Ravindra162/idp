@@ -9,8 +9,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getDomains } from "@/actions/admin-domains";
-import TopBar from "../../../_components/Topbar";
-import WalletsListingTable from "../_components/wallet-listing-table";
+import TopBar from "../../../../../_components/Topbar";
+import PaymentTypesListingTable from "../../../_components/payment-types-listing-table";
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 
@@ -21,29 +21,34 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params }: { params: { id: string } }) => {
-  const walletsResponse = await db.wallet.findMany({
+const page = async ({ params }: { params: { id: string, walletId : string; walletTypeId : string } }) => {
+  const paymentMethods = await db.walletTypePayment.findMany({
     where: {
-      userId: params.id,
+      walletTypeId : params.walletTypeId
     },
+    include : {
+        paymentModel : true
+    }
   });
-  const wallets = walletsResponse;
+  let basehref = "";
+  const wallets = paymentMethods;
   const half = Math.ceil(wallets.length / 2);
   const firstHalf = wallets.slice(0, half);
   const secondHalf = wallets.slice(half);
-
+  console.log("---------------------")
+  console.log(paymentMethods)
   return (
     <>
       <div className="hidden md:block">
-        <TopBar title="Wallets" />
+        <TopBar title="Payment Types" />
       </div>
       <section className="space-y-4 md:max-h-[90vh] w-full md:w-[100%] p-2">
         <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 h-full w-full">
           <div>
-            <WalletsListingTable wallets={firstHalf} />
+            <PaymentTypesListingTable paymentMethods={firstHalf} id = {params.id} walletId={params.walletId}/>
           </div>
           <div>
-            <WalletsListingTable wallets={secondHalf} />
+            <PaymentTypesListingTable paymentMethods={secondHalf} id = {params.id} walletId={params.walletId}/>
           </div>
         </div>
       </section>
