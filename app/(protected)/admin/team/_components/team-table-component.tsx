@@ -51,7 +51,7 @@ export async function TeamTable({ searchParams, domainId }: TeamTableProps) {
               <TableHead>Team Name</TableHead>
               <TableCell>Team Description</TableCell>
               <TableHead>Referral Code</TableHead>
-              <TableHead>Leader Name</TableHead>
+              <TableHead>Leader Email</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -75,7 +75,7 @@ export async function TeamTable({ searchParams, domainId }: TeamTableProps) {
                     <CopyButton text={team.referralCode} />
                   </div>
                 </TableCell>
-                <TableCell>{team.leader?.name || "N/A"}</TableCell>
+                <TableCell>{team.leader?.email || "N/A"}</TableCell>
                 <TableCell>
                   <ModifyTeam domainId={team.domainId ?? ""}  teamId={team.id} />
                 </TableCell>

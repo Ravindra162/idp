@@ -2,9 +2,12 @@ import { formatPrice } from "@/components/shared/formatPrice";
 import React from "react";
 
 interface Product {
+  id: string;
+  orderId: string;
+  productId: string;
   name: string;
   quantity: number;
-  productPrice: number;
+  price: number;
 }
 
 interface Order {
@@ -27,14 +30,14 @@ type ProductProps = {
 const ProductSold = ({ orders, productName }: ProductProps) => {
   const quantitySold = orders.reduce((acc, order) => {
     const quantityProduct = order.products.find((product) => {
-      return product.name === productName;
+      // return product.productId === productId;
     });
     if (quantityProduct) {
-      return acc + quantityProduct.productPrice * quantityProduct.quantity;
+      return acc + quantityProduct.price * quantityProduct.quantity;
     }
     return acc;
   }, 0);
-  return <span className="font-semibold">{formatPrice(quantitySold)}</span>;
+  return <span className="font-semibold">{formatPrice(quantitySold, "")}</span>;
 };
 
 export default ProductSold;

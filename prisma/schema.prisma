@@ -178,7 +178,6 @@ model Wallet {
 model Settings {
   id         String   @id @default(uuid()) @map("_id")
   domainId   String
-  domainName String
   autmVar    Boolean
   userId     String
   user       User     @relation(fields: [userId], references: [id])
@@ -404,6 +403,7 @@ model Team {
   description     String
   referralCode    String
   leaderId        String        @unique
+  amountLimit     Float       
   products        ProductInfo[]
   includedIn      Product[]     @relation("IncludedTeams", fields: [includedInIds], references: [id])
   includedInIds   String[]

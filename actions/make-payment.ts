@@ -54,6 +54,11 @@ export const createPaymentRequest = async (formData: FormData) => {
   }
 
   try {
+    const wallet = await db.wallet.findUnique({
+      where : {
+        id : ""
+      }
+    })
     const walletFlow = await db.walletFlow.findMany({
       where: {
         userId: userId,
@@ -77,16 +82,24 @@ export const createPaymentRequest = async (formData: FormData) => {
       return acc + amount;
     }, 0);
 
-    const isAmountMatching = calculateTotalMoney === user?.totalMoney;
+    const isAmountMatching = calculateTotalMoney === wallet?.balance;
 
     if (!isAmountMatching) {
       await db.user.update({
         where: { id: userId },
         data: {
           role: "BLOCKED",
-          totalMoney: calculateTotalMoney,
         },
       });
+
+      await db.wallet.update({
+        where : {
+          id : ""
+        },
+        data : {
+          balance : calculateTotalMoney
+        }
+      })
 
       return {
         error: "You have been blocked by the admin. contact admin know more",
@@ -144,23 +157,28 @@ export const createPaymentRequest = async (formData: FormData) => {
     await db.money.create({
       data: {
         amount,
+        walletId: "",
         secure_url: "https://img.icons8.com/ios/50/invoice.png",
         public_id: generateSpecialCharacterString(10),
         transactionId: merchantReferenceId,
-        upiid: formData.get("upiid")?.toString() || "",
+        upiId: formData.get("upiid")?.toString() || "",
         accountNumber: formData.get("accountNumber")?.toString() || "",
         userId,
         paymentMode:
-          user.paymentType === "MANUAL" ? "MANUAL" : "PAYMENT_GATEWAY",
+          "PAYMENT_GATEWAY",
         paymentProces: false,
         name: user.name || "",
+        purpose: "ADD_MONEY",
+        payment_method_id: "",
         status: "PENDING",
+        domainId: process.env.NEXT_PUBLIC_DOMAIN_ID ?? "",
       },
     });
 
     await db.walletFlow.create({
       data: {
         amount: Number(amount),
+        walletId: "",
         moneyId: merchantReferenceId,
         purpose: "ADD_MONEY",
         userId,
@@ -190,9 +208,23 @@ export const createPaymentRequest = async (formData: FormData) => {
 export const createCollectRequest = async (formData: FormData) => {
   const amount = formData.get("amount")?.toString();
   const userId = formData.get("userId")?.toString();
+  const walletId = formData.get("walletId")?.toString();
+  const paymentModelId = formData.get("paymentModelId")?.toString();
   const user = await getUserById(userId ?? "");
 
   try {
+    const wallet = await db.wallet.findUnique({
+      where: {
+        id: walletId,
+      },
+    });
+  
+    const walletType = await db.paymentTypeModel.findUnique({
+      where: {
+        id: paymentModelId,
+      }
+    });
+  
     if (!user) {
       return { error: "User not found." };
     }
@@ -257,12 +289,16 @@ export const createCollectRequest = async (formData: FormData) => {
         transactionId: merchantReferenceId,
         upiId: formData.get("upiid")?.toString() || "",
         accountNumber: formData.get("accountNumber")?.toString() || "",
-        userId,
+        userId : userId ?? "",
+        walletId : walletId ?? "",
         paymentMode:
-          user.paymentType === "MANUAL" ? "MANUAL" : "PAYMENT_GATEWAY",
+          walletType?.paymentTypeMethod === "MANUAL" ? "MANUAL" : "PAYMENT_GATEWAY",
         paymentProces: false,
+        purpose: "ADD_MONEY",
         name: user.name || "",
         status: "PENDING",
+        domainId: process.env.NEXT_PUBLIC_DOMAIN_ID ?? "",
+        payment_method_id: "",
       },
     });
 
@@ -272,6 +308,7 @@ export const createCollectRequest = async (formData: FormData) => {
         moneyId: merchantReferenceId,
         purpose: "ADD_MONEY",
         userId,
+        walletId: walletId ?? "",
         status: "PENDING",
       },
     });
@@ -288,7 +325,9 @@ export const createCollectRequest = async (formData: FormData) => {
 
 export const checkPaymentStatus = async (
   merchantReferenceId: string,
-  userId: string
+  userId: string,
+  walletId: string,
+  paymentModelId : string
 ) => {
   try {
     const moneyRecord = await db.money.findFirst({
@@ -342,8 +381,11 @@ export const checkPaymentStatus = async (
       }
 
       if (txnStatus === "SUCCESS") {
-        const bankDetails = await db.bankDetails.findFirst({
+        const bankDetails = await db.walletTypePayment.findFirst({
           orderBy: { createdAt: "desc" },
+          include : {
+            paymentModel : true
+          }
         });
 
         if (!bankDetails) {
@@ -356,8 +398,8 @@ export const checkPaymentStatus = async (
         formData.set("transactionId", data?.UTR || "");
         formData.set("amount", data?.amount?.toString() || "0");
         formData.set("userId", userId);
-        formData.set("upiid", bankDetails?.upiid || "");
-        formData.append("accountNumber", bankDetails?.accountDetails || "");
+        // formData.set("upiId", bankDetails?.paymentModel?.upiId || "");
+        // formData.append("accountNumber", bankDetails?.accountDetails || "");
         formData.set("merchantReferenceId", merchantReferenceId);
 
         const addMoneyResult = await AddMoney(formData);
@@ -410,18 +452,24 @@ export const AddMoney = async (formData: FormData) => {
 
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { totalMoney: true, name: true, paymentType: true },
+      select: {  name: true },
+    });
+
+    const wallet = await db.wallet.findUnique({
+      where : {
+        id : ""
+      }
     });
 
     if (!user) {
       return { error: "User not found." };
     }
 
-    const totalMoney = Number(user.totalMoney);
+    const totalMoney = Number(wallet?.balance);
 
-    await db.user.update({
-      where: { id: userId },
-      data: { totalMoney: totalMoney + updatedMoney },
+    await db.wallet.update({
+      where: { id: "" },
+      data: { balance: totalMoney + updatedMoney },
     });
 
     await db.walletFlow.update({

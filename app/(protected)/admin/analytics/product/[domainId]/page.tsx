@@ -10,19 +10,21 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
 import React from "react";
-import ProductQuantity from "../_components/product-quantity";
-import ProductSold from "../_components/product-sold";
-import DateRangeFilter from "../_components/date-range-filter";
-import DownloadToExcel from "../_components/download-to-excel";
-import ProductToExcel from "../_components/product-to-excel";
+import ProductQuantity from "../../_components/product-quantity";
+import ProductSold from "../../_components/product-sold";
+import DateRangeFilter from "../../_components/date-range-filter";
+import DownloadToExcel from "../../_components/download-user-to-excel";
+import ProductToExcel from "../../_components/product-to-excel";
 import { revalidatePath } from "next/cache";
 import Search from "@/components/shared/search";
 import PaginationBar from "@/app/(protected)/money/_components/PaginationBar";
 
 const ProductAnalytics = async ({
   searchParams,
+  params
 }: {
   searchParams: { page: string; startDate: Date; endDate: Date };
+  params : { domainId : string};
 }) => {
   const currentPage = parseInt(searchParams.page) || 1;
   const pageSize = 9;
@@ -49,12 +51,11 @@ const ProductAnalytics = async ({
     orderBy: {
       createdAt: "desc",
     },
-    skip: (currentPage - 1) * pageSize,
-    take: pageSize,
   });
   const orders = await db.order.findMany({
     where: {
       status: "SUCCESS",
+      domainId: params.domainId,
       createdAt: {
         lte: endDate,
         gte: startDate,
@@ -63,6 +64,9 @@ const ProductAnalytics = async ({
     orderBy: {
       createdAt: "desc",
     },
+    include : {
+      products : true
+    }
   });
 
   revalidatePath("/admin/analytics/product");
@@ -71,8 +75,8 @@ const ProductAnalytics = async ({
     <section className="m-2">
       <div className="flex items-center justify-between gap-x-2 p-1 md:hidden">
         <ProductToExcel
-          products={JSON.parse(JSON.stringify(exportProducts))}
-          orders={JSON.parse(JSON.stringify(orders))}
+          products={exportProducts}
+          orders={orders}
           fileName={"Products"}
         />
         <Search fileName="product" />
@@ -80,8 +84,8 @@ const ProductAnalytics = async ({
       <div className="md:flex md:items-center md:justify-between md:gap-x-2">
         <div className="hidden md:flex items-center justify-between  gap-x-3">
           <ProductToExcel
-            products={JSON.parse(JSON.stringify(exportProducts))}
-            orders={JSON.parse(JSON.stringify(orders))}
+            products={exportProducts}
+            orders={orders}
             fileName={"Products"}
           />
           <Search fileName="product" />
@@ -94,9 +98,8 @@ const ProductAnalytics = async ({
         <TableHeader>
           <TableRow>
             <TableHead>Product name</TableHead>
-            <TableHead>Current price</TableHead>
             <TableHead>Total Qty sold</TableHead>
-            <TableHead>Total revenue collected</TableHead>
+            {/* <TableHead>Total revenue collected</TableHead> */}
             <TableHead>Current inventory</TableHead>
           </TableRow>
         </TableHeader>
@@ -104,23 +107,23 @@ const ProductAnalytics = async ({
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>{product.productName}</TableCell>
-              <TableCell>{formatPrice(product.price)}</TableCell>
               <TableCell>
                 {
                   <ProductQuantity
-                    orders={JSON.parse(JSON.stringify(orders))}
+                    orders={orders}
                     productName={product.productName}
+                    productId={product.id}
                   />
                 }
               </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 {
                   <ProductSold
                     productName={product.productName}
                     orders={JSON.parse(JSON.stringify(orders))}
                   />
                 }
-              </TableCell>
+              </TableCell> */}
               <TableCell>{product.stock}</TableCell>
             </TableRow>
           ))}

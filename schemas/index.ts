@@ -790,7 +790,6 @@ export const ManagePaymentModeSchema = z.object({
 export const AutomationStateSchema = z.object({
   autmVar: z.boolean(),
   domainId: z.string().nonempty("Domain Id is required"),
-  domainName: z.string().nonempty("Domain Name is required"),
   userId: z.string().nonempty("User ID is required"),
 });
 
@@ -856,3 +855,8 @@ export const TeamCreateSchema = z.object({
 export const EditTeamSchema = TeamCreateSchema.extend({
   id: z.string().nonempty("Team Record ID is required"),
 });
+
+export const UpdateTeamAmountLimitSchema = z.object({
+  teamId : z.string(),
+  amountLimit: z. z.coerce.number().nonnegative().min(1," Amount limit should be greater than 0.")
+})

@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 
 interface Product {
   id: string;
-  userId: string;
+  userId: string | null;
   productName: string;
   price: number;
   minProduct: number;
@@ -17,17 +17,23 @@ interface Product {
   orderId: string | null;
 }
 
-interface Product {
+interface ProductOrdered {
+  id: string;
+  orderId: string;
+  productId: string;
   name: string;
   quantity: number;
-  productPrice: number;
+  price: number;
 }
 
 interface Order {
   id: string;
   orderId: string;
   userId: string;
-  products: Product[];
+  name: string;
+  walletId: string;
+  domainId: string;
+  products: ProductOrdered[];
   amount: number;
   reason: string | null;
   status: "SUCCESS" | "PENDING" | "FAILED";
@@ -48,27 +54,16 @@ const ProductToExcel = ({
 }: ProductToExcelProps) => {
   const modifiedData = products.map((product) => ({
     "Product name": product.productName,
-    "Current price": product.price,
-    "Total quantity sold": orders.reduce((acc, order) => {
+    "Total quantity sold": 
+    orders.reduce((acc, order) => {
       const quantityProduct = order.products.find((prod) => {
-        return prod.name === product.productName;
+        return prod.productId === product.id;
       });
       if (quantityProduct) {
         return acc + quantityProduct.quantity;
       }
       return acc;
     }, 0),
-    "Total revenue generated": formatPrice(
-      orders.reduce((acc, order) => {
-        const quantityProduct = order.products.find((prod) => {
-          return prod.name === product.productName;
-        });
-        if (quantityProduct) {
-          return acc + quantityProduct.productPrice * quantityProduct.quantity;
-        }
-        return acc;
-      }, 0)
-    ),
     "Current inventory": product.stock,
   }));
 

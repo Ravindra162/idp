@@ -46,6 +46,15 @@ const page = async ({ params }: { params: { href: string } }) => {
   else if(params.href === "order-history"){
     basehref = "/admin/orders/history";
   }
+  else if(params.href === "user-analytics"){
+    basehref = "/admin/analytics/user";
+  }
+  else if(params.href === "wallet-analytics"){
+    basehref = "/admin/analytics/wallet/table";
+  }
+  else if(params.href === "product-analytics"){
+    basehref = "/admin/analytics/product";
+  }
   const domains = domainsResponse?.data?.map((domain: any) => ({
     ...domain,
     href: `${basehref}/${domain.id}`,

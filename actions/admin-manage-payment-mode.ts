@@ -48,8 +48,8 @@ export const modifyPaymentMode = async (
   try {
     await db.user.updateMany({
       data: {
-        paymentType:
-          paymentType === "PAYMENT GATEWAY" ? "PAYMENT_GATEWAY" : "MANUAL",
+        // paymentType:
+        //   paymentType === "PAYMENT GATEWAY" ? "PAYMENT_GATEWAY" : "MANUAL",
       },
     });
 

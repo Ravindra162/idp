@@ -26,6 +26,7 @@ export async function createTeam(values: z.infer<typeof TeamCreateSchema>) {
         teamId: refCode,
         description: values.teamDescription || "",
         domainId: values.domainId,
+        amountLimit: 0
       },
     });
 

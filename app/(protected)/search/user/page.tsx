@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
 import { Metadata } from "next";
-import DownloadToExcel from "../../admin/analytics/_components/download-to-excel";
+import DownloadToExcel from "../../admin/analytics/_components/download-user-to-excel";
 import DateRangeFilter from "../../admin/analytics/_components/date-range-filter";
 import SearchPaginationBar from "@/components/shared/search-paginationbar";
 
@@ -75,7 +75,7 @@ export default async function SearchUserPage({
     },
     orderBy: { id: "desc" },
     include: {
-      Order: {
+      orders: {
         select: {
           amount: true,
         },

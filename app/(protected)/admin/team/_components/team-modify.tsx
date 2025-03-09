@@ -33,6 +33,23 @@ const ModifyTeam = ({ teamId, domainId }: { teamId: string, domainId : string })
     <div className="flex gap-x-3">
       <Dialog>
         <DialogTrigger asChild>
+          <Button>Add Users</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Members</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose>
+              <Button asChild>
+                <Link href={`/admin/team/add-users/${domainId}/${teamId}`}>Confirm</Link>
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog>
+        <DialogTrigger asChild>
           <Button>Edit</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">

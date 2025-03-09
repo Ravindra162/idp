@@ -4,30 +4,26 @@ import { db } from "@/lib/db";
 import { AutomationStateSchema } from "@/schemas";
 import { z } from "zod";
 
-export const fetchAutomationStates = async () => {
+export const fetchAutomationState = async (
+  domainId: string
+): Promise<boolean> => {
   try {
-    const settings = await db.settings.findMany({});
-    return settings;
+    const setting = await db.settings.findFirst({
+      where: {
+        domainId: domainId,
+      },
+    });
+
+    if (!setting) {
+      throw new Error("Settings document not found");
+    }
+
+    return setting.autmVar;
   } catch (error) {
-    console.error("Error fetching automation states:", error);
-    return [];
+    console.error("Error fetching automation state:", error);
+    return false;
   }
 };
-
-export const fetchAutomationStateByDomainId = async (domainId : string) => {
-  try{
-    const settingRecord = await db.settings.findFirst({
-      where : {
-        domainId : domainId
-      }
-    });
-    return settingRecord;
-  }
-  catch(error){
-    console.error("Error fetching setting record:", error);
-    return;
-  }
-}
 
 export const updateAutomationState = async (
   values: z.infer<typeof AutomationStateSchema>
@@ -38,7 +34,7 @@ export const updateAutomationState = async (
     return { error: "Invalid fields!" };
   }
 
-  const { domainId, domainName, userId, autmVar } = validatedFields.data;
+  const { autmVar, userId, domainId } = validatedFields.data;
 
   try {
     const existingRecord = await db.settings.findFirst({
@@ -50,10 +46,7 @@ export const updateAutomationState = async (
     if (existingRecord) {
       await db.settings.update({
         where: { id: existingRecord.id },
-        data: {
-          autmVar: autmVar,
-          userId: userId,
-        },
+        data: { autmVar: autmVar },
       });
       return {
         success: true,
@@ -61,12 +54,7 @@ export const updateAutomationState = async (
       };
     } else {
       await db.settings.create({
-        data: {
-          domainId: domainId,
-          domainName: domainName,
-          autmVar: autmVar,
-          userId: userId,
-        },
+        data: { autmVar: autmVar, domainId: domainId, userId: userId },
       });
       return {
         success: true,

@@ -9,10 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import PaginationBar from "../../../money/_components/PaginationBar";
+import PaginationBar from "../../../../../money/_components/PaginationBar";
 import Search from "@/components/shared/search";
-import DateRangeFilter from "../_components/date-range-filter";
-import WalletToExcel from "./_components/wallet-to-excel";
+import DateRangeFilter from "../../../_components/date-range-filter";
+import WalletToExcel from "../../_components/wallet-to-excel";
 
 export const generateMetadata = () => {
   return {
@@ -74,12 +74,12 @@ const AdminWallet = async ({
           </TableHeader>
           <TableBody>
             {invoices.map((invoice) => (
-              <TableRow key={invoice.upiid}>
+              <TableRow key={invoice.upiId}>
                 <TableCell>{invoice.name}</TableCell>
                 <TableCell>{invoice.accountNumber}</TableCell>
-                <TableCell>{invoice.upiid}</TableCell>
+                <TableCell>{invoice.upiId}</TableCell>
                 <TableCell>{invoice.transactionId}</TableCell>
-                <TableCell>{formatPrice(Number(invoice.amount))}</TableCell>
+                <TableCell>{formatPrice(Number(invoice.amount), "")}</TableCell>
                 <TableCell>{invoice.createdAt.toDateString()}</TableCell>
               </TableRow>
             ))}
@@ -91,7 +91,7 @@ const AdminWallet = async ({
                 <TableCell className="text-left" colSpan={4}>
                   {formatPrice(
                     invoices.reduce((acc, cur) => acc + Number(cur.amount), 0)
-                  )}
+                  ,"")}
                 </TableCell>
               </TableRow>
             </TableFooter>

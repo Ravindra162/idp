@@ -16,6 +16,8 @@ import EditDomainButton from "./edit-domain-button";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import AdminAutomateOrders from "@/app/(protected)/_components/admin-automateOrders";
+import { auth } from "@/lib/auth";
 
 export const generateMetadata = () => ({
   title: "Admin Domains | GrowonsMedia",
@@ -27,6 +29,7 @@ type AdminDomainsTableProps = {
 };
 
 const AdminDomainsTable = async ({ searchParams }: AdminDomainsTableProps) => {
+  const session = await auth();
   const currentPage = parseInt(searchParams.page) || 1;
   const pageSize = 7;
 
@@ -66,6 +69,7 @@ const AdminDomainsTable = async ({ searchParams }: AdminDomainsTableProps) => {
             <TableHead>Panel Name</TableHead>
             <TableHead>Description </TableHead>
             <TableHead>Base URL</TableHead>
+            <TableHead>Automate Orders</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -84,6 +88,12 @@ const AdminDomainsTable = async ({ searchParams }: AdminDomainsTableProps) => {
               <TableCell className="font-medium">{domain.name}</TableCell>
               <TableCell>{domain.description}</TableCell>
               <TableCell>{domain.base_url}</TableCell>
+              <TableCell>
+                <AdminAutomateOrders
+                  userId={session?.user.id ?? ""}
+                  domainId={domain.id}
+                />
+              </TableCell>
               <TableCell>
                 <EditDomainButton id={domain.id} />
               </TableCell>

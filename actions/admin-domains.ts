@@ -38,7 +38,6 @@ export const addDomain = async (values: z.infer<typeof AddDomainSchema>) => {
       const newSettings = await prisma.settings.create({
         data: {
           domainId: newDomain.id,
-          domainName: newDomain.name,
           autmVar: false,
           userId : userId
         },
