@@ -124,7 +124,7 @@ const PaymentGateway = ({
     try {
       setIsPending(true);
       console.log(merchantReferenceId);
-      await checkPaymentStatus(merchantReferenceId, userId).then((data) => {
+      await checkPaymentStatus(merchantReferenceId, userId, "", "").then((data) => {
         if (data?.success) {
           toast.success(data?.success);
           window.location.reload();

@@ -14,7 +14,7 @@ const FeedbackPage = async ({ params }: { params: { id: string } }) => {
   const orders = await db.order.findMany({
     where: { userId: params.id },
     include: {
-      User: { select: { name: true } },
+      user: { select: { name: true } },
     },
   });
 

@@ -66,37 +66,48 @@ const WithdrawRequests = async ({ searchParams }: WithdrawRequestsParams) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {withdrawals.map((withdrawal) => (
-              <TableRow key={withdrawal.id}>
-                <TableCell>{withdrawal.name || "N/A"}</TableCell>
-                <TableCell>{withdrawal.accountNumber}</TableCell>
-                <TableCell>{withdrawal.ifscCode}</TableCell>
-                <TableCell>{withdrawal.transactionId || "N/A"}</TableCell>
-                <TableCell>
-                  {formatPrice(Number(withdrawal.withdrawAmount))}
-                </TableCell>
-                <TableCell className="cursor-pointer">
-                  {withdrawal.status === "FAILED" && withdrawal.reason ? (
-                    <ReasonDialog
-                      status={withdrawal.status}
-                      reason={withdrawal.reason}
-                    />
-                  ) : (
-                    <BadgeStatus status={withdrawal.status} />
-                  )}
-                </TableCell>
-                <TableCell>
-                  {String(withdrawal.status) === "SUCCESS" ? (
-                    <ImageDialog imageLink={withdrawal.secure_url || ""} />
-                  ) : (
-                    "—"
-                  )}
-                </TableCell>
-                <TableCell>{withdrawal.updatedAt.toDateString()}</TableCell>
-              </TableRow>
-            ))}
+            {withdrawals.map(async (withdrawal) => {
+              const walletDetails = await db.wallet.findUnique({
+                where: {
+                  id: withdrawal.walletId,
+                },
+              });
+              return (
+                <TableRow key={withdrawal.id}>
+                  <TableCell>{withdrawal.name || "N/A"}</TableCell>
+                  <TableCell>{withdrawal.accountNumber}</TableCell>
+                  <TableCell>{withdrawal.ifscCode}</TableCell>
+                  <TableCell>{withdrawal.transactionId || "N/A"}</TableCell>
+                  <TableCell>
+                    {formatPrice(
+                      Number(withdrawal.withdrawAmount),
+                      walletDetails?.currencyCode ?? ""
+                    )}
+                  </TableCell>
+                  <TableCell className="cursor-pointer">
+                    {withdrawal.status === "FAILED" &&
+                    withdrawal.failureReason ? (
+                      <ReasonDialog
+                        status={withdrawal.status}
+                        reason={withdrawal.failureReason}
+                      />
+                    ) : (
+                      <BadgeStatus status={withdrawal.status} />
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {String(withdrawal.status) === "SUCCESS" ? (
+                      <ImageDialog imageLink={withdrawal.secure_url || ""} />
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
+                  <TableCell>{withdrawal.updatedAt.toDateString()}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4}>Total</TableCell>
@@ -110,7 +121,7 @@ const WithdrawRequests = async ({ searchParams }: WithdrawRequestsParams) => {
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </section>
 

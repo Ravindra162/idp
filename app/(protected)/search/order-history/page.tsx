@@ -36,7 +36,7 @@ const SearchOrderHistory = async ({
         ],
       },
       include: {
-        User: true,
+        user: true,
       },
     })
   ).length;
@@ -53,13 +53,14 @@ const SearchOrderHistory = async ({
       ],
     },
     include: {
-      User: {
+      user: {
         select: {
           name: true,
           email: true,
           number: true,
         },
       },
+      products : true
     },
     orderBy: {
       createdAt: "desc",
@@ -112,7 +113,12 @@ const SearchOrderHistory = async ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders?.map((order, index) => {
+            {orders?.map(async (order, index) => {
+              const walletDetails = await db.wallet.findUnique({
+                where : {
+                  id : order.walletId
+                }
+              });
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">
@@ -142,10 +148,10 @@ const SearchOrderHistory = async ({
                   </TableCell>
                   <TableCell>
                     <ViewProducts
-                      products={JSON.parse(JSON.stringify(order.products))}
+                      products={order.products}
                     />
                   </TableCell>
-                  <TableCell>{formatPrice(order.amount)}</TableCell>
+                  <TableCell>{formatPrice(order.amount, walletDetails?.currencyCode ?? "")}</TableCell>
                   <TableCell className="flex flex-col">
                     <span>{order.createdAt.toDateString()}</span>
                     <span>
@@ -160,7 +166,7 @@ const SearchOrderHistory = async ({
               );
             })}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4}>Total</TableCell>
@@ -171,7 +177,7 @@ const SearchOrderHistory = async ({
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </div>
 

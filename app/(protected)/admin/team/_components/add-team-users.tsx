@@ -25,7 +25,7 @@ interface SearchUser {
   number?: string;
 }
 
-const ModifyTeamMembersForm = ({ teamId }: { teamId: string }) => {
+const ModifyTeamMembersForm = ({ teamId, domainId }: { teamId: string; domainId: string }) => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [members, setMembers] = useState<TeamMember[]>([]);

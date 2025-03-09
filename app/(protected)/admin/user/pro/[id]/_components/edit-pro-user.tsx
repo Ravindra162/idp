@@ -18,6 +18,7 @@ import { editProUser } from "@/actions/user-pro";
 import { toast } from "sonner";
 
 interface Product {
+  productId: string;
   name: string;
   minProduct: number;
   maxProduct: number;

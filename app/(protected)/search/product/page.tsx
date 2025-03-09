@@ -49,7 +49,7 @@ export default async function SearchUserPage({
       },
       orderBy: { id: "desc" },
       include: {
-        Order: {
+        order: {
           select: {
             amount: true,
           },
@@ -157,12 +157,13 @@ export default async function SearchUserPage({
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>{product.productName}</TableCell>
-              <TableCell>{formatPrice(product.price)}</TableCell>
+              <TableCell>{formatPrice(product.price, "")}</TableCell>
               <TableCell>
                 {
                   <ProductQuantity
                     orders={JSON.parse(JSON.stringify(orders))}
                     productName={product.productName}
+                    productId={product.id}
                   />
                 }
               </TableCell>

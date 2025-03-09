@@ -37,7 +37,7 @@ import { addProUser } from "@/actions/user-pro";
 
 type ProUserProps = {
   userId: string;
-  role:"PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE" ;
+  role: "PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE";
   products: any; // TODO: Define type for this.
 };
 
@@ -52,6 +52,7 @@ const ProUser = ({ userId, role, products }: ProUserProps) => {
       amount: 0,
       products: [
         {
+          productId: "",
           name: "",
           minProduct: 0,
           maxProduct: 1,
@@ -122,11 +123,22 @@ const ProUser = ({ userId, role, products }: ProUserProps) => {
                     <div key={item.id}>
                       <FormField
                         control={form.control}
-                        name={`products.${index}.name`}
+                        name={`products.${index}.productId`}
                         render={({ field }) => (
                           <FormItem>
                             <Select
-                              onValueChange={field.onChange}
+                              onValueChange={(value) => {
+                                field.onChange(value); 
+                                const selectedProduct = products.find(
+                                  (product: any) => product.id === value
+                                );
+                                if (selectedProduct) {
+                                  form.setValue(
+                                    `products.${index}.name`,
+                                    selectedProduct?.productName ?? ""
+                                  );
+                                }
+                              }}
                               disabled={isPending}
                               defaultValue={field.value}
                             >
@@ -137,17 +149,15 @@ const ProUser = ({ userId, role, products }: ProUserProps) => {
                               </FormControl>
                               <FormMessage />
                               <SelectContent>
-                                {products.map((product: any) => {
-                                  return (
-                                    <SelectItem
-                                      value={product.productName}
-                                      key={product.id}
-                                      className="capitalize"
-                                    >
-                                      {product.productName}
-                                    </SelectItem>
-                                  );
-                                })}
+                                {products.map((product: any) => (
+                                  <SelectItem
+                                    value={product.id}
+                                    key={product.id}
+                                    className="capitalize"
+                                  >
+                                    {product.productName}
+                                  </SelectItem>
+                                ))}
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -222,14 +232,16 @@ const ProUser = ({ userId, role, products }: ProUserProps) => {
                               className={`text-sm text-[7E8DA0] cursor-pointer focus:outline-none focus:underline`}
                               tabIndex={0}
                               onClick={() => {
+                                const productsList = form.getValues().products ?? [];
                                 const lastProduct =
-                                  form.getValues().products[fields.length - 1];
+                                  productsList[fields.length - 1];
 
                                 if (
                                   lastProduct &&
                                   lastProduct.name.trim() !== ""
                                 ) {
                                   append({
+                                    productId: "",
                                     name: "",
                                     minProduct: 0,
                                     maxProduct: 0,

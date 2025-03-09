@@ -54,7 +54,7 @@ const Feedbacks = async ({
       createdAt: "desc",
     },
     include: {
-      User: true,
+      user: true,
     },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
@@ -83,7 +83,7 @@ const Feedbacks = async ({
             return (
               <TableRow key={feedback.id}>
                 <TableCell className=" capitalize">
-                  {feedback.User?.name}
+                  {feedback.user?.name}
                 </TableCell>
                 <TableCell>{feedback.orderId}</TableCell>
                 <TableCell>

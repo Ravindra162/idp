@@ -94,7 +94,7 @@ export const editUser = async (values: z.infer<typeof EditUserSchema>) => {
     return { error: "Invalid Fields" };
   }
 
-  const { id, name, number, email, paymentType } = validatedFields.data;
+  const { id, name, number, email } = validatedFields.data;
 
   const existingUser = await db.user.findFirst({
     where: {

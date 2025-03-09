@@ -33,7 +33,7 @@ type User = {
 
 type Order = {
   orderId: string;
-  User: User;
+  user: User;
   createdAt: Date;
 };
 
@@ -118,7 +118,7 @@ const FeedbackForm: React.FC<FeedbackFormProps> = ({ orders, userId }) => {
                               key={order.orderId}
                               value={order.orderId}
                             >
-                              {order.User?.name} -{" "}
+                              {order.user?.name} -{" "}
                               {order.createdAt.toDateString()} - {order.orderId}
                             </SelectItem>
                           );

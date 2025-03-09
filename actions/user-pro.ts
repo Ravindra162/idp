@@ -31,26 +31,38 @@ export const addProUser = async (values: z.infer<typeof ProUserSchema>) => {
       },
     });
 
-    const uniqueProducts = products.reduce((acc: any[], product: any) => {
-      const existingProduct = acc.find((p) => p.name === product.name);
-      if (!existingProduct) {
-        acc.push({
-          name: product.name,
-          minProduct: product.minProduct,
-          maxProduct: product.maxProduct,
-          price: product.price,
-        });
-      }
-      return acc;
-    }, []);
+    if (products != null) {
+      const uniqueProducts = products.reduce((acc: any[], product: any) => {
+        const existingProduct = acc.find((p) => p.name === product.name);
+        if (!existingProduct) {
+          acc.push({
+            productId : product.productId,
+            name: product.name,
+            Min: product.minProduct,
+            Max: product.maxProduct,
+            Price: product.price,
+          });
+        }
+        return acc;
+      }, []);
 
-    await db.proUser.create({
-      data: {
-        amount_limit: amount,
-        products: uniqueProducts,
-        userId: userId,
-      },
-    });
+      await db.proUser.create({
+        data: {
+          amount_limit: amount,
+          products: {
+            create: uniqueProducts, 
+          },
+          userId: userId,
+        },
+      });
+    } else {
+      await db.proUser.create({
+        data: {
+          amount_limit: amount,
+          userId: userId,
+        },
+      });
+    }
 
     revalidatePath("/users/" + userId);
 
@@ -156,7 +168,9 @@ export const editProUser = async (
       where: { id: userId },
       data: {
         amount_limit: amount,
-        products: uniqueProducts,
+        products: {
+          create: uniqueProducts, 
+        },
       },
     });
   } catch (err) {

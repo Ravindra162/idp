@@ -40,6 +40,9 @@ const ClientRecords = async ({
 
   const Orders = await db.order.findMany({
     where: { userId: params.id },
+    include : {
+      products : true
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -76,7 +79,12 @@ const ClientRecords = async ({
             </TableFooter>
           )}
           <TableBody>
-            {Orders?.map((order, index) => {
+            {Orders?.map(async (order, index) => {
+              const walletDetails = await db.wallet.findUnique({
+                where : {
+                  id : order.walletId
+                }
+              });
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">{order.orderId}</TableCell>
@@ -92,10 +100,10 @@ const ClientRecords = async ({
                   </TableCell>
                   <TableCell>
                     <ViewProducts
-                      products={JSON.parse(JSON.stringify(order.products))}
+                      products={order.products}
                     />
                   </TableCell>
-                  <TableCell>{formatPrice(order.amount)}</TableCell>
+                  <TableCell>{formatPrice(order.amount, walletDetails?.currencyCode ?? "")}</TableCell>
                   <TableCell className="flex flex-col">
                     <span>{order.createdAt.toDateString()}</span>
                     <span>
@@ -118,7 +126,7 @@ const ClientRecords = async ({
               );
             })}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={3}>Total</TableCell>
@@ -129,7 +137,7 @@ const ClientRecords = async ({
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </div>
 

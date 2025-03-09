@@ -25,7 +25,7 @@ const WalletToExcel = ({ data, fileName }: WalletToExcelProps) => {
     "Account no": invoice.accountNumber,
     "UPI-ID": invoice.id,
     "Transaction ID": invoice.transactionId,
-    "Total Order": formatPrice(Number(invoice.amount)),
+    "Total Order": formatPrice(Number(invoice.amount), ""),
     "Created At": invoice.createdAt,
   }));
   const handleDownload = () => {

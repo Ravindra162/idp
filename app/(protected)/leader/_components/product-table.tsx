@@ -80,7 +80,7 @@ const ProductTable = async ({
               <TableCell>
                 <DescriptionDialog description={product.description} />
               </TableCell>
-              <TableCell>{formatPrice(product.price)}</TableCell>
+              <TableCell>{formatPrice(product.price, "")}</TableCell>
               <TableCell>{product.minProduct}</TableCell>
               <TableCell>{product.maxProduct}</TableCell>
               <TableCell>{product.createdAt.toDateString()}</TableCell>

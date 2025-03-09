@@ -3,7 +3,6 @@ import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import TotalMoney from "./TotalMoney";
-import BankDetailsForm from "./bank-details-form";
 
 const BankDetails = async () => {
   const session = await auth();
@@ -13,7 +12,7 @@ const BankDetails = async () => {
         <span className="font-semibold">Bank Details</span>
       </div>
       <p className="mt-3">
-        <BankDetailsForm userId={session?.user.id ?? ""} />
+        {/* <BankDetailsForm userId={session?.user.id ?? ""} /> */}
       </p>
     </div>
   );

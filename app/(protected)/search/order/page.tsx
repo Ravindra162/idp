@@ -36,7 +36,8 @@ const SearchOrder = async ({
         status: "PENDING",
       },
       include: {
-        User: true,
+        user: true,
+        products: true,
       },
     })
   ).length;
@@ -53,13 +54,14 @@ const SearchOrder = async ({
       ],
     },
     include: {
-      User: {
+      user: {
         select: {
           name: true,
           email: true,
           number: true,
         },
       },
+      products: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -109,29 +111,34 @@ const SearchOrder = async ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order) => {
+            {orders.map(async (order) => {
               const products = order.products;
+              const wallet = await db.wallet.findUnique({
+                where: { id: order.walletId },
+              });
               return (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">{order.name}</TableCell>
                   <TableCell>
-                    {Array.isArray(products) &&
-                      products.map((product: any, index: number) => (
-                        <div key={index}>
-                          <span>{product.name}</span>{" "}
-                          <span> - Quantity: {product.quantity}</span>
-                        </div>
-                      ))}
+                    {order.products.map((productOrdered, index) => (
+                      <div key={index}>
+                        <span>{productOrdered.name}</span>{" "}
+                        <span>- Quantity: {productOrdered.quantity}</span>{" "}
+                      </div>
+                    ))}
                   </TableCell>
                   <TableCell>
-                    <BalanceCell id={order.userId} />
+                    <BalanceCell id={order.userId} walletId={order.walletId} />
                   </TableCell>
-                  <TableCell>{formatPrice(order.amount)}</TableCell>
+                  <TableCell>
+                    {formatPrice(order.amount, wallet?.currencyCode ?? "")}
+                  </TableCell>
                   <TableCell>
                     <AdminOrderForm
                       userId={order.userId}
                       id={order.id}
                       orderId={order.orderId}
+                      walletId={order.walletId}
                       amount={order.amount}
                       products={products}
                     />
@@ -141,7 +148,7 @@ const SearchOrder = async ({
             })}
           </TableBody>
 
-          <TableFooter>
+          {/* <TableFooter>
             <TableRow>
               <TableCell colSpan={3}>Total</TableCell>
               <TableCell>
@@ -150,7 +157,7 @@ const SearchOrder = async ({
                 )}
               </TableCell>
             </TableRow>
-          </TableFooter>
+          </TableFooter> */}
         </Table>
       </section>
       {totalPages > 1 && (
