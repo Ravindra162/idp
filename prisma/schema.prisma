@@ -176,13 +176,13 @@ model Wallet {
 }
 
 model Settings {
-  id         String   @id @default(uuid()) @map("_id")
-  domainId   String
-  autmVar    Boolean
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid()) @map("_id")
+  domainId  String
+  autmVar   Boolean
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt
 }
 
 model ProUser {
@@ -211,7 +211,7 @@ model Money {
   public_id           String?          @unique
   secure_url          String?
   purpose             Reason
-  failureReason       String?     
+  failureReason       String?
   paymentProces       Boolean          @default(false)
   paymentMode         PaymentType
   counter             Int              @default(0)
@@ -337,22 +337,23 @@ model ProductInfo {
 }
 
 model Order {
-  id        String           @id @default(uuid()) @map("_id")
-  orderId   String           @unique
-  name      String
-  userId    String
-  domainId  String
-  walletId  String
-  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  products  productOrdered[]
-  files     Json?
-  amount    Int
-  reason    String?
-  status    OrderStatus      @default(PENDING)
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt
-  feedback  Feedback?
-  Product   Product[]
+  id            String           @id @default(uuid()) @map("_id")
+  orderId       String           @unique
+  name          String
+  userId        String
+  domainId      String
+  walletId      String
+  user          User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products      productOrdered[]
+  files         Json?
+  amount        Int
+  purpose       Reason           @default(ORDER)
+  failureReason String?
+  status        OrderStatus      @default(PENDING)
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt
+  feedback      Feedback?
+  Product       Product[]
 }
 
 model productOrdered {
@@ -403,7 +404,7 @@ model Team {
   description     String
   referralCode    String
   leaderId        String        @unique
-  amountLimit     Float       
+  amountLimit     Float
   products        ProductInfo[]
   includedIn      Product[]     @relation("IncludedTeams", fields: [includedInIds], references: [id])
   includedInIds   String[]

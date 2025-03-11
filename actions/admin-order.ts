@@ -72,7 +72,7 @@ export const rejectOrder = async (
   try {
     await db.order.update({
       where: { id: values.id },
-      data: { status: "FAILED", reason: values.reason },
+      data: { status: "FAILED", failureReason: values.reason },
     });
 
     const wallet = await db.wallet.findUnique({

@@ -16,11 +16,11 @@ import DateRangeFilter from "../../admin/analytics/_components/date-range-filter
 import SearchPaginationBar from "@/components/shared/search-paginationbar";
 
 interface SearchPageProps {
-  searchParams: { query: string; page: string; startDate: Date; endDate: Date };
+  searchParams: { query: string; page: string; startDate: Date; endDate: Date , domainId : string; };
 }
 
 export function generateMetadata({
-  searchParams: { query },
+  searchParams: { query, domainId },
 }: SearchPageProps): Metadata {
   return {
     title: `Search: ${query} - Growonsmedia`,
@@ -46,7 +46,7 @@ export default async function SearchUserPage({
       },
       orderBy: { id: "desc" },
       include: {
-        Order: {
+        orders: {
           select: {
             amount: true,
           },

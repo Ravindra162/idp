@@ -89,10 +89,10 @@ const ClientRecords = async ({
                 <TableRow key={index}>
                   <TableCell className="font-medium">{order.orderId}</TableCell>
                   <TableCell>
-                    {order.status === "FAILED" && order.reason !== null ? (
+                    {order.status === "FAILED" && order.failureReason !== null ? (
                       <ReasonDialog
                         status={order.status}
-                        reason={order.reason}
+                        reason={order.failureReason}
                       />
                     ) : (
                       <BadgeStatus status={order.status} />

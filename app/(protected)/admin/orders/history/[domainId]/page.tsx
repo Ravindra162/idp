@@ -92,10 +92,10 @@ const AdminWallet = async ({ searchParams, params }: AdminHistoryProps) => {
                   </TableCell>
                   <TableCell>{order.orderId}</TableCell>
                   <TableCell>
-                    {order.status === "FAILED" && order.reason !== null ? (
+                    {order.status === "FAILED" && order.failureReason !== null ? (
                       <ReasonDialog
                         status={order.status}
-                        reason={order.reason}
+                        reason={order.failureReason}
                       />
                     ) : (
                       order.status === "SUCCESS" && (
