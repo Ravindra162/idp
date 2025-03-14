@@ -28,6 +28,7 @@ function generateSpecialCharacterString(
 export const createPaymentRequest = async (formData: FormData) => {
   const amount = formData.get("amount")?.toString();
   const userId = formData.get("userId")?.toString();
+  const walletId = formData.get("walletId")?.toString();
 
   if (
     !amount ||
@@ -56,12 +57,13 @@ export const createPaymentRequest = async (formData: FormData) => {
   try {
     const wallet = await db.wallet.findUnique({
       where : {
-        id : ""
+        id : walletId
       }
     })
     const walletFlow = await db.walletFlow.findMany({
       where: {
         userId: userId,
+        walletId: walletId
       },
     });
 
@@ -94,7 +96,7 @@ export const createPaymentRequest = async (formData: FormData) => {
 
       await db.wallet.update({
         where : {
-          id : ""
+          id : walletId
         },
         data : {
           balance : calculateTotalMoney
@@ -106,6 +108,7 @@ export const createPaymentRequest = async (formData: FormData) => {
       };
     }
 
+
     const requestPayload = {
       mid: "GROWONSMED",
       amount: amount,
@@ -116,14 +119,15 @@ export const createPaymentRequest = async (formData: FormData) => {
     };
 
     const currentDate = new Date();
-    const paymentMetadata = await db.paymentMetaData.findFirst({
+    const paymentMetadata =  await db.paymentMetaData.findFirst({
       where: {
         expiry: { gt: currentDate },
       },
       orderBy: { createdAt: "asc" },
     });
 
-    const token =
+
+    const token =  
       paymentMetadata?.authToken ||
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtaWQiOiJHUk9XT05TTUVEIiwiX2lkIjoiNjc2MWFkNmI2MzQyYzRmYjUyZTAzNWM5IiwiaWF0IjoxNzM0OTI2NzI0LCJleHAiOjE3Mzc1MTg3MjR9.YggJxjig6BVg3-euCnuNIPUhmqY7CE2YKC9JxgT446g";
 
@@ -137,6 +141,9 @@ export const createPaymentRequest = async (formData: FormData) => {
         },
       }
     );
+
+    console.log(response)
+
 
     const paymentResponse = response.data;
 
@@ -157,12 +164,13 @@ export const createPaymentRequest = async (formData: FormData) => {
     await db.money.create({
       data: {
         amount,
-        walletId: "",
+        walletId: walletId ?? "",
         secure_url: "https://img.icons8.com/ios/50/invoice.png",
         public_id: generateSpecialCharacterString(10),
         transactionId: merchantReferenceId,
         upiId: formData.get("upiid")?.toString() || "",
         accountNumber: formData.get("accountNumber")?.toString() || "",
+        paymentType: "PAYMENT_GATEWAY",
         userId,
         paymentMode:
           "PAYMENT_GATEWAY",
@@ -178,7 +186,7 @@ export const createPaymentRequest = async (formData: FormData) => {
     await db.walletFlow.create({
       data: {
         amount: Number(amount),
-        walletId: "",
+        walletId: walletId ?? "",
         moneyId: merchantReferenceId,
         purpose: "ADD_MONEY",
         userId,

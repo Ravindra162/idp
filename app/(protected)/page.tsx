@@ -34,7 +34,7 @@ export default async function Home() {
           )} */}
           {session?.user.role === "ADMIN" && <AdminUpdateStocks />}
           {session?.user.role === "ADMIN" && <SupportLink />}
-          {/* {session?.user.role === "ADMIN" && <ManagePaymentMode />} */}
+          {session?.user.role === "ADMIN" && <ManagePaymentMode />}
         </div>
       </div>
     </section>

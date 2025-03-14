@@ -427,3 +427,38 @@ const ProSidebar = () => {
     </>
   );
 };
+
+export const LeaderSidebar = () => {
+  return (<li>
+    <Link
+  href={`/leader/user`}
+    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+  >
+    <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
+  </Link>
+  <Link
+  href={`/leader/product/product-table`}
+    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+  >
+    <span className="flex-1 ms-3 whitespace-nowrap">Team Products</span>
+  </Link>
+  <Link
+  href={`/leader/orders/history`}
+    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+  >
+    <span className="flex-1 ms-3 whitespace-nowrap">Orders</span>
+  </Link>
+  <Link
+  href={`/leader/withdraw_funds/history`}
+    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+  >
+    <span className="flex-1 ms-3 whitespace-nowrap">Withdrawal Requests</span>
+  </Link>
+  <Link
+  href={`/leader/wallet/history`}
+    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+  >
+    <span className="flex-1 ms-3 whitespace-nowrap">Invoices</span>
+  </Link>
+</li>)
+}

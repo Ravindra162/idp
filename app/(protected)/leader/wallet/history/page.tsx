@@ -16,6 +16,7 @@ import TopBar from "../../../_components/Topbar";
 import ReasonDialog from "@/components/shared/ReasonDialog";
 import BadgeStatus from "@/app/(protected)/money/_components/BadgeStatus";
 import Search from "@/components/shared/search";
+import { auth } from "@/lib/auth";
 
 export const generateMetadata = () => {
   return {
@@ -30,13 +31,45 @@ const AdminWallet = async ({
   searchParams: { page: string };
 }) => {
   const currentPage = parseInt(searchParams.page) || 1;
+  const session = await auth();
+  const userDetails = await db.user.findUnique({
+    where: {
+      id: session?.user.id,
+    },
+  });
 
   const pageSize = 10;
-  const totalItemCount = await db.money.count();
+
+  const users = await db.user.findMany({
+    where: {
+      teamId: userDetails?.teamId ?? "",
+      role: {
+        in: ["USER", "PRO", "BLOCKED"],
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const userIds = users.map((user) => user.id);
+
+  const totalItemCount = await db.money.count({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
+  });
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const invoices = await db.money.findMany({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
@@ -64,6 +97,15 @@ const AdminWallet = async ({
               <TableHead>Date Created</TableHead>
             </TableRow>
           </TableHeader>
+          {totalItemCount === 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={6} className="text-center">
+                  No invoices found
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          )}
           <TableBody>
             {invoices.map(async (invoice) => {
               const walletDetails = await db.wallet.findUnique({
@@ -77,9 +119,15 @@ const AdminWallet = async ({
                   <TableCell>{invoice.accountNumber}</TableCell>
                   <TableCell>{invoice.upiId}</TableCell>
                   <TableCell>{invoice.transactionId}</TableCell>
-                  <TableCell>{formatPrice(Number(invoice.amount), walletDetails?.currencyCode ?? "")}</TableCell>
+                  <TableCell>
+                    {formatPrice(
+                      Number(invoice.amount),
+                      walletDetails?.currencyCode ?? ""
+                    )}
+                  </TableCell>
                   <TableCell className="cursor-pointer">
-                    {invoice.status === "FAILED" && invoice.failureReason !== null ? (
+                    {invoice.status === "FAILED" &&
+                    invoice.failureReason !== null ? (
                       <ReasonDialog
                         status={invoice.status}
                         reason={invoice.failureReason}

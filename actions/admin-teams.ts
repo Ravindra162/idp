@@ -154,7 +154,7 @@ export const deleteTeam = async (teamId: string, domainId: string) => {
       if (team.leader.role === "LEADER") {
         await prisma.user.update({
           where: { id: team.leaderId },
-          data: { role: "USER", teamId: null },
+          data: { role: "USER", teamId: "" },
         });
       }
 
@@ -172,7 +172,7 @@ export const deleteTeam = async (teamId: string, domainId: string) => {
 
         await prisma.user.updateMany({
           where: { id: { in: teamMemberIds } },
-          data: { teamId: null, role: "USER" },
+          data: { teamId: "", role: "USER" },
         });
       }
 

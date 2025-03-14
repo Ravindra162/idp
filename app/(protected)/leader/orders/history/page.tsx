@@ -18,6 +18,7 @@ import FileDialog from "../../_components/file-dialog";
 import ViewProducts from "@/app/(protected)/_components/view-products";
 import GetName from "../_components/get-name";
 import Search from "@/components/shared/search";
+import { auth } from "@/lib/auth";
 
 export const generateMetadata = () => {
   return {
@@ -31,17 +32,49 @@ type AdminHistoryProps = {
 };
 
 const AdminWallet = async ({ searchParams }: AdminHistoryProps) => {
+  const session = await auth();
+  const userDetails = await db.user.findUnique({
+    where: {
+      id: session?.user.id,
+    },
+  });
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 12;
-  const totalItemCount = await db.order.count();
+
+  const users = await db.user.findMany({
+    where: {
+      teamId: userDetails?.teamId ?? "",
+      role: {
+        in: ["USER", "PRO", "BLOCKED"],
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const userIds = users.map((user) => user.id);
+
+  const totalItemCount = await db.order.count({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
+  });
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const Orders = await db.order.findMany({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
     orderBy: { createdAt: "desc" },
-    include :{
-      products : true
+    include: {
+      products: true,
     },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
@@ -56,7 +89,7 @@ const AdminWallet = async ({ searchParams }: AdminHistoryProps) => {
       </div>
       <section className="space-y-4 md:overflow-auto md:max-h-[75vh] w-full md:w-[100%]">
         <Table>
-          <TableCaption>A list of your recent invoices.</TableCaption>
+          <TableCaption>A list of your team Orders.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
@@ -79,9 +112,9 @@ const AdminWallet = async ({ searchParams }: AdminHistoryProps) => {
           <TableBody>
             {Orders?.map(async (order, index) => {
               const walletDetails = await db.wallet.findUnique({
-                where : {
-                  id : order.walletId
-                }
+                where: {
+                  id: order.walletId,
+                },
               });
               return (
                 <TableRow key={index}>
@@ -90,7 +123,8 @@ const AdminWallet = async ({ searchParams }: AdminHistoryProps) => {
                   </TableCell>
                   <TableCell>{order.orderId}</TableCell>
                   <TableCell>
-                    {order.status === "FAILED" && order.failureReason !== null ? (
+                    {order.status === "FAILED" &&
+                    order.failureReason !== null ? (
                       <ReasonDialog
                         status={order.status}
                         reason={order.failureReason}
@@ -111,11 +145,14 @@ const AdminWallet = async ({ searchParams }: AdminHistoryProps) => {
                       )}
                   </TableCell>
                   <TableCell>
-                    <ViewProducts
-                      products={order.products}
-                    />
+                    <ViewProducts products={order.products} />
                   </TableCell>
-                  <TableCell>{formatPrice(order.amount, walletDetails?.currencyCode ?? "")}</TableCell>
+                  <TableCell>
+                    {formatPrice(
+                      order.amount,
+                      walletDetails?.currencyCode ?? ""
+                    )}
+                  </TableCell>
                   <TableCell className="flex flex-col">
                     <span>{order.createdAt.toDateString()}</span>
                     <span>

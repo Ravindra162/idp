@@ -65,7 +65,9 @@ export async function editAmountLimitTeam(
 export async function searchUsers(query: string) {
   return await db.user.findMany({
     where: {
-      teamId: "",
+      teamId: {
+        in : [""]
+      },
       OR: [
         { name: { contains: query, mode: "insensitive" } },
         { email: { contains: query, mode: "insensitive" } },

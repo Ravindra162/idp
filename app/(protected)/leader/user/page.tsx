@@ -14,21 +14,46 @@ import { revalidatePath } from "next/cache";
 import ProUser from "../_components/upgrade-to-pro";
 import TopBar from "../../_components/Topbar";
 import Search from "@/components/shared/search";
+import { auth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { removeMember } from "@/actions/admin-member-team";
+import { toast } from "sonner";
+import TeamUserRemove from "./_components/user-remove";
 
 const UserTable = async ({
   searchParams,
 }: {
   searchParams: { page: string };
 }) => {
+  const session = await auth();
+  const userDetails = await db.user.findUnique({
+    where: { id: session?.user.id },
+  });
+
+  const handleRemoveMember = async (userId: string) => {};
+
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 7;
 
-  const totalItemCount = await db.user.count();
+  const totalItemCount = await db.user.count({
+    where: {
+      teamId: userDetails?.teamId,
+      role: {
+        in: ["USER", "BLOCKED", "PRO"],
+      },
+    },
+  });
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const users = await db.user.findMany({
+    where: {
+      teamId: userDetails?.teamId,
+      role: {
+        in: ["USER", "BLOCKED", "PRO"],
+      },
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -36,7 +61,7 @@ const UserTable = async ({
     take: pageSize,
   });
 
-  revalidatePath("/admin/user");
+  revalidatePath("/leader/user");
 
   return (
     <>
@@ -74,9 +99,10 @@ const UserTable = async ({
               <TableCell>{user.createdAt.toDateString()}</TableCell>
               {user.role !== "BLOCKED" && (
                 <TableCell>
-                  <ProUser
-                    userId={user.id}
-                    role={user.role}
+                  <TeamUserRemove
+                    userId={user?.id}
+                    teamId={user?.teamId ?? ""}
+                    userRole={user?.role}
                   />
                 </TableCell>
               )}

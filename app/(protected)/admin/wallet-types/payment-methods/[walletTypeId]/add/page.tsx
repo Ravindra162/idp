@@ -4,6 +4,7 @@ import TopBar from "../../../../../_components/Topbar";
 import { db } from "@/lib/db";
 import AddIncludePaymentMethodsForm from "../_components/add-include-payment-methods-form";
 import { PaymentMethodDetails } from "../../../_components/wallet-form";
+import { PaymentType } from "@prisma/client";
 
 export const generateMetadata = () => {
   return {
@@ -49,21 +50,18 @@ const page = async ({ params }: { params: { walletTypeId: string } }) => {
         </div>
       </section>
     </>
-    
   );
 };
 
 async function fetchData() {
   try {
-    const paymentTypesResponse = ["MANUAL", "PAYMENT_GATEWAY", "CUSTOM_METHOD"];
+    const paymentTypesResponse = [
+      PaymentType.MANUAL,
+      PaymentType.CUSTOM_METHOD,
+      PaymentType.PAYMENT_GATEWAY,
+    ];
 
-    const paymentTypeMethodDetails = await db.paymentTypeModel.findMany({
-      where: {
-        NOT: {
-          paymentTypeMethod: "PAYMENT_GATEWAY",
-        },
-      },
-    });
+    const paymentTypeMethodDetails = await db.paymentTypeModel.findMany({});
 
     const paymentMethodDetails: PaymentMethodDetails[] =
       paymentTypeMethodDetails.map((payment) => ({

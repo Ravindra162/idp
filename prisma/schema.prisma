@@ -68,7 +68,7 @@ model User {
   password          String
   role              UserRole            @default(USER)
   createdAt         DateTime            @default(now()) @map("created_at")
-  teamId            String?
+  teamId            String              @default("")
   money             Money[]
   domainId          String?
   withdrawalRequest WithdrawalRequest[]

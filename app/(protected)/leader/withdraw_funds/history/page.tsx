@@ -16,6 +16,7 @@ import TopBar from "../../../_components/Topbar";
 import ReasonDialog from "@/components/shared/ReasonDialog";
 import BadgeStatus from "@/app/(protected)/money/_components/BadgeStatus";
 import Search from "@/components/shared/search";
+import { auth } from "@/lib/auth";
 
 export const generateMetadata = () => {
   return {
@@ -29,14 +30,46 @@ type WithdrawRequestsParams = {
 };
 
 const WithdrawRequests = async ({ searchParams }: WithdrawRequestsParams) => {
+  const session = await auth();
+  const userDetails = await db.user.findUnique({
+    where: {
+      id: session?.user.id,
+    },
+  });
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 10;
-  const totalItemCount = await db.withdrawalRequest.count();
+
+  const users = await db.user.findMany({
+    where: {
+      teamId: userDetails?.teamId ?? "",
+      role: {
+        in: ["USER", "PRO", "BLOCKED"],
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const userIds = users.map((user) => user.id);
+
+  const totalItemCount = await db.withdrawalRequest.count({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
+  });
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const withdrawals = await db.withdrawalRequest.findMany({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
     orderBy: { updatedAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
@@ -65,6 +98,15 @@ const WithdrawRequests = async ({ searchParams }: WithdrawRequestsParams) => {
               <TableHead>Date of Payment</TableHead>
             </TableRow>
           </TableHeader>
+          {totalItemCount === 0 && (
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={6} className="text-center">
+                  No requests found
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          )}
           <TableBody>
             {withdrawals.map(async (withdrawal) => {
               const walletDetails = await db.wallet.findUnique({

@@ -34,6 +34,8 @@ export const {
 
       const existingUser = await getUserById(token.sub);
 
+      console.log(existingUser)
+
 
       if (!existingUser) return token;
       token.role = existingUser.role;

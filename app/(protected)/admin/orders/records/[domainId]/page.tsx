@@ -59,6 +59,8 @@ const AdminOrders = async ({
     take: pageSize,
   });
 
+  console.log(orders)
+
   revalidatePath("/admin/orders");
 
   return (

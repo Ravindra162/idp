@@ -203,6 +203,8 @@ export const PaymentSchema = z.object({
   amount: z.coerce.number().min(1, {
     message: "Amount must be greater than 0",
   }),
+  walletId : z.string().nonempty("Wallet Details are required"),
+  paymentMethodId : z.string().nonempty("Payment Method Details are required")
 });
 
 export const UpiFormSchema = z.object({

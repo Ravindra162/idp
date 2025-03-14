@@ -40,12 +40,16 @@ type PaymentGatewayProps = {
   isMobile: boolean;
   userId: string;
   bankDetails: BankDetailsProps;
+  walletId: string;
+  paymentMethodId: string;
 };
 
 const PaymentGateway = ({
   isMobile,
   userId,
   bankDetails,
+  walletId,
+  paymentMethodId
 }: PaymentGatewayProps) => {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
@@ -70,6 +74,8 @@ const PaymentGateway = ({
     resolver: zodResolver(PaymentSchema),
     defaultValues: {
       amount: 0,
+      walletId: walletId,
+      paymentMethodId: paymentMethodId
     },
   });
 
@@ -78,6 +84,8 @@ const PaymentGateway = ({
     try {
       const paymentRequestData = new FormData();
       paymentRequestData.set("amount", values.amount.toString());
+      paymentRequestData.set("walletId", values.walletId);
+      paymentRequestData.set("paymentMethodId", values.paymentMethodId);
       paymentRequestData.set("userId", userId);
       paymentRequestData.set("upiid", bankDetails?.upiid ?? "");
       paymentRequestData.set(

@@ -2,6 +2,7 @@ import React from "react";
 import { auth } from "@/auth";
 import TopBar from "../../../_components/Topbar";
 import PaymentMethodDetailsForm from "../_components/payment-method-details-form";
+import { PaymentType } from "@prisma/client";
 
 export const generateMetadata = () => {
   return {
@@ -34,7 +35,11 @@ const page = async () => {
 
 async function fetchData() {
   try {
-    const paymentTypesResponse = ["MANUAL","CUSTOM_METHOD"];
+    const paymentTypesResponse = [
+      PaymentType.MANUAL,
+      PaymentType.CUSTOM_METHOD,
+      PaymentType.PAYMENT_GATEWAY,
+    ];
 
     const paymentTypes = paymentTypesResponse.map((type) => ({ type }));
 

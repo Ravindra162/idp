@@ -10,16 +10,18 @@ import {
 } from "@/components/ui/table";
 import Link from "next/link";
 import { auth } from "firebase-admin";
+import { PaymentType } from "@prisma/client";
 
 const PaymentTypesListingTable = ({ paymentMethods, id, walletId }: { paymentMethods: any[], id : string, walletId : string}) => {
   return (
     <>
       {paymentMethods?.map((method) => {
+        console.log(method)
         return (<div
           key={method.paymentModel.id}
           className="p-2 mt-4 border-2 border-gray-300 rounded-lg"
         >
-          <div className="text-lg capitalize font-semibold">{method.paymentModel.name}</div>
+          <div className="text-lg capitalize font-semibold">{method.paymentType === PaymentType.PAYMENT_GATEWAY ? `Payment Gateway` : method.paymentModel.name}</div>
           <div>
             <Table>
               <TableHeader>
@@ -30,7 +32,7 @@ const PaymentTypesListingTable = ({ paymentMethods, id, walletId }: { paymentMet
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell>{method.paymentModel.paymentTypeMethod}</TableCell>
+                  <TableCell>{method.paymentType}</TableCell>
                   <TableCell>
                     <Button className="bg-transparent text-black border border-gray-300 hover:bg-gray-100">
                     <Link href={`/money/add/${id}/${walletId}/${method.paymentModel.id}`}>Select Payment Type</Link></Button>

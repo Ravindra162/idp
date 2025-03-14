@@ -1,10 +1,22 @@
 import React from "react";
 import Link from "next/link";
-import { AdminSidebar, SidebarItems, SupportPolicies } from "./NavBarItems";
+import { AdminSidebar, LeaderSidebar, SidebarItems, SupportPolicies } from "./NavBarItems";
 import { auth } from "@/auth";
+import { db } from "@/lib/db";
 
 const NavItems = async () => {
   const session = await auth();
+  const userDetails = await db.user.findUnique({
+    where : { id : session?.user.id}
+  });
+  
+  const teamDetails = await db.team.findFirst({
+    where: {
+      id: userDetails?.teamId ?? "",
+    },
+  });
+  
+
   return (
     <ul className="space-y-2 font-medium">
       <li>
@@ -15,7 +27,7 @@ const NavItems = async () => {
           <span className="flex-1 ms-3 whitespace-nowrap">Dashboard</span>
         </Link>
       </li>
-      {session?.user.role === "ADMIN" ? (
+      {session?.user.role === "ADMIN" || session?.user.role === "LEADER" ? (
         <></>
       ) : (
         <>
@@ -80,6 +92,7 @@ const NavItems = async () => {
         </>
       )}
       {session?.user.role === "ADMIN" && <AdminSidebar />}
+      {session?.user.role === "LEADER" && <LeaderSidebar/>}
     </ul>
   );
 };
