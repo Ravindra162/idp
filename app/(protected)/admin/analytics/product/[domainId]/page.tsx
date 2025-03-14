@@ -21,10 +21,14 @@ import PaginationBar from "@/app/(protected)/money/_components/PaginationBar";
 
 const ProductAnalytics = async ({
   searchParams,
-  params
+  params,
 }: {
-  searchParams: { page: string; startDate: Date; endDate: Date };
-  params : { domainId : string};
+  searchParams: {
+    page: string;
+    startDate: Date;
+    endDate: Date;
+  };
+  params: { domainId: string };
 }) => {
   const currentPage = parseInt(searchParams.page) || 1;
   const pageSize = 9;
@@ -64,9 +68,9 @@ const ProductAnalytics = async ({
     orderBy: {
       createdAt: "desc",
     },
-    include : {
-      products : true
-    }
+    include: {
+      products: true,
+    },
   });
 
   revalidatePath("/admin/analytics/product");
@@ -79,7 +83,7 @@ const ProductAnalytics = async ({
           orders={orders}
           fileName={"Products"}
         />
-        <Search fileName="product" />
+        <Search fileName={`product/${params.domainId}`} />
       </div>
       <div className="md:flex md:items-center md:justify-between md:gap-x-2">
         <div className="hidden md:flex items-center justify-between  gap-x-3">
@@ -88,7 +92,7 @@ const ProductAnalytics = async ({
             orders={orders}
             fileName={"Products"}
           />
-          <Search fileName="product" />
+          <Search fileName={`product/${params.domainId}`} />
         </div>
         <div className="mt-1 flex items-center justify-around gap-x-2 w-fit">
           <DateRangeFilter />

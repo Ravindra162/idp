@@ -18,7 +18,7 @@ interface Order {
   domainId: string;
   products: Product[];
   amount: number;
-  reason: string | null;
+  failureReason: string | null;
   status: "SUCCESS" | "PENDING" | "FAILED";
   createdAt: Date;
   updatedAt: Date;

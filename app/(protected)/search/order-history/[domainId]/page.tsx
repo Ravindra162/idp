@@ -9,12 +9,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
-import PaginationBar from "../../money/_components/PaginationBar";
+import PaginationBar from "../../../money/_components/PaginationBar";
 import ReasonDialog from "@/components/shared/ReasonDialog";
 import BadgeStatus from "@/app/(protected)/money/_components/BadgeStatus";
-import FileDialog from "../../admin/_components/file-dialog";
+import FileDialog from "../../../admin/_components/file-dialog";
 import ViewProducts from "@/app/(protected)/_components/view-products";
-import GetName from "../../admin/orders/_components/get-name";
+import GetName from "../../../admin/orders/_components/get-name";
 import { formatPrice } from "@/components/shared/formatPrice";
 
 const SearchOrderHistory = async ({

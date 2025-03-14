@@ -122,12 +122,12 @@ export default async function SearchUserPage({
   return (
     <section className="m-2">
       <div className="flex items-center justify-between gap-x-2 p-1 md:hidden">
-        <DownloadToExcel data={users} fileName="Users" />
+        {/* <DownloadToExcel data={users} fileName="Users" /> */}
         <Search fileName="user" />
       </div>
       <div className="md:flex md:items-center md:justify-between md:gap-x-2">
         <div className="hidden md:flex items-center justify-between  gap-x-3">
-          <DownloadToExcel data={users} fileName="Users" />
+          {/* <DownloadToExcel data={users} fileName="Users" /> */}
           <Search fileName="user" />
         </div>
         <div className="mt-1 flex items-center justify-around gap-x-2 w-fit">
@@ -146,7 +146,7 @@ export default async function SearchUserPage({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((user) => {
+          {/* {users.map((user) => {
             const totalOrders = user.Order.reduce((sum, order) => {
               return sum + order.amount;
             }, 0);
@@ -167,7 +167,7 @@ export default async function SearchUserPage({
                 <TableCell>{formatPrice(user.totalMoney)}</TableCell>
               </TableRow>
             );
-          })}
+          })} */}
         </TableBody>
       </Table>
       {totalPages > 1 && (

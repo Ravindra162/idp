@@ -115,13 +115,13 @@ const WithdrawHistory = async ({
                     : "—"}
                 </TableCell>
                 <TableCell>
-                  {formatPrice(Number(withdrawal.withdrawAmount))}
+                  {formatPrice(Number(withdrawal.withdrawAmount), "")}
                 </TableCell>
                 <TableCell className="cursor-pointer">
-                  {withdrawal.status === "FAILED" && withdrawal.reason ? (
+                  {withdrawal.status === "FAILED" && withdrawal.failureReason ? (
                     <ReasonDialog
                       status={withdrawal.status}
-                      reason={withdrawal.reason}
+                      reason={withdrawal.failureReason}
                     />
                   ) : (
                     <BadgeStatus status={withdrawal.status} />
@@ -150,7 +150,7 @@ const WithdrawHistory = async ({
                   withdrawals.reduce(
                     (acc, cur) => acc + Number(cur.withdrawAmount),
                     0
-                  )
+                  ), ""
                 )}
               </TableCell>
             </TableRow>

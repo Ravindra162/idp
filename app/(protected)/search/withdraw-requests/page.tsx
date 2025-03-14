@@ -29,12 +29,12 @@ const SearchWithdrawRequests = async ({
     where: {
       OR: [
         { transactionId: { contains: query, mode: "insensitive" } },
-        { User: { name: { contains: query, mode: "insensitive" } } },
+        { user: { name: { contains: query, mode: "insensitive" } } },
       ],
       status: "PENDING",
     },
     include: {
-      User: {
+      user: {
         select: {
           name: true,
         },
@@ -49,7 +49,7 @@ const SearchWithdrawRequests = async ({
     where: {
       OR: [
         { transactionId: { contains: query, mode: "insensitive" } },
-        { User: { name: { contains: query, mode: "insensitive" } } },
+        { user: { name: { contains: query, mode: "insensitive" } } },
       ],
       status: "PENDING",
     },
@@ -102,7 +102,7 @@ const SearchWithdrawRequests = async ({
           {withdrawals.map((withdrawal) => (
             <TableRow key={withdrawal.id}>
               <TableCell className="font-medium">
-                {withdrawal.User?.name || "N/A"}
+                {withdrawal.user?.name || "N/A"}
               </TableCell>
               <TableCell>
                 <div className="flex gap-1 items-center">
@@ -117,13 +117,14 @@ const SearchWithdrawRequests = async ({
                 </div>
               </TableCell>
               <TableCell>
-                {formatPrice(Number(withdrawal.withdrawAmount))}
+                {formatPrice(Number(withdrawal.withdrawAmount), "")}
               </TableCell>
               <TableCell>{withdrawal.createdAt.toDateString()}</TableCell>
               <TableCell>
                 <FormWithdrawal
                   requestId={withdrawal.id.toString()}
                   userId={withdrawal.userId}
+                  walletId={withdrawal.walletId}
                 />
               </TableCell>
             </TableRow>
@@ -138,7 +139,7 @@ const SearchWithdrawRequests = async ({
                   withdrawals.reduce(
                     (acc, cur) => acc + Number(cur.withdrawAmount),
                     0
-                  )
+                  ), ""
                 )}
               </TableCell>
             </TableRow>

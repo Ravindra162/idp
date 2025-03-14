@@ -10,10 +10,10 @@ import {
 } from "@/components/ui/table";
 import { db } from "@/lib/db";
 import React from "react";
-import BalanceCell from "../../admin/_components/Balance-cell";
+import BalanceCell from "../../../admin/_components/Balance-cell";
 import { formatPrice } from "@/components/shared/formatPrice";
-import AdminOrderForm from "../../admin/_components/admin-order-form";
-import PaginationBar from "../../money/_components/PaginationBar";
+import AdminOrderForm from "../../../admin/_components/admin-order-form";
+import PaginationBar from "../../../money/_components/PaginationBar";
 import SearchPaginationBar from "@/components/shared/search-paginationbar";
 
 const SearchOrder = async ({

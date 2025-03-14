@@ -11,15 +11,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import Search from "@/components/shared/search";
-import DateRangeFilter from "../../admin/analytics/_components/date-range-filter";
+import DateRangeFilter from "../../../admin/analytics/_components/date-range-filter";
 import { formatPrice } from "@/components/shared/formatPrice";
 import SearchPaginationBar from "@/components/shared/search-paginationbar";
-import ProductQuantity from "../../admin/analytics/_components/product-quantity";
-import ProductSold from "../../admin/analytics/_components/product-sold";
-import ProductToExcel from "../../admin/analytics/_components/product-to-excel";
+import ProductQuantity from "../../../admin/analytics/_components/product-quantity";
+import ProductSold from "../../../admin/analytics/_components/product-sold";
+import ProductToExcel from "../../../admin/analytics/_components/product-to-excel";
 
 interface SearchPageProps {
   searchParams: { query: string; page: string; startDate: Date; endDate: Date };
+  params: { domainId: string };
 }
 
 export function generateMetadata({
@@ -32,6 +33,7 @@ export function generateMetadata({
 
 export default async function SearchUserPage({
   searchParams: { query, page, startDate, endDate },
+  params,
 }: SearchPageProps) {
   const currentPage = parseInt(page) || 1;
   const pageSize = 9;
@@ -39,27 +41,11 @@ export default async function SearchUserPage({
   const endedDate = endDate || new Date();
 
   const totalItemCount = (
-    await db.user.findMany({
+    await db.product.findMany({
       where: {
-        OR: [
-          { name: { contains: query, mode: "insensitive" } },
-          { email: { contains: query, mode: "insensitive" } },
-          { number: { contains: query, mode: "insensitive" } },
-        ],
+        OR: [{ productName: { contains: query, mode: "insensitive" } }],
       },
       orderBy: { id: "desc" },
-      include: {
-        order: {
-          select: {
-            amount: true,
-          },
-        },
-        money: {
-          select: {
-            amount: true,
-          },
-        },
-      },
     })
   ).length;
   const totalPages = Math.ceil(totalItemCount / pageSize);
@@ -76,10 +62,16 @@ export default async function SearchUserPage({
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
   });
+  const exportProducts = await db.product.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   const orders = await db.order.findMany({
     where: {
       status: "SUCCESS",
+      domainId: params.domainId,
       createdAt: {
         lte: endDate,
         gte: startDate,
@@ -88,8 +80,9 @@ export default async function SearchUserPage({
     orderBy: {
       createdAt: "desc",
     },
-    skip: (currentPage - 1) * pageSize,
-    take: pageSize,
+    include: {
+      products: true,
+    },
   });
 
   if (products.length === 0) {
@@ -102,9 +95,7 @@ export default async function SearchUserPage({
           <TableHeader>
             <TableRow>
               <TableHead>Product name</TableHead>
-              <TableHead>Current price</TableHead>
               <TableHead>Total qty sold</TableHead>
-              <TableHead>Total revenue collected</TableHead>
               <TableHead>Current inventory</TableHead>
             </TableRow>
           </TableHeader>
@@ -124,20 +115,20 @@ export default async function SearchUserPage({
     <section className="m-2">
       <div className="flex items-center justify-between gap-x-2 p-1 md:hidden">
         <ProductToExcel
-          products={JSON.parse(JSON.stringify(products))}
-          orders={JSON.parse(JSON.stringify(orders))}
+          products={exportProducts}
+          orders={orders}
           fileName={"Products"}
         />
-        <Search fileName="product" />
+        <Search fileName={`product/${params.domainId}`} />
       </div>
       <div className="md:flex md:items-center md:justify-between md:gap-x-2">
         <div className="hidden md:flex items-center justify-between  gap-x-3">
           <ProductToExcel
-            products={JSON.parse(JSON.stringify(products))}
-            orders={JSON.parse(JSON.stringify(orders))}
+            products={exportProducts}
+            orders={orders}
             fileName={"Products"}
           />
-          <Search fileName="product" />
+          <Search fileName={`product/${params.domainId}`} />
         </div>
         <div className="mt-1 flex items-center justify-around gap-x-2 w-fit">
           <DateRangeFilter />
@@ -147,9 +138,7 @@ export default async function SearchUserPage({
         <TableHeader>
           <TableRow>
             <TableHead>Product name</TableHead>
-            <TableHead>Current price</TableHead>
             <TableHead>Total qty sold</TableHead>
-            <TableHead>Total revenue collected</TableHead>
             <TableHead>Current inventory</TableHead>
           </TableRow>
         </TableHeader>
@@ -157,36 +146,35 @@ export default async function SearchUserPage({
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>{product.productName}</TableCell>
-              <TableCell>{formatPrice(product.price, "")}</TableCell>
               <TableCell>
                 {
                   <ProductQuantity
-                    orders={JSON.parse(JSON.stringify(orders))}
+                    orders={orders}
                     productName={product.productName}
                     productId={product.id}
                   />
                 }
               </TableCell>
-              <TableCell>
+              {/* <TableCell>
                 {
                   <ProductSold
                     productName={product.productName}
                     orders={JSON.parse(JSON.stringify(orders))}
                   />
                 }
-              </TableCell>
+              </TableCell> */}
               <TableCell>{product.stock}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && (
         <SearchPaginationBar
           totalPages={totalPages}
           currentPage={currentPage}
           searchQuery={query}
         />
-      )}
+      )} */}
     </section>
   );
 }

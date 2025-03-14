@@ -103,14 +103,15 @@ const SearchWallet = async ({
                   <CopyButton text={invoice.transactionId} />
                 </div>
               </TableCell>
-              <TableCell>{formatPrice(Number(invoice.amount))}</TableCell>
+              <TableCell>{formatPrice(Number(invoice.amount), "")}</TableCell>
               <TableCell>
-                <ImageDialog imageLink={invoice.secure_url} />
+                <ImageDialog imageLink={invoice.secure_url ?? ""} />
               </TableCell>
               <TableCell>
                 <FormInvoice
                   id={invoice.id.toString()}
                   userId={invoice.userId}
+                  walletId={invoice.walletId}
                 />
               </TableCell>
             </TableRow>
@@ -122,7 +123,7 @@ const SearchWallet = async ({
               <TableCell colSpan={2}>Total</TableCell>
               <TableCell className="text-left" colSpan={4}>
                 {formatPrice(
-                  invoices.reduce((acc, cur) => acc + Number(cur.amount), 0)
+                  invoices.reduce((acc, cur) => acc + Number(cur.amount), 0), ""
                 )}
               </TableCell>
             </TableRow>

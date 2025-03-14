@@ -103,7 +103,7 @@ const SearchUserManagement = async ({
               <TableCell className="capitalize">{user.name}</TableCell>
               <TableCell>{user.email}</TableCell>
               <TableCell>
-                <BalanceCell id={user.id} />
+                {/* <BalanceCell id={user.id} /> */}
               </TableCell>
               <TableCell>{user.createdAt.toDateString()}</TableCell>
               <TableCell>

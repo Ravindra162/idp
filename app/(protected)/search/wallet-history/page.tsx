@@ -30,7 +30,7 @@ const SearchHistoryWallet = async ({
       OR: [
         { name: { contains: query, mode: "insensitive" } },
         { transactionId: { contains: query, mode: "insensitive" } },
-        { upiid: { contains: query, mode: "insensitive" } },
+        { upiId: { contains: query, mode: "insensitive" } },
         { name: { contains: query, mode: "insensitive" } },
         { accountNumber: { contains: query, mode: "insensitive" } },
         {},
@@ -47,7 +47,7 @@ const SearchHistoryWallet = async ({
         OR: [
           { name: { contains: query, mode: "insensitive" } },
           { transactionId: { contains: query, mode: "insensitive" } },
-          { upiid: { contains: query, mode: "insensitive" } },
+          { upiId: { contains: query, mode: "insensitive" } },
           { name: { contains: query, mode: "insensitive" } },
           { accountNumber: { contains: query, mode: "insensitive" } },
         ],
@@ -108,24 +108,24 @@ const SearchHistoryWallet = async ({
           </TableHeader>
           <TableBody>
             {invoices.map((invoice) => (
-              <TableRow key={invoice.upiid}>
+              <TableRow key={invoice.upiId}>
                 <TableCell>{invoice.name}</TableCell>
                 <TableCell>{invoice.accountNumber}</TableCell>
-                <TableCell>{invoice.upiid}</TableCell>
+                <TableCell>{invoice.upiId}</TableCell>
                 <TableCell>{invoice.transactionId}</TableCell>
-                <TableCell>{formatPrice(Number(invoice.amount))}</TableCell>
+                <TableCell>{formatPrice(Number(invoice.amount), "")}</TableCell>
                 <TableCell className="cursor-pointer">
-                  {invoice.status === "FAILED" && invoice.reason !== null ? (
+                  {invoice.status === "FAILED" && invoice.failureReason !== null ? (
                     <ReasonDialog
                       status={invoice.status}
-                      reason={invoice.reason}
+                      reason={invoice.failureReason}
                     />
                   ) : (
                     <BadgeStatus status={invoice.status} />
                   )}
                 </TableCell>
                 <TableCell>
-                  <ImageDialog imageLink={invoice.secure_url} />
+                  <ImageDialog imageLink={invoice.secure_url ?? ""} />
                 </TableCell>
                 <TableCell>{invoice.createdAt.toDateString()}</TableCell>
               </TableRow>
@@ -136,7 +136,7 @@ const SearchHistoryWallet = async ({
               <TableCell colSpan={4}>Total</TableCell>
               <TableCell className="text-left" colSpan={4}>
                 {formatPrice(
-                  invoices.reduce((acc, cur) => acc + Number(cur.amount), 0)
+                  invoices.reduce((acc, cur) => acc + Number(cur.amount), 0), ""
                 )}
               </TableCell>
             </TableRow>
