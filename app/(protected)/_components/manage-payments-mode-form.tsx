@@ -83,11 +83,11 @@ const ManagePaymentModeForm = ({ userId }: { userId: string }) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant={"link"}>Edit Mode</Button>
+        <Button variant={"link"}>Refresh Token</Button>
       </SheetTrigger>
       <SheetContent className="w-[300px] flex flex-col gap-6 bg-white overflow-auto md:w-full">
         <SheetTitle>
-          <p className="text-2xl font-bold">Edit Payment Mode</p>
+          <p className="text-2xl font-bold">Refresh Token</p>
         </SheetTitle>
         <Separator className="border border-gray-500" />
         <Button

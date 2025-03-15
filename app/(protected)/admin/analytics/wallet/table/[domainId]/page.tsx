@@ -23,17 +23,26 @@ export const generateMetadata = () => {
 
 const AdminWallet = async ({
   searchParams,
+  params
 }: {
   searchParams: { page: string };
+  params: { domainId: string };
 }) => {
   const currentPage = parseInt(searchParams.page) || 1;
 
   const pageSize = 10;
-  const totalItemCount = await db.money.count();
+  const totalItemCount = await db.money.count({
+    where: {
+      domainId: params.domainId,
+    },
+});
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const invoices = await db.money.findMany({
+    where: {
+      domainId: params.domainId,
+    },
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
@@ -73,18 +82,25 @@ const AdminWallet = async ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {invoices.map((invoice) => (
+            {invoices.map(async (invoice) => {
+              const walletDetails = await db.wallet.findUnique({
+                where : {
+                  id: invoice.walletId
+                }
+              });
+              return (
               <TableRow key={invoice.upiId}>
                 <TableCell>{invoice.name}</TableCell>
                 <TableCell>{invoice.accountNumber}</TableCell>
                 <TableCell>{invoice.upiId}</TableCell>
                 <TableCell>{invoice.transactionId}</TableCell>
-                <TableCell>{formatPrice(Number(invoice.amount), "")}</TableCell>
+                <TableCell>{formatPrice(Number(invoice.amount), walletDetails?.currencyCode ?? "")}</TableCell>
                 <TableCell>{invoice.createdAt.toDateString()}</TableCell>
               </TableRow>
-            ))}
+              )
+})}
           </TableBody>
-          {totalItemCount !== 0 && (
+          {/* {totalItemCount !== 0 && (
             <TableFooter>
               <TableRow>
                 <TableCell colSpan={4}>Total</TableCell>
@@ -95,7 +111,7 @@ const AdminWallet = async ({
                 </TableCell>
               </TableRow>
             </TableFooter>
-          )}
+          )} */}
         </Table>
       </section>
 
