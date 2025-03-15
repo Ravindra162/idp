@@ -90,60 +90,6 @@ const ManagePaymentModeForm = ({ userId }: { userId: string }) => {
           <p className="text-2xl font-bold">Edit Payment Mode</p>
         </SheetTitle>
         <Separator className="border border-gray-500" />
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="paymentType"
-              render={({ field }) => (
-                <FormItem>
-                  <Select
-                    onValueChange={field.onChange}
-                    disabled={isPending}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Payment Type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <FormMessage />
-                    <SelectContent>
-                      {[
-                        {
-                          key: "PAYMENT_GATEWAY",
-                          value: "Payment Gateway",
-                        },
-                        {
-                          key: "MANUAL",
-                          value: "Manual",
-                        },
-                      ].map((product) => {
-                        return (
-                          <SelectItem
-                            value={product.value}
-                            key={product.key}
-                            className="capitalize"
-                          >
-                            {product.value}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-            <FormError message={error} />
-            <Button
-              disabled={isPending}
-              type="submit"
-              className="w-full md:mb-0"
-            >
-              Modify Payment Mode
-            </Button>
-          </form>
-        </Form>
         <Button
           disabled={isRefreshing}
           onClick={handleRefreshToken}

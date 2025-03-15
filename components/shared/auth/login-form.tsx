@@ -67,6 +67,8 @@ export const LoginForm = () => {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("");
     setSuccess("");
+    console.log(process.env)
+    console.log(process.env.NEXT_PUBLIC_DOMAIN_ID)
     startTransition(() => {
       login({ ...values, domainId: process.env.NEXT_PUBLIC_DOMAIN_ID }).then((data) => {
         setError(data?.error);
