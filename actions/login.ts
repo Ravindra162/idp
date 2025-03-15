@@ -18,12 +18,13 @@ export const login = async (values: z.infer<typeof LoginSchema> & { browserUrl?:
 
 
   try {
+   let currentDomainId = domainId !== undefined ? domainId : process.env.NEXT_PUBLIC_DOMAIN_ID;
     console.log(domainId);
     await signIn("credentials", {
       username,
       password,
       redirectTo: DEFAULT_LOGIN_REDIRECT,
-      domainId,
+      domainId : currentDomainId,
     });
   } catch (error) {
     if (error instanceof AuthError) {

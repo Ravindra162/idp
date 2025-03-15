@@ -30,6 +30,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   console.log(domainId);
 
   try {
+    let currentDomainId = domainId !== undefined ? domainId : process.env.NEXT_PUBLIC_DOMAIN_ID;
     return await db.$transaction(
       async (tx) => {
         let domain = null;
@@ -37,7 +38,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
          domain = await tx.domain.findUnique({
           where : {
-            id : domainId
+            id : currentDomainId
           }
         });
 
@@ -48,7 +49,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             password: hashedPassword,
             name,
             number,
-            domainId,
+            domainId : currentDomainId,
           },
         });
 
