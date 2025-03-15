@@ -22,14 +22,30 @@ const TopBar = async ({ title }: { title: string }) => {
       userId: session?.user.id,
     },
   });
+  const userDetails = await db.user.findUnique({
+    where: {
+      id: session?.user.id,
+    },
+  });
+
+  const teamDetails = await db.team.findUnique({
+    where: {
+      id: userDetails?.teamId,
+    },
+  });
 
   console.log("User Wallets:", wallets);
+  console.log("User Details:", userDetails?.teamId);
+  console.log("Team Wallets:", teamDetails);
   return (
     <nav className="md:flex md:items-center md:justify-between">
       <div className="hidden md:block ml-2">
         <h1 className="text-nowrap text-xl">{title}</h1>
       </div>
       <div className="flex items-center justify-end">
+        {teamDetails !== null && teamDetails.name && (
+          <div className="mr-4"> {teamDetails.name} </div>
+        )}
         {session?.user.role !== "ADMIN" && (
           <div className="relative group flex items-center mr-2">
             <Image
@@ -44,9 +60,16 @@ const TopBar = async ({ title }: { title: string }) => {
               <p className="font-semibold text-center">Wallets</p>
               <DropdownMenuSeparator />
               {wallets.map((wallet: any, index: number) => (
-                <div key={index} className="flex justify-between items-center p-2 m-4">
-                  <span className="flex justify-between pr-2">{wallet.walletName}</span>
-                  <span className="flex justify-between pl-2">{formatPrice(wallet.balance, wallet.currencyCode)}</span>
+                <div
+                  key={index}
+                  className="flex justify-between items-center p-2 m-4"
+                >
+                  <span className="flex justify-between pr-2">
+                    {wallet.walletName}
+                  </span>
+                  <span className="flex justify-between pl-2">
+                    {formatPrice(wallet.balance, wallet.currencyCode)}
+                  </span>
                 </div>
               ))}
             </div>
