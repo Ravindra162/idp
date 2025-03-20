@@ -16,6 +16,22 @@ enum UserRole {
   CUSTOM_ROLE
 }
 
+enum ModuleName {
+  INVOICE
+  WITHDRAWAL
+  ORDER
+  ANALYTICS
+  TEAM
+  WALLETTYPES
+  PRODUCT
+  USER
+}
+
+enum AccessType {
+  VIEW
+  EDIT
+}
+
 enum Reason {
   WITHDRAWAL
   ORDER
@@ -84,16 +100,16 @@ model User {
   paymentTypes      PaymentTypeModel[]
   wallets           Wallet[]
   team              Team?
-  domain_url        Domain?             @relation(fields: [domainId], references: [id])
-  custom_roles      CustomRole[]
+  domain            Domain?             @relation(fields: [domainId], references: [id])
+  customRole        CustomRole[]
 }
 
 model CustomRole {
-  id          String   @id @default(uuid()) @map("_id")
-  name        String   @unique
-  permissions String[]
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  id        String   @id @default(uuid()) @map("_id")
+  modules   Json
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
 }
 
 model Domain {

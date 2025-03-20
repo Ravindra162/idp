@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { AdminSidebar, LeaderSidebar, SidebarItems, SupportPolicies } from "./NavBarItems";
+import { AdminSidebar, CustomSidebar, LeaderSidebar, SidebarItems, SupportPolicies } from "./NavBarItems";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
@@ -93,6 +93,7 @@ const NavItems = async () => {
       )}
       {session?.user.role === "ADMIN" && <AdminSidebar />}
       {session?.user.role === "LEADER" && <LeaderSidebar/>}
+      {session?.user.role === "CUSTOM_ROLE" && <CustomSidebar/>}
     </ul>
   );
 };

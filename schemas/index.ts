@@ -865,3 +865,14 @@ export const UpdateTeamAmountLimitSchema = z.object({
     .nonnegative()
     .min(1, " Amount limit should be greater than 0."),
 });
+
+export const CustomUserCreateSchema = z.object({
+  userId: z.string().min(1, "User Details is required"),
+  modules: z
+    .array(
+      z.object({
+        name: z.string().min(1, { message: "Module Name is required" }),
+        accessType: z.string().min(1, { message: "Access Type is required" }),
+      })
+    ),
+});
