@@ -82,10 +82,12 @@ const CustomerUserCreationForm = ({
   });
 
   return (
+    <div className="flex flex-col lg:flex-row md:justify-between gap-4 md:gap-x-10">
+      <div className="md:overflow-auto md:max-h-[90vh] w-full md:w-[50%] p-2">
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 w-full md:w-[50%]"
+        className="space-y-6 w-full md:w-[100%]"
       >
         <FormField
           control={form.control}
@@ -272,6 +274,8 @@ const CustomerUserCreationForm = ({
         </Button>
       </form>
     </Form>
+    </div>
+    </div>
   );
 };
 

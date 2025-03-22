@@ -18,6 +18,9 @@ import ViewProducts from "@/app/(protected)/_components/view-products";
 import Search from "@/components/shared/search";
 import ViewModules from "../_components/view-modules";
 import ModuleRemove from "../_components/module-remove";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
 
 export const generateMetadata = () => {
   return {
@@ -49,14 +52,28 @@ const CustomUserTable = async ({ searchParams }: CustomUserProps) => {
   return (
     <section className="my-2">
       <nav className="hidden md:block">
-        <TopBar title="Admin Orders" />
+        <TopBar title="Custom Users" />
       </nav>
-      <div className="m-1 p-1">
-        <Search fileName="order-history" />
+        <div className="m-1 p-1">
+      <div className="flex justify-between items-center mb-4">
+        <Button className="flex items-center " asChild>
+          <Link href={`/admin/custom_user/add`} className="inline">
+            <Image
+              src="/svgs/plus.svg"
+              alt="add money"
+              width={20}
+              height={20}
+              className="h-6 w-6 mr-1"
+            />
+            Add Custom User
+          </Link>
+        </Button>
+      </div>
+        {/* <Search fileName="order-history" /> */}
       </div>
       <section className="space-y-4 md:overflow-auto md:max-h-[75vh] w-full md:w-[100%]">
         <Table>
-          <TableCaption>A Custom Users.</TableCaption>
+          <TableCaption>A List of Custom Users.</TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
@@ -100,7 +117,6 @@ const CustomUserTable = async ({ searchParams }: CustomUserProps) => {
                       })}
                     </span>
                   </TableCell>
-                  
                 </TableRow>
               );
             })}

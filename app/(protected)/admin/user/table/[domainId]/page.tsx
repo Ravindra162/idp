@@ -17,6 +17,7 @@ import TopBar from "../../../../_components/Topbar";
 import EditUser from "../../_components/edit-user";
 import Search from "@/components/shared/search";
 import WalletBalances from "@/app/(protected)/_components/wallets-balance";
+import { UserRole } from "@prisma/client";
 
 const UserTable = async ({
   searchParams,
@@ -29,13 +30,23 @@ const UserTable = async ({
 
   const pageSize = 7;
 
-  const totalItemCount = await db.user.count();
+  const totalItemCount = await db.user.count({
+    where : {
+      domainId : params.domainId,
+      role : {
+        not : UserRole.ADMIN
+      }
+    },
+  });
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const users = await db.user.findMany({
     where : {
-      domainId : params.domainId
+      domainId : params.domainId,
+      role : {
+        not : UserRole.ADMIN
+      }
     },
     orderBy: {
       createdAt: "desc",

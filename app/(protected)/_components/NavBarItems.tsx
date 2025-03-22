@@ -2,6 +2,11 @@
 import Link from "next/link";
 import React from "react";
 
+interface Module {
+  name: string;
+  accessType: string;
+}
+
 export const SidebarItems = ({ userId }: { userId: string }) => {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const toggleDropdown = () => {
@@ -60,7 +65,7 @@ export const AdminSidebar = () => {
   return (
     <>
       <ul className={`space-y-2 font-medium`}>
-      <li>
+        <li>
           <Link
             href={`/admin/panels/table`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
@@ -81,22 +86,22 @@ export const AdminSidebar = () => {
             href={`/admin/payment-method/table`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
-            <span className="flex-1 ms-3 whitespace-nowrap">Payment Methods</span>
-          </Link>
-        </li>
-        <li>
-           <Link
-            href={`/admin/panels/panel-listing/${`team`}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
             <span className="flex-1 ms-3 whitespace-nowrap">
-              Teams
+              Payment Methods
             </span>
           </Link>
         </li>
         <li>
           <Link
-            href={`/admin/custom_user/add`}
+            href={`/admin/panels/panel-listing/${`team`}`}
+            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+          >
+            <span className="flex-1 ms-3 whitespace-nowrap">Teams</span>
+          </Link>
+        </li>
+        <li>
+          <Link
+            href={`/admin/custom_user/table`}
             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
           >
             <span className="flex-1 ms-3 whitespace-nowrap">Custom Users</span>
@@ -437,142 +442,192 @@ const ProSidebar = () => {
 };
 
 export const LeaderSidebar = () => {
-  return (<li>
-    <Link
-  href={`/leader/user`}
-    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-  >
-    <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
-  </Link>
-  <Link
-  href={`/leader/product/product-table`}
-    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-  >
-    <span className="flex-1 ms-3 whitespace-nowrap">Team Products</span>
-  </Link>
-  <Link
-  href={`/leader/orders/history`}
-    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-  >
-    <span className="flex-1 ms-3 whitespace-nowrap">Orders</span>
-  </Link>
-  <Link
-  href={`/leader/withdraw_funds/history`}
-    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-  >
-    <span className="flex-1 ms-3 whitespace-nowrap">Withdrawal Requests</span>
-  </Link>
-  <Link
-  href={`/leader/wallet/history`}
-    className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-  >
-    <span className="flex-1 ms-3 whitespace-nowrap">Invoices</span>
-  </Link>
-</li>)
-}
-
-
-export const CustomSidebar = () => {
-  const domainId = "";
   return (
-    <>
-      <ul className={`space-y-2 font-medium`}>
-        <li>
-          <Link
-            href={`/custom_user_modules/wallet-types/table`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">Wallet Types</span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/custom_user_modules/payment-method/table`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">Payment Methods</span>
-          </Link>
-        </li>
-        <li>
-           <Link
-            href={`/custom_user_modules/team/table/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">
-              Teams
-            </span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/custom_user_modules/user/table/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/custom_user_modules/wallet/invoices/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">
-              Client invoices
-            </span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/custom_user_modules/withdraw_funds/records/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">
-              Withdrawal Requests
-            </span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/custom_user_modules/wallet/history/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">
-              Invoices history
-            </span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/custom_user_modules/wallet/history/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">
-              Refunds history
-            </span>
-          </Link>
-        </li>
-        <li>
-          <Link
-            href={`/custom_user_modules/orders/records/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">Client orders</span>
-          </Link>
-        </li>
-
-        <li>
-          <Link
-            href={`/custom_user_modules/orders/history/${domainId}`}
-            className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-          >
-            <span className="flex-1 ms-3 whitespace-nowrap">
-              Orders history
-            </span>
-          </Link>
-        </li>
-        <AdminAnalytics />
-        <SupportPolicies />
-        </ul>
-    </>
+    <li>
+      <Link
+        href={`/leader/user`}
+        className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+      >
+        <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
+      </Link>
+      <Link
+        href={`/leader/product/product-table`}
+        className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+      >
+        <span className="flex-1 ms-3 whitespace-nowrap">Team Products</span>
+      </Link>
+      <Link
+        href={`/leader/orders/history`}
+        className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+      >
+        <span className="flex-1 ms-3 whitespace-nowrap">Orders</span>
+      </Link>
+      <Link
+        href={`/leader/withdraw_funds/history`}
+        className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+      >
+        <span className="flex-1 ms-3 whitespace-nowrap">
+          Withdrawal Requests
+        </span>
+      </Link>
+      <Link
+        href={`/leader/wallet/history`}
+        className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+      >
+        <span className="flex-1 ms-3 whitespace-nowrap">Invoices</span>
+      </Link>
+    </li>
   );
-}
+};
+
+// export const CustomSidebar = ({ modulesList, domainId }: { modulesList: Module[]; domainId: string }) => {
+//   return (
+//     <>
+//       <ul className={`space-y-2 font-medium`}>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/wallet-types/table`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">Wallet Types</span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/payment-method/table`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">
+//               Payment Methods
+//             </span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/team/table/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">Teams</span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/user/table/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/wallet/invoices/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">
+//               Client invoices
+//             </span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/withdraw_funds/records/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">
+//               Withdrawal Requests
+//             </span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/wallet/history/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">
+//               Invoices history
+//             </span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/wallet/history/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">
+//               Refunds history
+//             </span>
+//           </Link>
+//         </li>
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/orders/records/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">Client orders</span>
+//           </Link>
+//         </li>
+
+//         <li>
+//           <Link
+//             href={`/custom_user_modules/orders/history/${domainId}`}
+//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
+//           >
+//             <span className="flex-1 ms-3 whitespace-nowrap">
+//               Orders history
+//             </span>
+//           </Link>
+//         </li>
+//         <AdminAnalytics />
+//         <SupportPolicies />
+//       </ul>
+//     </>
+//   );
+// };
+
+
+const moduleRoutes: Record<string, { access: string[]; link: (domainId: string) => string; label: string }[]> = {
+  USER: [
+    { access: ["EDIT", "VIEW"], link: (domainId) => `/custom_user_modules/user/table/${domainId}`, label: "Users" },
+  ],
+  INVOICE: [
+    { access: ["EDIT"], link: (domainId) => `/custom_user_modules/wallet/invoices/${domainId}`, label: "Client Invoices" },
+    { access: ["VIEW"], link: (domainId) => `/custom_user_modules/wallet/history/${domainId}`, label: "Invoices History" },
+  ],
+  ORDER: [
+    { access: ["EDIT"], link: (domainId) => `/custom_user_modules/orders/records/${domainId}`, label: "Client Orders" },
+    { access: ["VIEW"], link: (domainId) => `/custom_user_modules/orders/history/${domainId}`, label: "Orders History" },
+  ],
+  WITHDRAWAL: [
+    { access: ["EDIT"], link: (domainId) => `/custom_user_modules/withdraw_funds/records/${domainId}`, label: "Withdrawal Requests" },
+    { access: ["VIEW"], link: (domainId) => `/custom_user_modules/wallet/history/${domainId}`, label: "Refunds History" },
+  ],
+  TEAM: [
+    { access: ["EDIT", "VIEW"], link: (domainId) => `/custom_user_modules/team/table/${domainId}`, label: "Teams" },
+  ],
+  WALLETTYPES: [
+    { access: ["EDIT", "VIEW"], link: () => `/custom_user_modules/wallet-types/table`, label: "Wallet Types" },
+  ],
+  ANALYTICS: [
+    { access: ["EDIT", "VIEW"], link: () => `/custom_user_modules/analytics`, label: "Analytics" },
+  ],
+};
+
+export const CustomSidebar = ({ modulesList, domainId }: { modulesList: { name: string; accessType: string }[]; domainId: string }) => {
+  const allowedNavItems = modulesList.flatMap(({ name, accessType }) => {
+    return moduleRoutes[name]?.filter((route) => route.access.includes(accessType)) || [];
+  });
+
+  return (
+    <ul className="space-y-2 font-medium">
+      {allowedNavItems.map(({ link, label }) => (
+        <li key={label}>
+          <Link href={link(domainId)} className="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100">
+            <span className="flex-1 ms-3 whitespace-nowrap">{label}</span>
+          </Link>
+        </li>
+      ))}
+      {/* <AdminAnalytics /> */}
+      <SupportPolicies />
+    </ul>
+  );
+};

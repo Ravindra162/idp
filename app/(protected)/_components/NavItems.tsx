@@ -1,21 +1,38 @@
 import React from "react";
 import Link from "next/link";
-import { AdminSidebar, CustomSidebar, LeaderSidebar, SidebarItems, SupportPolicies } from "./NavBarItems";
+import {
+  AdminSidebar,
+  CustomSidebar,
+  LeaderSidebar,
+  SidebarItems,
+  SupportPolicies,
+} from "./NavBarItems";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
 const NavItems = async () => {
   const session = await auth();
   const userDetails = await db.user.findUnique({
-    where : { id : session?.user.id}
+    where: { id: session?.user.id },
   });
-  
-  const teamDetails = await db.team.findFirst({
-    where: {
-      id: userDetails?.teamId ?? "",
-    },
-  });
-  
+
+  let teamDetails;
+  if (userDetails?.teamId != null && userDetails?.teamId != "") {
+    teamDetails = await db.team.findFirst({
+      where: {
+        id: userDetails?.teamId ?? "",
+      },
+    });
+  }
+
+  let customRoleDetails;
+  if(userDetails?.role != null && userDetails?.role === "CUSTOM_ROLE") {
+     customRoleDetails = await db.customRole.findUnique({
+      where : {
+        userId : userDetails?.id
+      }
+    });
+  }
 
   return (
     <ul className="space-y-2 font-medium">
@@ -27,7 +44,7 @@ const NavItems = async () => {
           <span className="flex-1 ms-3 whitespace-nowrap">Dashboard</span>
         </Link>
       </li>
-      {session?.user.role === "ADMIN" || session?.user.role === "LEADER" ? (
+      {session?.user.role === "ADMIN" || session?.user.role === "LEADER" || session?.user.role === "CUSTOM_ROLE" ? (
         <></>
       ) : (
         <>
@@ -92,8 +109,11 @@ const NavItems = async () => {
         </>
       )}
       {session?.user.role === "ADMIN" && <AdminSidebar />}
-      {session?.user.role === "LEADER" && <LeaderSidebar/>}
-      {session?.user.role === "CUSTOM_ROLE" && <CustomSidebar/>}
+      {session?.user.role === "LEADER" && <LeaderSidebar />}
+      {session?.user.role === "CUSTOM_ROLE" && (
+        <CustomSidebar modulesList={JSON.parse(
+          JSON.stringify(customRoleDetails?.modules))} domainId={""} />
+      )}
     </ul>
   );
 };
