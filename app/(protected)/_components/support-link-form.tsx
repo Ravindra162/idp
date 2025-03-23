@@ -25,8 +25,34 @@ import { Input } from "@/components/ui/input";
 import { FormError } from "@/components/shared/form-error";
 import { addLink } from "@/actions/add-link";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const SupportLinkForm = ({ userId }: { userId: string }) => {
+interface Panel {
+  id: string;
+  name: string;
+  description: string | null;
+  products: {
+    productId: string;
+    name: string;
+    Price: number;
+    Max: number;
+    Min: number;
+  }[];
+}
+
+const SupportLinkForm = ({
+  userId,
+  panels,
+}: {
+  userId: string;
+  panels: Panel[];
+}) => {
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
@@ -35,6 +61,7 @@ const SupportLinkForm = ({ userId }: { userId: string }) => {
     defaultValues: {
       link: "",
       userId: userId,
+      domainId: "",
     },
   });
 
@@ -65,6 +92,33 @@ const SupportLinkForm = ({ userId }: { userId: string }) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="domainId"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      disabled={isPending}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Panel" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <FormMessage />
+                      <SelectContent>
+                        {panels.map((panel) => (
+                          <SelectItem key={panel.id} value={panel.id}>
+                            {`${panel.name} - ${panel.description} `}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="link"

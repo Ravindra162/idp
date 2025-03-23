@@ -11,7 +11,7 @@ export const addLink = async (values: z.infer<typeof AddSupportLinkForm>) => {
     return { error: "Invalid fields!" };
   }
 
-  const { userId, link } = validatedFields.data;
+  const { userId, domainId, link } = validatedFields.data;
 
   const user = await getUserById(userId);
 
@@ -28,6 +28,7 @@ export const addLink = async (values: z.infer<typeof AddSupportLinkForm>) => {
       data: {
         link,
         userId,
+        domainId,
       },
     });
   } catch (error) {

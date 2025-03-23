@@ -660,6 +660,7 @@ export const EditProductFormSchema = z.object({
 
 export const NewsSchema = z.object({
   userId: z.string(),
+  domainId: z.string().nonempty("Panel Details are required"),
   title: z
     .string()
     .min(1, { message: "Title is required" })
@@ -673,6 +674,7 @@ export const NewsSchema = z.object({
 export const EditNewsSchema = z.object({
   id: z.string(),
   userId: z.string(),
+  domainId: z.string().nonempty("Panel Details are required"),
   title: z
     .string()
     .min(1, { message: "Title is required" })
@@ -779,6 +781,7 @@ export const ReplyFileSchema = z.object({
 
 export const AddSupportLinkForm = z.object({
   userId: z.string(),
+  domainId: z.string().nonempty("Domain Id is required"),
   link: z.string().includes("https://").min(1, {
     message: "Please enter the support link",
   }),

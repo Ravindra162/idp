@@ -27,7 +27,7 @@ export default async function Home() {
           <span className="ml-1 text-lg font-semibold">Overview</span>
         </p>
         <div className="flex flex-wrap">
-          {session?.user.role !== "ADMIN" && <BalanceCard />}
+          {session?.user.role !== "ADMIN" && session?.user.role !== "LEADER" && session?.user.role !== "CUSTOM_ROLE"  && <BalanceCard />}
           {/* {session?.user.role === "ADMIN" && <BankDetails />} */}
           {/* {session?.user.role === "ADMIN" && (
             <AdminAutomateOrders userId={session.user.id ?? ""} />

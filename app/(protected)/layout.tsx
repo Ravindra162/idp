@@ -17,14 +17,25 @@ interface ProtectedLayoutProps {
 
 const ProtectedLayout = async ({ children }: ProtectedLayoutProps) => {
   const session = await auth();
-  const link = await db.support.findFirst({
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      link: true,
+  const userDetails = await db.user.findFirst({
+    where: {
+      id: session?.user.id ?? "",
     },
   });
+  let link;
+  if (userDetails != null && userDetails.domainId != null) {
+    link = await db.support.findFirst({
+      where: {
+        domainId: userDetails?.domainId ?? "",
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        link: true,
+      },
+    });
+  }
   return (
     <SessionProvider session={session}>
       <div className="h-full md:overflow-hidden">
@@ -37,7 +48,11 @@ const ProtectedLayout = async ({ children }: ProtectedLayoutProps) => {
         </div>
         <div className="bg-white/55 h-14 w-14 rounded-full flex items-center justify-center cursor-pointer absolute right-0 md:right-3 md:bottom-3 z-50 ">
           <Link
-            href={link?.link ?? "https://leads.growonsmedia.com/"}
+            href={
+              link != null && link.link != null
+                ? link?.link ?? "https://leads.growonsmedia.com/"
+                : "https://leads.growonsmedia.com/"
+            }
             target="_blank"
             className="flex items-center justify-center flex-col"
           >

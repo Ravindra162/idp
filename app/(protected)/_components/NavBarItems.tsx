@@ -480,111 +480,6 @@ export const LeaderSidebar = () => {
   );
 };
 
-// export const CustomSidebar = ({ modulesList, domainId }: { modulesList: Module[]; domainId: string }) => {
-//   return (
-//     <>
-//       <ul className={`space-y-2 font-medium`}>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/wallet-types/table`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">Wallet Types</span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/payment-method/table`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">
-//               Payment Methods
-//             </span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/team/table/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">Teams</span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/user/table/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">Users</span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/wallet/invoices/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">
-//               Client invoices
-//             </span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/withdraw_funds/records/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">
-//               Withdrawal Requests
-//             </span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/wallet/history/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">
-//               Invoices history
-//             </span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/wallet/history/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">
-//               Refunds history
-//             </span>
-//           </Link>
-//         </li>
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/orders/records/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">Client orders</span>
-//           </Link>
-//         </li>
-
-//         <li>
-//           <Link
-//             href={`/custom_user_modules/orders/history/${domainId}`}
-//             className="flex items-center p-2 text-gray-900 rounded-lg  hover:bg-gray-100 "
-//           >
-//             <span className="flex-1 ms-3 whitespace-nowrap">
-//               Orders history
-//             </span>
-//           </Link>
-//         </li>
-//         <AdminAnalytics />
-//         <SupportPolicies />
-//       </ul>
-//     </>
-//   );
-// };
-
-
 const moduleRoutes: Record<string, { access: string[]; link: (domainId: string) => string; label: string }[]> = {
   USER: [
     { access: ["EDIT", "VIEW"], link: (domainId) => `/custom_user_modules/user/table/${domainId}`, label: "Users" },
@@ -626,7 +521,6 @@ export const CustomSidebar = ({ modulesList, domainId }: { modulesList: { name: 
           </Link>
         </li>
       ))}
-      {/* <AdminAnalytics /> */}
       <SupportPolicies />
     </ul>
   );

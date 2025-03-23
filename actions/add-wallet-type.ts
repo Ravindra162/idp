@@ -149,22 +149,18 @@ export const addDomain = async (domainId: string, walletTypeId: string) => {
     console.log("Adding domain ID:", domainId);
 
     const result = await db.$transaction(async (prisma) => {
-      // Fetch the current walletType
       const walletType = await prisma.walletType.findUnique({
         where: { id: walletTypeId },
-        select: { domainIds: true },
       });
 
       if (!walletType) {
         throw new Error("Wallet type not found!");
       }
 
-      // Check if the domainId already exists
       if (walletType.domainIds.includes(domainId)) {
         throw new Error("Domain ID already exists!");
       }
 
-      // Add the new domainId
       const updatedWalletType = await prisma.walletType.update({
         where: { id: walletTypeId },
         data: {
@@ -174,40 +170,99 @@ export const addDomain = async (domainId: string, walletTypeId: string) => {
         },
       });
 
+      const domainUsers = await prisma.user.findMany({
+        where: {
+          domainId: domainId,
+        },
+      });
+
+      await Promise.all(
+        domainUsers.map(async (user) => {
+          const createdWallet = await prisma.wallet.create({
+            data: {
+              userId: user.id,
+              currencyCode: walletType.currencyCode,
+              walletTypeId: walletType.id,
+              walletName: walletType.name,
+              balance: 0,
+            },
+          });
+
+          await prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              wallets: {
+                connect: { id: createdWallet.id },
+              },
+            },
+          });
+        })
+      );
+
       console.log("Updated WalletType:", updatedWalletType);
       return updatedWalletType;
     });
 
     revalidatePath("/admin/wallet-types/table");
-    return { success: "Domain ID added successfully!", data: result };
+    return { success: "Panel added successfully!", data: result };
   } catch (error: any) {
     console.error(error);
-    return { error: error.message || "Failed to add domain ID!" };
+    return { error: error.message || "Failed to add panel!" };
   }
 };
 
 export const removeDomain = async (domainId: string, walletTypeId: string) => {
   try {
-    const result = await db.walletType.update({
-      where: { id: walletTypeId },
-      data: {
-        domainIds: {
-          set:
-            (
-              await db.walletType.findUnique({
-                where: { id: walletTypeId },
-                select: { domainIds: true },
-              })
-            )?.domainIds.filter((id) => id !== domainId) || [],
+    const result = await db.$transaction(async (prisma) => {
+      const updatedWalletType = await prisma.walletType.update({
+        where: { id: walletTypeId },
+        data: {
+          domainIds: {
+            set:
+              (
+                await db.walletType.findUnique({
+                  where: { id: walletTypeId },
+                  select: { domainIds: true },
+                })
+              )?.domainIds.filter((id) => id !== domainId) || [],
+          },
         },
-      },
+      });
+      const domainUsers = await prisma.user.findMany({
+        where: {
+          domainId: domainId,
+        },
+      });
+
+      await Promise.all(
+        domainUsers.map(async (user) => {
+          const existingWallets = await prisma.wallet.findMany({
+            where : {
+              walletTypeId : walletTypeId,
+              userId : user.id
+            }
+          });
+          await Promise.all(
+            await existingWallets.map(async (wallet) => {
+              await prisma.wallet.deleteMany({
+                where : {
+                  walletTypeId : walletTypeId,
+                  userId : user.id
+                 }
+              });
+            })
+          );
+        })
+      );
     });
 
     revalidatePath("/admin/wallet-types/table");
-    return { success: "Domain removed successfully!", data: result };
+    return { success: "Panel removed successfully!", data: result };
   } catch (error) {
     console.error(error);
-    return { error: "Failed to remove domain!" };
+    return { error: "Failed to remove panel!" };
   }
 };
 

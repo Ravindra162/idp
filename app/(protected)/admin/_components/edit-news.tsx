@@ -27,11 +27,26 @@ import { FormError } from "@/components/shared/form-error";
 import { Separator } from "@/components/ui/separator";
 import { editNews } from "@/actions/news";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+interface Panel {
+  id: string;
+  name: string;
+  description: string | null;
+  products: {
+    productId: string;
+    name: string;
+    Price: number;
+    Max: number;
+    Min: number;
+  }[];
+}
 
 type News = {
   id: string;
   title: string;
   content: string;
+  domainId: string;
   createdAt: Date;
   updatedAt: Date;
   userId: string;
@@ -39,9 +54,10 @@ type News = {
 
 type NewsEditFormProps = {
   n: News;
+  panels: Panel[];
 };
 
-const EditNews: React.FC<NewsEditFormProps> = ({ n }) => {
+const EditNews: React.FC<NewsEditFormProps> = ({ n, panels }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
 
@@ -51,6 +67,7 @@ const EditNews: React.FC<NewsEditFormProps> = ({ n }) => {
       id: n?.id,
       title: n?.title,
       content: n?.content,
+      domainId: n?.domainId,
       userId: n?.userId,
     },
   });
@@ -83,6 +100,33 @@ const EditNews: React.FC<NewsEditFormProps> = ({ n }) => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-4 ">
+                          <FormField
+                            control={form.control}
+                            name="domainId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  disabled={isPending}
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select Panel" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <FormMessage />
+                                  <SelectContent>
+                                    {panels.map((panel) => (
+                                      <SelectItem key={panel.id} value={panel.id}>
+                                        {`${panel.name} - ${panel.description} `}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            )}
+                          />
               <FormField
                 control={form.control}
                 name="title"

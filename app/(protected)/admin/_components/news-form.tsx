@@ -18,8 +18,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormError } from "@/components/shared/form-error";
 import { toast } from "sonner";
 import { addNews } from "@/actions/news";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const NewsForm = ({ userId }: { userId: string }) => {
+interface Panel {
+  id: string;
+  name: string;
+  description: string | null;
+  products: {
+    productId: string;
+    name: string;
+    Price: number;
+    Max: number;
+    Min: number;
+  }[];
+}
+
+const NewsForm = ({ userId, panels }: { userId: string, panels: Panel[] }) => {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | undefined>("");
 
@@ -28,6 +42,7 @@ const NewsForm = ({ userId }: { userId: string }) => {
     defaultValues: {
       userId: userId,
       title: "",
+      domainId: "",
       content: "",
     },
   });
@@ -54,6 +69,33 @@ const NewsForm = ({ userId }: { userId: string }) => {
           className="space-y-6 w-full md:w-[50%]"
         >
           <div className="space-y-4 ">
+            <FormField
+              control={form.control}
+              name="domainId"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    onValueChange={field.onChange}
+                    disabled={isPending}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Panel" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <FormMessage />
+                    <SelectContent>
+                      {panels.map((panel) => (
+                        <SelectItem key={panel.id} value={panel.id}>
+                          {`${panel.name} - ${panel.description} `}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="title"

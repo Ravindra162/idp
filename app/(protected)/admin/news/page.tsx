@@ -34,8 +34,28 @@ const page = async ({ searchParams }: { searchParams: { page: string } }) => {
     orderBy: {
       createdAt: "desc",
     },
+    include: {
+      domain: true,
+    },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
+  });
+
+  const panels = await db.domain.findMany({
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      products: {
+        select: {
+          productId: true,
+          name: true,
+          Price: true,
+          Max: true,
+          Min: true,
+        },
+      },
+    },
   });
 
   return (
@@ -45,7 +65,7 @@ const page = async ({ searchParams }: { searchParams: { page: string } }) => {
       </nav>
       <section>
         <div className="m-1">
-          <NewsForm userId={session?.user.id || ""} />
+          <NewsForm userId={session?.user.id || ""} panels={panels} />
         </div>
         <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
           {news.map((n) => {
@@ -57,8 +77,9 @@ const page = async ({ searchParams }: { searchParams: { page: string } }) => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm">{n.content}</CardContent>
+                <CardContent className="text-sm">{n.domain.name} </CardContent>
                 <CardFooter className="flex justify-between">
-                  <EditNews n={{ ...n, userId: n.userId || "" }} />
+                  <EditNews n={{ ...n, userId: n.userId || "" }} panels={panels} />
                   <RemoveNews id={n.id} />
                 </CardFooter>
               </Card>

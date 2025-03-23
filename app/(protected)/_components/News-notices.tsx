@@ -3,9 +3,19 @@ import { getNewsById } from "@/lib/news";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { auth } from "@/auth";
 
 const NewsNotices = async () => {
+  const session = await auth();
+  const userDetails = await db.user.findUnique({
+    where : {
+      id : session?.user?.id ?? ""
+    }
+  })
   const news = await db.news.findMany({
+    where: {
+      domainId : userDetails?.domainId ?? ""
+    },
     orderBy: {
       createdAt: "desc",
     },

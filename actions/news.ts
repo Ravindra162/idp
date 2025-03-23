@@ -10,7 +10,7 @@ export const addNews = async (values: z.infer<typeof NewsSchema>) => {
     return { error: "Invalid fields!" };
   }
 
-  const { userId, title, content } = validatedFields.data;
+  const { userId, domainId, title, content } = validatedFields.data;
 
   const user = await getUserById(userId);
 
@@ -23,6 +23,7 @@ export const addNews = async (values: z.infer<typeof NewsSchema>) => {
       data: {
         userId,
         title,
+        domainId,
         content,
       },
     });
@@ -52,7 +53,7 @@ export const editNews = async (values: z.infer<typeof EditNewsSchema>) => {
     return { error: "Invalid fields!" };
   }
 
-  const { id, title, content, userId } = validatedFields.data;
+  const { id, domainId, title, content, userId } = validatedFields.data;
 
     const user = await getUserById(userId);
 
@@ -65,6 +66,7 @@ export const editNews = async (values: z.infer<typeof EditNewsSchema>) => {
       where: { id },
       data: {
         title,
+        domainId,
         content,
       },
     });

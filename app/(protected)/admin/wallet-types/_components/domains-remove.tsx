@@ -29,7 +29,7 @@ const DomainsRemove = ({
 }) => {
   const [isPending, startTransition] = React.useTransition();
 
-  const handleDelete = () => {
+  const handleDelete = ({domainId, walletTypeId} : {domainId : string; walletTypeId : string;}) => {
     removeDomain(domainId, walletTypeId).then((data) => {
       if (data?.success) {
         toast.success(data.success);
@@ -53,7 +53,7 @@ const DomainsRemove = ({
           </DialogHeader>
           <DialogFooter>
             <DialogClose>
-              <Button onClick={() => handleDelete}>
+              <Button onClick={() => handleDelete({domainId, walletTypeId})}>
                 Confirm
               </Button>
             </DialogClose>
