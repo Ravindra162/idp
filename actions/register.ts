@@ -23,9 +23,11 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+  console.log(referralCode)
+
   let teamDetails : any;
   if(referralCode !== undefined && referralCode !== ""){
-     teamDetails = db.team.findUnique({
+     teamDetails = await db.team.findUnique({
       where : {
         teamId: referralCode
       },
@@ -50,6 +52,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         let domain = null;
         let walletTypes = null;
         let teamId = teamDetails !== undefined && teamDetails.id ? teamDetails?.id : "";
+        console.log(teamDetails)
 
          domain = await tx.domain.findUnique({
           where : {
@@ -73,7 +76,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
           const walletTypes = await tx.walletType.findMany({
             where: {
               domainIds: {
-                has: domainId, 
+                has: currentDomainId, 
               },
             },
           });
