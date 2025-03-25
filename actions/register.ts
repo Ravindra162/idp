@@ -17,9 +17,23 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Invalid fields!" };
   }
 
-  const { email, password, name, number, domainId } = validatedFields.data;
+  console.log(validatedFields.data);
+
+  const { email, password, name, number, domainId, referralCode } = validatedFields.data;
 
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  let teamDetails : any;
+  if(referralCode !== undefined && referralCode !== ""){
+     teamDetails = db.team.findUnique({
+      where : {
+        teamId: referralCode
+      },
+      select : {
+        id: true
+      }
+    });
+  }
 
   const existingUser = await getUserByEmail(email);
 
@@ -35,6 +49,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
       async (tx) => {
         let domain = null;
         let walletTypes = null;
+        let teamId = teamDetails !== undefined && teamDetails.id ? teamDetails?.id : "";
 
          domain = await tx.domain.findUnique({
           where : {
@@ -50,6 +65,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
             name,
             number,
             domainId : currentDomainId,
+            teamId : teamId
           },
         });
 
