@@ -52,7 +52,7 @@ const page = async ({ params }: { params: { href: string } }) => {
 
         let pendingInvoiceCount = 0;
         if(params.href === "wallet") {
-          await db.money.count({
+         pendingInvoiceCount = await db.money.count({
             where: {
               status: "PENDING",
               domainId: domain.id,
@@ -60,7 +60,7 @@ const page = async ({ params }: { params: { href: string } }) => {
           });
         }
         else if(params.href === "order") {
-          await db.order.count({
+         pendingInvoiceCount = await db.order.count({
             where: {
               status: "PENDING",
               domainId: domain.id,
@@ -68,14 +68,13 @@ const page = async ({ params }: { params: { href: string } }) => {
           });
         }
         else if(params.href === "withdraw") {
-          await db.withdrawalRequest.count({
+         pendingInvoiceCount = await db.withdrawalRequest.count({
             where: {
               status: "PENDING",
               domainId: domain.id,
             }
           });
         }
-
         return {
           ...domain,
           href: `${basehref}/${domain.id}`,

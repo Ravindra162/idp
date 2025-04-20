@@ -80,7 +80,7 @@ model User {
   id                String              @id @default(uuid()) @map("_id")
   email             String              @unique
   name              String
-  number            String
+  number            String              @unique
   password          String
   role              UserRole            @default(USER)
   createdAt         DateTime            @default(now()) @map("created_at")
