@@ -1,16 +1,8 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { getDomains } from "@/actions/admin-domains";
 import TopBar from "../../../../_components/Topbar";
 import PanelListingTable from "../../_components/panel-listing-component";
+import { db } from "@/lib/db";
 
 export const generateMetadata = () => {
   return {
@@ -55,10 +47,42 @@ const page = async ({ params }: { params: { href: string } }) => {
   else if(params.href === "product-analytics"){
     basehref = "/admin/analytics/product";
   }
-  const domains = domainsResponse?.data?.map((domain: any) => ({
-    ...domain,
-    href: `${basehref}/${domain.id}`,
-  })) || [];
+  const domains = await Promise.all(
+      (domainsResponse?.data || []).map(async (domain: any) => {
+
+        let pendingInvoiceCount = 0;
+        if(params.href === "wallet") {
+          await db.money.count({
+            where: {
+              status: "PENDING",
+              domainId: domain.id,
+            },
+          });
+        }
+        else if(params.href === "order") {
+          await db.order.count({
+            where: {
+              status: "PENDING",
+              domainId: domain.id,
+            }
+          });
+        }
+        else if(params.href === "withdraw") {
+          await db.withdrawalRequest.count({
+            where: {
+              status: "PENDING",
+              domainId: domain.id,
+            }
+          });
+        }
+
+        return {
+          ...domain,
+          href: `${basehref}/${domain.id}`,
+          notifications:pendingInvoiceCount,
+        };
+      })
+  );
   const half = Math.ceil(domains.length / 2);
   const firstHalf = domains.slice(0, half);
   const secondHalf = domains.slice(half);
