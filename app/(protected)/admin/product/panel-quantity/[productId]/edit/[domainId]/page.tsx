@@ -12,10 +12,10 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params } : { params : { domainId : string; productid : string;}}) => {
+const page = async ({ params } : { params : { domainId : string; productId : string;}}) => {
   const session = await auth();
     const product = await db.productInfo.findFirst({
-      where: { productId: params.productid, domainId : params.domainId  },
+      where: { productId: params.productId, domainId : params.domainId  },
       select: {
         name: true,
         Max: true,
@@ -31,7 +31,7 @@ const page = async ({ params } : { params : { domainId : string; productid : str
       </nav>
       <section>
         <div className="m-4">
-          <EditPanelQuantityForm domainId={params.domainId} productId={params.productid} name={product?.name ?? ""}
+          <EditPanelQuantityForm domainId={params.domainId} productId={params.productId} name={product?.name ?? ""}
             minProduct={product?.Min ?? 0}
             maxProduct={product?.Max ?? 0}
             price={product?.Price ?? 0} />

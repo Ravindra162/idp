@@ -13,11 +13,11 @@ export const generateMetadata = () => {
   };
 };
 
-const page = async ({ params }: { params: { productid: string } }) => {
+const page = async ({ params }: { params: { productId: string } }) => {
   const session = await auth();
-  console.log(params.productid)
+  console.log(params.productId)
   const product = await db.product.findUnique({
-    where: { id: params.productid },
+    where: { id: params.productId },
     select: {
       productName: true,
       includedDomainIds: true,
@@ -54,7 +54,7 @@ const page = async ({ params }: { params: { productid: string } }) => {
       <section>
         <div className="m-4">
           <AddPanelQuantityForm
-            productId={params.productid}
+            productId={params.productId}
             panels={panels}
             productName={product?.productName ?? ""}
           />
