@@ -103,21 +103,8 @@ export async function filterProductsByTeam(
   mergedProducts: any[],
   teamId: string
 ) {
-  // Fetch team-specific inclusions/exclusions
-  const team = await db.team.findUnique({
-    where: { id: teamId },
-    select: {
-      includedInIds: true,
-      excludedFromIds: true,
-    },
-  });
-
-  if (!team) {
-    throw new Error("Invalid team ID");
-  }
 
   // Filter products based on team visibility rules
-
   console.log;
   const teamFilteredProducts = mergedProducts.filter((product) => {
     if (product.visibleToAllTeams) {
