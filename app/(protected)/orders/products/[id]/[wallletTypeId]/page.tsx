@@ -23,6 +23,15 @@ const page = async ({ params }: { params: { id: string; wallletTypeId : string }
     }
   })
 
+  const currencyCode : { currencyCode: string } | null = await db.walletType.findFirst({
+    where: {
+      id: params.wallletTypeId,
+    },
+    select: {
+      currencyCode: true,
+    },
+  });
+
   const proFilteredProducts = 
   (await getFinalFilteredProducts(user?.domainId ?? "", params.id, user?.teamId ?? "", params.wallletTypeId)) ?? [];
 
@@ -52,10 +61,10 @@ const page = async ({ params }: { params: { id: string; wallletTypeId : string }
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 md:gap-4 h-full w-full">
           <div>
-            <ProductOrderTable products={firstHalf} />
+            <ProductOrderTable products={firstHalf} currencyCode={currencyCode} />
           </div>
           <div>
-            <ProductOrderTable products={secondHalf} />
+            <ProductOrderTable products={secondHalf} currencyCode={currencyCode}/>
           </div>
         </div>
       </section>
