@@ -34,8 +34,10 @@ const ClientRecords = async ({
 
   const pageSize = 10;
 
-  const totalItemCount = await db.order.count();
-
+  const totalItemCount = await db.order.count({
+    where: { userId: params.id },
+  });
+  
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
   const Orders = await db.order.findMany({

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/table";
 import React from "react";
 
-const ProductOrderTable = async ({ products }: { products: any[] }) => {
+const ProductOrderTable = async ({ products, currencyCode }: { products: any[],  currencyCode : { currencyCode : string } | null }) => {
   return (
     <>
       {products?.map((product, index) => {
@@ -43,7 +43,7 @@ const ProductOrderTable = async ({ products }: { products: any[] }) => {
                     </TableCell>
                     <TableCell>{product.minProduct}</TableCell>
                     <TableCell>{product.maxProduct}</TableCell>
-                    <TableCell>{formatPrice(product.price, "")}</TableCell>
+                    <TableCell>{formatPrice(product.price, currencyCode !== null ? currencyCode?.currencyCode ?? "" : "")}</TableCell>
                   </TableRow>
                 </TableBody>
               </Table>

@@ -34,6 +34,7 @@ type OrderProps = {
   id: string;
   walletId : string;
   products: any;
+  currencyCode: string;
   role: "PRO" | "BLOCKED" | "USER" | "ADMIN" | "LEADER" | "CUSTOM_ROLE" | undefined;
   children: React.ReactNode;
 };
@@ -42,7 +43,7 @@ type OrderProps = {
 
 
 
-const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
+const OrderForm = ({ id, walletId, currencyCode, products, children }: OrderProps) => {
   const [wallets, setWallets] = useState<any[]>([]);
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = React.useTransition();
@@ -241,7 +242,7 @@ const OrderForm = ({ id, walletId, products, children }: OrderProps) => {
       <div className="flex-1 ml-2">
         <span>Total amount:</span>
         <p className="font-bold text-2xl">
-          {formatPrice(calculateTotalAmount(),"")}
+          {formatPrice(calculateTotalAmount(), currencyCode)}
         </p>
         <div className="mt-2 md:overflow-auto md:max-h-[80vh] w-full p-2">
           {children}

@@ -25,6 +25,19 @@ const page = async ({ params }: { params: { id: string, walletid : string } }) =
       walletTypeId : params.walletid
     }
    });
+
+
+   let currencyCode: { currencyCode: string } | null = null;
+   if(wallet !== null) {
+       currencyCode = await db.walletType.findFirst({
+           where: {
+               id: wallet.walletTypeId
+           },
+           select : {
+               currencyCode: true
+           }
+       });
+   }
  
    const mergedProducts = 
    (await getFinalFilteredProducts(user?.domainId ?? "", params.id, user?.teamId ?? "", params.walletid)) ?? [];
@@ -38,10 +51,11 @@ const page = async ({ params }: { params: { id: string, walletid : string } }) =
           <OrderForm
             id={params.id.toString()}
             products={mergedProducts}
+            currencyCode={currencyCode !== null ? currencyCode?.currencyCode ?? "" : ""}
             role={user?.role}
             walletId={wallet?.id ?? ""}
           >
-            <ProductOrderTable products={mergedProducts} />
+            <ProductOrderTable products={mergedProducts} currencyCode={currencyCode} />
           </OrderForm>
         </div>
       </section>
