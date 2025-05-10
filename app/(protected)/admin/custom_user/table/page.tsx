@@ -21,11 +21,12 @@ import ModuleRemove from "../_components/module-remove";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
+import {User} from "@prisma/client";
 
 export const generateMetadata = () => {
   return {
-    title: "Admin Orders History | GrowonsMedia",
-    description: "Admin Orders",
+    title: "Custom Users | GrowonsMedia",
+    description: "Custom Users",
   };
 };
 
@@ -41,14 +42,29 @@ const CustomUserTable = async ({ searchParams }: CustomUserProps) => {
 
   const totalPages = Math.ceil(totalItemCount / pageSize);
 
-  const customUsers = await db.customRole.findMany({
-    include: {
-      user: true,
-    },
+  const customRoles = await db.customRole.findMany({
     orderBy: { createdAt: "desc" },
     skip: (currentPage - 1) * pageSize,
     take: pageSize,
   });
+
+  const customUsersWithUser = await Promise.all(
+      customRoles.map(async (role) => {
+        const user = await db.user.findUnique({
+          where: { id: role.userId },
+        });
+
+        return {
+          ...role,
+          user,
+        };
+      })
+  );
+
+  const customUsers = customUsersWithUser.filter(
+      (item): item is typeof item & { user: User } => item.user !== null
+  );
+
   return (
     <section className="my-2">
       <nav className="hidden md:block">
@@ -96,9 +112,9 @@ const CustomUserTable = async ({ searchParams }: CustomUserProps) => {
               return (
                 <TableRow key={index}>
                   <TableCell className="font-medium">
-                    {customUser.user.name}
+                  {customUser.user?.name ?? "N/A"}
                   </TableCell>
-                  <TableCell>{customUser.user.email}</TableCell>
+                  <TableCell>{customUser.user?.email ?? "N/A"}</TableCell>
                   <TableCell>
                     <ViewModules
                       modules={JSON.parse(JSON.stringify(customUser.modules))}
