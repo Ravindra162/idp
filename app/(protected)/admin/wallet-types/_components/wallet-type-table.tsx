@@ -63,6 +63,7 @@ const WalletTypesTable = async ({ searchParams }: WalletTypesTableProps) => {
       const paymentTypes: Paymenttype[] = walletPayments.map(
         (walletPayment) => ({
           name: walletPayment.paymentModel.name ?? "",
+          bankName: walletPayment.paymentModel.bankName ?? "",
           id: walletPayment.paymentTypeId,
           paymentType: walletPayment.paymentType.toString(),
         })

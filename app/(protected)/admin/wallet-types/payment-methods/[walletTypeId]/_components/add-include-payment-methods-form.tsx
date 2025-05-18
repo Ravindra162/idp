@@ -93,7 +93,7 @@ const AddIncludePaymentMethodsForm = ({
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Team" />
+                        <SelectValue placeholder="Select Payment Type" />
                       </SelectTrigger>
                     </FormControl>
                     <FormMessage />
@@ -139,7 +139,7 @@ const AddIncludePaymentMethodsForm = ({
                           key={paymentMethodDetail.id}
                           value={paymentMethodDetail.name || ""}
                         >
-                          {paymentMethodDetail.name}
+                          {paymentMethodDetail.name} - {paymentMethodDetail.bankName}
                         </SelectItem>
                       ))}
                     </SelectContent>

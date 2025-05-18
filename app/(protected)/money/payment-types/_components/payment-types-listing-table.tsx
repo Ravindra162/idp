@@ -21,7 +21,7 @@ const PaymentTypesListingTable = ({ paymentMethods, id, walletId }: { paymentMet
           key={method.paymentModel.id}
           className="p-2 mt-4 border-2 border-gray-300 rounded-lg"
         >
-          <div className="text-lg capitalize font-semibold">{method.paymentType === PaymentType.PAYMENT_GATEWAY ? `Payment Gateway` : method.paymentModel.name}</div>
+          <div className="text-lg capitalize font-semibold">{method.paymentType === PaymentType.PAYMENT_GATEWAY ? `Payment Gateway` : `${method.paymentModel.name} - ${method.paymentModel.bankName}`}</div>
           <div>
             <Table>
               <TableHeader>

@@ -54,7 +54,7 @@ export async function PaymentTypeTable({
               <TableHead>IFSC Code</TableHead>
               <TableHead>Account Type</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Bank Name</TableHead>
+              <TableHead>Bank/Payment Name</TableHead>
               <TableHead>Payment Type</TableHead>
               <TableHead>QR Code</TableHead>
               <TableHead>Actions</TableHead>

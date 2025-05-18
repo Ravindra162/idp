@@ -24,6 +24,7 @@ import PaymentMethodsRemove from "./included-payment-method-remove";
 
 export interface Paymenttype {
   name: string;
+  bankName: string;
   id: string;
   paymentType: string;
 }
@@ -72,7 +73,7 @@ const WalletPaymentTypesDialog = ({
                 {paymentTypes.map((paymentType) => (
                   <TableRow key={paymentType.id}>
                     <TableCell>{paymentType.paymentType}</TableCell>
-                    <TableCell>{paymentType.name}</TableCell>
+                    <TableCell>{`${paymentType.name} - ${paymentType.bankName}`}</TableCell>
                     <TableCell>
                       <PaymentMethodsRemove walletTypeId={walletTypeId} paymentMethodId={paymentType.id} />
                     </TableCell>
