@@ -34,12 +34,6 @@ const page = async ({ params }: { params: { productid: string } }) => {
       id: true,
       teamId: true,
       domainId: true,
-      domain: {
-        select: {
-          id: true,
-          name: true,
-        },
-      },
       name: true,
       products: {
         select: {

@@ -37,10 +37,6 @@ interface Team {
   teamId: string;
   domainId: string;
   name: string;
-  domain: {
-    id: string;
-    name: string;
-  };
   products: {
     productId: string;
     name: string;
@@ -118,7 +114,7 @@ const ExcludeAddTeamForm = ({
                     <SelectContent>
                       {teams.map((team) => (
                         <SelectItem key={team.teamId} value={team.teamId}>
-                          {`${team.name} - ${team.domain.name} `}
+                          {`${team.name} - ${team.teamId} `}
                         </SelectItem>
                       ))}
                     </SelectContent>
