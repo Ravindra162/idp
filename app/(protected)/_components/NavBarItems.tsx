@@ -500,7 +500,7 @@ const moduleRoutes: Record<string, { access: string[]; link: (domainId: string) 
     { access: ["EDIT", "VIEW"], link: (domainId) => `/custom_user_modules/team/table/${domainId}`, label: "Teams" },
   ],
   ANALYTICS: [
-    { access: ["EDIT", "VIEW"], link: () => `/custom_user_modules/analytics`, label: "Analytics" },
+    { access: ["EDIT", "VIEW"], link: (domainId) => `/custom_user_modules/analytics/user/${domainId}`, label: "Analytics" },
   ],
 };
 
