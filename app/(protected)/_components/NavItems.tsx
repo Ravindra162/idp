@@ -112,7 +112,7 @@ const NavItems = async () => {
       {session?.user.role === "LEADER" && <LeaderSidebar />}
       {session?.user.role === "CUSTOM_ROLE" && (
         <CustomSidebar modulesList={JSON.parse(
-          JSON.stringify(customRoleDetails?.modules))} domainId={""} />
+          JSON.stringify(customRoleDetails?.modules))} domainId={userDetails?.domainId ?? ""} />
       )}
     </ul>
   );

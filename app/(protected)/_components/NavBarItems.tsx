@@ -499,9 +499,6 @@ const moduleRoutes: Record<string, { access: string[]; link: (domainId: string) 
   TEAM: [
     { access: ["EDIT", "VIEW"], link: (domainId) => `/custom_user_modules/team/table/${domainId}`, label: "Teams" },
   ],
-  WALLETTYPES: [
-    { access: ["EDIT", "VIEW"], link: () => `/custom_user_modules/wallet-types/table`, label: "Wallet Types" },
-  ],
   ANALYTICS: [
     { access: ["EDIT", "VIEW"], link: () => `/custom_user_modules/analytics`, label: "Analytics" },
   ],

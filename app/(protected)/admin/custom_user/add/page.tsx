@@ -52,9 +52,6 @@ const page = async () => {
       name: ModuleName.TEAM,
     },
     {
-      name: ModuleName.WALLETTYPES,
-    },
-    {
       name: ModuleName.WITHDRAWAL,
     },
   ];

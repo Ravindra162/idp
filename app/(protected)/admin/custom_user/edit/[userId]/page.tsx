@@ -52,9 +52,6 @@ const page = async ({ params }: { params: { userId: string } }) => {
       name: ModuleName.TEAM,
     },
     {
-      name: ModuleName.WALLETTYPES,
-    },
-    {
       name: ModuleName.WITHDRAWAL,
     },
   ];
