@@ -489,8 +489,7 @@ const moduleRoutes: Record<string, { access: string[]; link: (domainId: string) 
     { access: ["VIEW"], link: (domainId) => `/custom_user_modules/wallet/history/${domainId}`, label: "Invoices History" },
   ],
   ORDER: [
-    { access: ["EDIT"], link: (domainId) => `/custom_user_modules/orders/records/${domainId}`, label: "Client Orders" },
-    { access: ["VIEW"], link: (domainId) => `/custom_user_modules/orders/history/${domainId}`, label: "Orders History" },
+    { access: ["VIEW", "EDIT"], link: (domainId) => `/custom_user_modules/orders/history/${domainId}`, label: "Orders History" },
   ],
   WITHDRAWAL: [
     { access: ["EDIT"], link: (domainId) => `/custom_user_modules/withdraw_funds/records/${domainId}`, label: "Withdrawal Requests" },
